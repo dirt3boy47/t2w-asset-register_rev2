@@ -1,7 +1,7 @@
 # T2W Asset Register — Supabase front end
 
-The register now reads its data from your Supabase table instead of `data.json`,
-and can write edits straight back.
+The register reads its data from your Supabase table instead of `data.json`, and
+writes edits straight back — no workbook required.
 
 ## Before anything else — rotate your secret key
 
@@ -26,14 +26,14 @@ that is the one wired into `supabase-config.js`.
 ## Setup
 
 **1. Run the SQL.** Supabase dashboard → SQL Editor → New query → paste all of
-`supabase-setup.sql` → Run. This is what fixes the warning you saw:
+`supabase-setup.sql` → Run. This is what fixes the warning on your table:
 
 > This table can be accessed via the Data API but no RLS policies exist so no
 > data will be returned
 
-RLS is on with no policies, so the default is deny. The API returns an empty
-list rather than an error, which is why a page can look like it loaded fine and
-still show nothing.
+RLS is on with no policies, so the default is deny. The API answers with an
+empty list rather than an error, which is why a page can look like it loaded
+fine and still show nothing.
 
 **2. Check the table name.** `supabase-config.js` is set to `Asset Register`.
 If your table is named differently, change it there — spaces and capitals are
@@ -47,7 +47,7 @@ this needs. Locally:
 npx serve .
 ```
 
-Then open the address it prints. On GitHub Pages, Netlify, Cloudflare Pages or
+Then open the address it prints. On GitHub Pages, Cloudflare Pages, Netlify or
 any static host it just works.
 
 ## How it fits the existing page
@@ -66,9 +66,15 @@ Nothing was rewritten — only added. `supabase-data.js` replaces the page's
 - **Numbers** are coerced for the columns the page treats as numeric — if those
   columns are stored as `text` in Supabase, the chainage range filter would
   otherwise compare strings and silently return wrong results.
-- **Saving** adds a *Save to Supabase* button next to the Excel one and PATCHes
-  each changed record, matched on `record_key`. The pending-changes queue,
-  Review dialog and Discard all work as they did.
+- **Editing** no longer needs a workbook. The page gates editing on `canEdit()`,
+  which normally asks whether workbook bytes are loaded. That is replaced before
+  the first render, so the row checkboxes and the drawer's input fields are
+  present from the start instead of appearing only once a file is opened.
+- **Saving** adds a *Save to Supabase* button next to the Excel one. Changed
+  records are PATCHed one per request, matched on `record_key`; assets created
+  through *+ Add asset* are POSTed as new rows. The pending queue, Review dialog
+  and Discard all behave as before. The queue is only cleared once every request
+  has succeeded, so a partial failure leaves your changes intact to retry.
 
 The Excel path is untouched. Open a workbook and *Save to Excel* reappears and
 behaves exactly as before.
@@ -78,7 +84,7 @@ lists were built from other sheets in the workbook, not from the asset table, so
 there is nothing in Supabase to fill them yet. Everything else — search, filters,
 the chainage strip, the detail drawer, bulk edit — runs off the asset rows and
 works as normal. If you want those tabs back, put the two sheets in their own
-Supabase tables and I can extend the loader to pull them.
+Supabase tables and the loader can be extended to pull them.
 
 ## Two things worth deciding
 
@@ -89,8 +95,12 @@ tool on a private URL and wrong for anything public. The bottom of the SQL file
 has the authenticated-only version to switch to once it works.
 
 **Edits are last-write-wins.** Two people editing the same record will overwrite
-each other with no warning. If more than one person will be editing, that's
+each other with no warning. If more than one person will be editing, that is
 worth handling before rollout.
+
+Also worth settling early: your Cloudflare build regenerates `data.json` from the
+workbook on every push, and `edit.html` no longer reads it. Any other page still
+on `data.json` is now a second source of truth that will drift from Supabase.
 
 ## If it loads nothing
 
@@ -99,5 +109,8 @@ worth handling before rollout.
 - **HTTP 404** — table name mismatch in `supabase-config.js`.
 - **HTTP 401** — wrong or rotated key.
 - **A CORS or `file://` error** — you opened the page from disk. See step 3.
+- **Loads but stays read-only** — check the console for the
+  `Loaded N records … editing enabled` line. If it says *disabled by config*,
+  set `allowWrites: true` in `supabase-config.js`.
 
 The browser console carries the full error in every case.
