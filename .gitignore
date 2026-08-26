@@ -1,9 +1,8 @@
-node_modules/
+# Supabase local dev
+.supabase/
+supabase/.temp/
 
-# generated at build time from the workbook - committing it would let the
-# published data drift from the spreadsheet it came from
-public/data.json
-
-# Excel lock files
-~$*.xlsx
-.~lock.*
+# Env files — never commit real credentials
+.env
+.env.local
+.env.*.local
