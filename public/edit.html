@@ -587,10 +587,12 @@ tbody tr.picked:hover{background:#d7e8f4}
     <div class="panel">
       <h2>Rates</h2>
       <div class="pad">
-        <p class="note" style="margin-bottom:15px">Type a rate and every figure above moves. Rates and progress live
-          in this page for the session only &mdash; nothing is written to the register. Use <b>Save progress</b> to
-          keep them in a file and <b>Load progress</b> to bring them back, then enter the agreed rates on the
-          workbook's <b>Rate Library</b> sheet and the metres on <b>Cost Tracker - Linear</b>.</p>
+        <p class="note" style="margin-bottom:15px">Type a rate and every figure above moves.
+          <b>Write progress into the workbook</b> puts all of it back where it belongs: metres onto
+          <b>Cost Tracker - Linear</b>, rates onto <b>Rate Library</b>, and a Yes in <b>Complete</b> on the Master
+          Register for every point asset ticked. Only cells that actually changed are touched, and every one is
+          recorded in the Edit Log. <b>Save progress</b> writes a JSON file instead &mdash; useful for passing a
+          position around, or on this read-only page where there is no workbook to write to.</p>
         <div id="cstRates"></div>
         <div class="actions">
           <button class="btn" id="cstSave">Save progress</button>
@@ -599,6 +601,10 @@ tbody tr.picked:hover{background:#d7e8f4}
           <button class="btn sec" id="cstXlsx">Cost report (Excel)</button>
           <button class="btn sec" id="cstReset">Clear progress</button>
           <input type="file" id="cstFile" accept=".json,application/json" style="display:none">
+        </div>
+        <div class="actions" style="border-top:0;padding-top:0;margin-top:9px">
+          <button class="btn" id="cstWrite">Write progress into the workbook</button>
+          <span class="note" id="cstWriteState" style="margin:0"></span>
         </div>
       </div>
     </div>
@@ -3111,7 +3117,7 @@ var TINT = ['#dce4ef','#cfdaea','#c2d0e4','#e3d9c8','#d3dfd6','#c6d6cb','#baccc0
 /* per-item state - the independent variables */
 var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{}, tRate:{}, pRate:{}, paRate:{} };
 
-var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PAMARK={};
+var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PAMARK={}, RIDX={};
 var built=false, poll=null, TSFILT='all', PAFILT='range', PATYPE='';
 
 function q(s){ return document.querySelector(s); }
@@ -3165,6 +3171,9 @@ function harvest(){
     }
   });
   if(!T.length) return false;
+
+  RIDX={};
+  rows.forEach(function(r,i){ var k=r[iKey]; if(k!=null) RIDX[String(k)]=i; });
 
   T.sort(function(a,b){ return a.sec===b.sec ? a.s-b.s : (a.sec<b.sec?-1:1); });
   PA.sort(function(a,b){ return a.sec===b.sec ? a.ch-b.ch : (a.sec<b.sec?-1:1); });
@@ -3738,6 +3747,7 @@ function wire(){
 
     XLSX.writeFile(wb,'T2W cost to chainage '+new Date().toISOString().slice(0,10)+'.xlsx');
   });
+  q('#cstWrite').addEventListener('click',writeToWorkbook);
   q('#cstReset').addEventListener('click',function(){
     ST.tDone={}; ST.pDone={}; ST.paDone={}; ST.tRate={}; ST.pRate={};
     PA_TYPES.forEach(function(p){
@@ -3748,6 +3758,350 @@ function wire(){
     refreshRateInputs(); render();
     if(window.toast) toast('Progress and rates cleared');
   });
+}
+
+
+/* ---------- write back into the workbook ----------
+   Only available on the editing page, and only once a workbook is open: the
+   read-only page holds data.json, which is a copy, not the source. Everything
+   here goes through the editor's own applyEdits() so the Edit Log, the
+   in-place file handle and the recalc flag all behave exactly as they do for
+   an attribute edit. */
+var SHEET_TRACKER='Cost Tracker - Linear', SHEET_RATES='Rate Library', SHEET_MR='Master Register';
+var WBIDX=null, WBIDXFOR=null;
+
+function canWrite(){
+  return typeof window.canEdit==='function' && window.canEdit() &&
+         typeof window.applyEdits==='function' && typeof XLSX!=='undefined';
+}
+/* Normalise to an A1 origin. sheet_to_json indexes from the sheet's OWN range,
+   and these sheets start at B2, so without this every column comes back one to
+   the left and every write lands in the wrong cell. */
+function sheetGrid(wb,name){
+  if(wb.SheetNames.indexOf(name)<0) return null;
+  var ws=wb.Sheets[name];
+  if(!ws||!ws['!ref']) return null;
+  var rng=XLSX.utils.decode_range(ws['!ref']);
+  rng.s.r=0; rng.s.c=0;
+  return XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null,range:rng});
+}
+/* index the workbook's own sheets - never assume a row or column number */
+function buildIndex(){
+  if(WBIDX && WBIDXFOR===window.WB.bytes) return WBIDX;
+  var wb=XLSX.read(window.WB.bytes,{type:'array'});
+  var idx={tracker:null,rates:null};
+
+  var g=sheetGrid(wb,SHEET_TRACKER);
+  if(g){
+    var hr=-1;
+    for(var r=0;r<g.length&&hr<0;r++)
+      for(var c=0;c<(g[r]||[]).length;c++)
+        if(String(g[r][c]||'').trim()==='Record Key'){ hr=r; break; }
+    if(hr>=0){
+      var col={}, keyc=-1;
+      (g[hr]||[]).forEach(function(h,c){
+        h=String(h==null?'':h).trim(); if(h){ col[h]=c; if(h==='Record Key') keyc=c; }
+      });
+      var row={}, val={};
+      for(var r2=hr+1;r2<g.length;r2++){
+        var k=(g[r2]||[])[keyc];
+        if(k==null||String(k).trim()==='') continue;
+        k=String(k).trim();
+        if(k==='TOTAL') break;
+        row[k]=r2+1; val[k]=g[r2];
+      }
+      idx.tracker={col:col,row:row,val:val,hdrRow:hr+1};
+    }
+  }
+
+  var gr=sheetGrid(wb,SHEET_RATES);
+  if(gr){
+    /* walk the sheet, remembering the most recent header row, so the three rate
+       tables are found by what they say rather than by where they sit */
+    var lay=null, tr={}, pi={}, pa={};
+    gr.forEach(function(rowArr,r){
+      rowArr=rowArr||[];
+      var txt=rowArr.map(function(v){ return String(v==null?'':v).trim(); });
+      if(txt.indexOf('Rate')>=0 && txt.indexOf('Effective From')>=0){
+        lay={rate:txt.indexOf('Rate'),
+             sec:txt.indexOf('Pipeline Section'),
+             tt:txt.indexOf('Trench Type'),
+             pt:txt.indexOf('Pipe Type'),
+             at:txt.indexOf('Asset Type'),
+             eff:txt.indexOf('Effective From')};
+        return;
+      }
+      if(!lay || lay.rate<0) return;
+      var rec={row:r+1, rateCol:lay.rate, effCol:lay.eff, cur:rowArr[lay.rate]};
+      if(lay.sec>=0 && lay.tt>=0 && txt[lay.sec] && txt[lay.tt])
+        tr[txt[lay.sec]+'|'+txt[lay.tt]]=rec;
+      else if(lay.sec>=0 && lay.pt>=0 && txt[lay.sec] && txt[lay.pt])
+        pi[txt[lay.sec]+'|'+txt[lay.pt]]=rec;
+      else if(lay.at>=0 && txt[lay.at])
+        pa[txt[lay.at]]=rec;
+    });
+    idx.rates={trench:tr,pipe:pi,point:pa};
+  }
+
+  WBIDX=idx; WBIDXFOR=window.WB.bytes;
+  return idx;
+}
+function ref(col0,row){ return window.numToCol(col0+1)+row; }
+function same(a,b){
+  if(a==null||a==='') return b==null||b==='';
+  if(typeof a==='number'&&typeof b==='number') return Math.abs(a-b)<1e-9;
+  return String(a)===String(b);
+}
+function todaySerial(){
+  var d=new Date();
+  return window.isoToSerial(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
+                            String(d.getDate()).padStart(2,'0'));
+}
+
+function collectWrites(){
+  var idx=buildIndex();
+  var out={tracker:[],rates:[],mr:[],missing:[],noTracker:!idx.tracker,noRates:!idx.rates};
+  var serial=todaySerial(), who=(window.EDITOR_NAME||'').trim();
+
+  if(idx.tracker){
+    var col=idx.tracker.col;
+    var cT=col['Trench Complete (m)'], cP=col['Pipe Laid (m)'], cPT=col['Pipe Type'],
+        cD=col['As At Date'], cU=col['Updated By'];
+    T.forEach(function(t){
+      var row=idx.tracker.row[t.key];
+      if(!row){ out.missing.push(t.key); return; }
+      var cur=idx.tracker.val[t.key]||[];
+      var d=tDone(t), p=pDone(t), touched=false;
+      if(cT!=null && !same(cur[cT], d||null)){
+        out.tracker.push({ref:ref(cT,row), value:d||null, kind:'n', key:t.key,
+          field:'Trench Complete (m)', before:cur[cT], after:d||null}); touched=true;
+      }
+      if(cP!=null && !same(cur[cP], p||null)){
+        out.tracker.push({ref:ref(cP,row), value:p||null, kind:'n', key:t.key,
+          field:'Pipe Laid (m)', before:cur[cP], after:p||null}); touched=true;
+      }
+      if(cPT!=null && p>0 && !same(cur[cPT], ST.pipeType[t.sec])){
+        out.tracker.push({ref:ref(cPT,row), value:ST.pipeType[t.sec], kind:'s', key:t.key,
+          field:'Pipe Type', before:cur[cPT], after:ST.pipeType[t.sec]}); touched=true;
+      }
+      if(touched){
+        if(cD!=null && !same(cur[cD],serial))
+          out.tracker.push({ref:ref(cD,row), value:serial, kind:'n', key:t.key,
+            field:'As At Date', before:cur[cD], after:serial});
+        if(cU!=null && who && !same(cur[cU],who))
+          out.tracker.push({ref:ref(cU,row), value:who, kind:'s', key:t.key,
+            field:'Updated By', before:cur[cU], after:who});
+      }
+    });
+  }
+
+  if(idx.rates){
+    var push=function(rec,val,label){
+      if(!rec||val==null) return;
+      if(same(rec.cur,val)) return;
+      out.rates.push({ref:ref(rec.rateCol,rec.row), value:val, kind:'n', key:label,
+        field:'Rate', before:rec.cur, after:val});
+      if(rec.effCol>=0)
+        out.rates.push({ref:ref(rec.effCol,rec.row), value:todaySerial(), kind:'n', key:label,
+          field:'Effective From', before:null, after:todaySerial()});
+    };
+    Object.keys(ST.tRate).forEach(function(k){
+      push(idx.rates.trench[k], ST.tRate[k], 'Trench '+k); });
+    Object.keys(ST.pRate).forEach(function(k){
+      push(idx.rates.pipe[k], ST.pRate[k], 'Pipe '+k); });
+    Object.keys(ST.paRate).forEach(function(k){
+      push(idx.rates.point[k], ST.paRate[k], k); });
+  }
+
+  /* point assets: the register's own Complete column, which is validated Yes/No.
+     WB.hdr holds the workbook's real header text, so go through HDR_OF the way
+     the editor's own save does rather than guessing at the label. */
+  var hdr=window.WB.hdr||[], HO=window.HDR_OF||{};
+  var hComplete=HO['complete'], hDate=HO['completion_date'];
+  var hasComplete=!!hComplete && hdr.indexOf(hComplete)>=0;
+  var hasDate=!!hDate && hdr.indexOf(hDate)>=0;
+  if(hasComplete){
+    var C=window.D.C;
+    PA.forEach(function(p){
+      var ri=window.D.keyIndex ? window.D.keyIndex[p.key] : null;
+      var cur=(ri!=null&&window.D.rows[ri]) ? window.D.rows[ri][C.complete] : null;
+      var want=ST.paDone[p.key] ? 'Yes' : null;
+      if(want===null && (cur==null||cur==='')) return;   /* nothing to say */
+      if(same(cur,want)) return;
+      if(want===null) return;    /* never clear someone else's Yes from this page */
+      try{
+        out.mr.push({ref:window.cellRef(hComplete,p.key), value:'Yes', kind:'s', key:p.key,
+          field:hComplete, before:cur, after:'Yes'});
+        if(hasDate){
+          var curD=(ri!=null&&window.D.rows[ri]) ? window.D.rows[ri][C.completion_date] : null;
+          if(curD==null||curD==='')
+            out.mr.push({ref:window.cellRef(hDate,p.key), value:serial, kind:'n',
+              key:p.key, field:hDate, before:null, after:serial});
+        }
+      }catch(e){ out.missing.push(p.key); }
+    });
+  }
+  return out;
+}
+
+function writeToWorkbook(){
+  if(!canWrite()){
+    if(window.toast) toast('Open the workbook on the editing page first');
+    return;
+  }
+  /* ask for the name FIRST: it is written into Updated By, so collecting the
+     edits before knowing it leaves that column blank */
+  if(!window.EDITOR_NAME){
+    var nm0=(window.prompt('Your name, for the edit log:','')||'').trim();
+    if(!nm0){ if(window.toast) toast('Write cancelled \u2014 a name is needed for the log'); return; }
+    window.EDITOR_NAME=nm0;
+  }
+  var W;
+  try{ W=collectWrites(); }
+  catch(err){ console.error(err);
+    if(window.toast) toast('Could not read the workbook: '+err.message); return; }
+
+  if(W.noTracker){
+    if(window.toast) toast('This workbook has no "'+SHEET_TRACKER+'" sheet \u2014 open the Rev 5 register');
+    return;
+  }
+  var n=W.tracker.length+W.rates.length+W.mr.length;
+  if(!n){ if(window.toast) toast('Nothing to write \u2014 the workbook already matches'); return; }
+
+  var msg='Write into '+window.WB.name+'?\n\n'+
+    W.tracker.length+' cell(s) on '+SHEET_TRACKER+'\n'+
+    W.rates.length+' cell(s) on '+SHEET_RATES+'\n'+
+    W.mr.length+' cell(s) on '+SHEET_MR+' (Complete = Yes)\n\n'+
+    'Every change is recorded in the Edit Log.';
+  if(W.missing.length) msg+='\n\n'+W.missing.length+' record(s) could not be matched and will be skipped.';
+  if(!window.confirm(msg)) return;
+
+  var stamp=new Date().toLocaleString('en-AU',{year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
+  function logOf(list,sheet){
+    return list.map(function(e){
+      var f=function(v){ return v==null||v===''?'':String(v); };
+      return [stamp, window.EDITOR_NAME, e.key, '', e.field, f(e.before), f(e.after), sheet+'!'+e.ref];
+    });
+  }
+  var passes=[];
+  if(W.tracker.length) passes.push({sheet:SHEET_TRACKER, edits:W.tracker});
+  if(W.rates.length)   passes.push({sheet:SHEET_RATES,   edits:W.rates});
+  if(W.mr.length)      passes.push({sheet:SHEET_MR,      edits:W.mr});
+
+  var bytes=window.WB.bytes;
+  try{
+    passes.forEach(function(p){
+      var log=logOf(p.edits,p.sheet);
+      var out=window.applyEdits(bytes,{sheet:p.sheet, logSheet:'Edit Log',
+        logStartRow:window.WB.logNextRow, edits:p.edits.map(function(e){
+          return {ref:e.ref, value:e.value, kind:e.kind}; }), inserts:[], log:log});
+      bytes=out.bytes||out;
+      window.WB.logNextRow+=log.length;
+    });
+  }catch(err){
+    console.error(err);
+    if(window.toast) toast('Could not write the workbook: '+err.message);
+    return;
+  }
+
+  window.WB.bytes=bytes; WBIDX=null; WBIDXFOR=null;
+  /* keep the in-memory register in step with what was just written */
+  if(W.mr.length && window.D && window.D.keyIndex){
+    var C=window.D.C;
+    W.mr.forEach(function(e){
+      var ri=window.D.keyIndex[e.key];
+      if(ri==null) return;
+      if(e.field===(window.HDR_OF||{})['complete']) window.D.rows[ri][C.complete]='Yes';
+      if(e.field===(window.HDR_OF||{})['completion_date']) window.D.rows[ri][C.completion_date]=e.value;
+    });
+    if(typeof window.renderTable==='function') window.renderTable();
+  }
+  function done(where){
+    if(typeof window.refreshEditUI==='function') window.refreshEditUI();
+    setWriteState();
+    if(window.toast) toast(n+' cell'+(n>1?'s':'')+' written \u2014 '+where);
+  }
+  if(window.WB.handle && window.WB.handle.createWritable){
+    window.WB.handle.createWritable().then(function(w){
+      return w.write(bytes).then(function(){ return w.close(); });
+    }).then(function(){ done('saved into '+window.WB.name); })
+      .catch(function(e){ console.error(e);
+        if(typeof window.downloadCopy==='function') window.downloadCopy(bytes);
+        done('downloaded (in-place write refused)'); });
+  }else{
+    if(typeof window.downloadCopy==='function') window.downloadCopy(bytes);
+    done('downloaded to your Downloads folder');
+  }
+}
+
+/* ---------- seed from what is already recorded ----------
+   The workbook is the record, not this page. Opening one loads its metres,
+   rates and Complete flags in, so the page starts from the saved position
+   instead of a blank slate that would try to wipe it on the next write. */
+var SEEDED=null;
+function seedPointAssets(){
+  var C=window.D&&window.D.C;
+  if(!C||C.complete==null) return 0;
+  var n=0;
+  PA.forEach(function(p){
+    var ri=RIDX[p.key];
+    if(ri==null) return;
+    var v=window.D.rows[ri][C.complete];
+    if(String(v==null?'':v).trim().toLowerCase()==='yes'){ ST.paDone[p.key]=true; n++; }
+  });
+  return n;
+}
+function seedFromWorkbook(){
+  if(!canWrite()) return false;
+  if(SEEDED===window.WB.bytes) return false;
+  SEEDED=window.WB.bytes;
+  var idx;
+  try{ idx=buildIndex(); }catch(e){ console.error(e); return false; }
+  var n=0;
+  if(idx.tracker){
+    var col=idx.tracker.col,
+        cT=col['Trench Complete (m)'], cP=col['Pipe Laid (m)'], cPT=col['Pipe Type'];
+    T.forEach(function(t){
+      var v=idx.tracker.val[t.key]; if(!v) return;
+      if(cT!=null && typeof v[cT]==='number'){ ST.tDone[t.key]=v[cT]; n++; }
+      if(cP!=null && typeof v[cP]==='number'){ ST.pDone[t.key]=v[cP]; n++; }
+      if(cPT!=null && v[cPT]) ST.pipeType[t.sec]=String(v[cPT]).trim();
+    });
+  }
+  if(idx.rates){
+    var take=function(map,bag){
+      Object.keys(map).forEach(function(k){
+        if(typeof map[k].cur==='number'){ bag[k]=map[k].cur; n++; }
+      });
+    };
+    take(idx.rates.trench,ST.tRate);
+    take(idx.rates.pipe,ST.pRate);
+    take(idx.rates.point,ST.paRate);
+    refreshRateInputs();
+  }
+  /* the register itself is rebuilt from the workbook on open, so the Complete
+     flags have to be re-read here too, not just at first build */
+  n+=seedPointAssets();
+  if(n&&window.toast) toast('Loaded the saved position from '+window.WB.name);
+  return n>0;
+}
+
+function setWriteState(){
+  var b=q('#cstWrite'), s=q('#cstWriteState');
+  if(!b) return;
+  if(canWrite()){
+    if(seedFromWorkbook()) render();
+    b.disabled=false;
+    s.innerHTML='Writes to <b>'+window.WB.name+'</b>: metres onto '+SHEET_TRACKER+
+      ', rates onto '+SHEET_RATES+', Complete onto the Master Register.';
+  }else{
+    b.disabled=true;
+    s.innerHTML= (typeof window.canEdit==='function')
+      ? 'Open the workbook with <b>Open workbook</b> above and this writes straight into it.'
+      : 'This page reads a published copy of the register, so it has nothing to write to. '+
+        'Use the editing page to write progress back into the workbook.';
+  }
 }
 
 /* ---------- entry ---------- */
@@ -3766,20 +4120,26 @@ function build(){
       'so no chainage can reach them. They remain in the register.' : '.');
   q('#cstWarn').style.display='none';
   q('#cstBody').style.display='';
+  seedPointAssets();
   built=true;
+  setWriteState();
   if(poll){ clearInterval(poll); poll=null; }
   return true;
 }
 window.COSTS={
   _rows:{}, _paList:[],
   render:function(){
-    if(build()) render();
+    if(build()){ render(); setWriteState(); }
     else { q('#cstWarn').style.display=''; q('#cstBody').style.display='none'; }
   }
 };
 document.addEventListener('DOMContentLoaded',function(){
   poll=setInterval(function(){ build(); },400);
   setTimeout(function(){ if(poll){ clearInterval(poll); poll=null; } },30000);
+  /* a workbook can be opened at any time on the editing page */
+  setInterval(function(){
+    if(built && canWrite() && SEEDED!==window.WB.bytes) setWriteState();
+  },800);
 });
 })();
 </script>
