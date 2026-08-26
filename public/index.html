@@ -280,6 +280,70 @@ tbody tr.picked:hover{background:#d7e8f4}
 #printHead h2{font-size:15pt;margin-bottom:3px}
 #printHead .pf{font-size:9.5pt;color:#333}
 </style>
+<style id="cst-css">
+/* ---------- Costs tab ---------- */
+#tab-costs .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card);margin-bottom:14px}
+#tab-costs .kpi{padding:13px 15px;border-right:1px solid var(--line)}
+#tab-costs .kpi:last-child{border-right:0}
+#tab-costs .kpi.lead{background:var(--navy);color:#fff}
+#tab-costs .kpi .k{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mid)}
+#tab-costs .kpi.lead .k{color:#a9bdd4}
+#tab-costs .kpi .v{font-size:23px;font-variant-numeric:tabular-nums;margin-top:5px;white-space:nowrap}
+#tab-costs .kpi .s{font-size:11.5px;color:var(--mid);margin-top:3px}
+#tab-costs .kpi.lead .s{color:#a9bdd4}
+
+#tab-costs .secblk{padding:13px 14px;border-bottom:1px solid var(--line)}
+#tab-costs .secblk:last-child{border-bottom:0}
+#tab-costs .sechd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-bottom:9px}
+#tab-costs .sechd b{font-size:15px}
+#tab-costs .sechd .ext{font-size:11.5px;color:var(--mid);font-variant-numeric:tabular-nums}
+#tab-costs .sechd .earn{margin-left:auto;font-size:15px;font-variant-numeric:tabular-nums;font-weight:600}
+
+#tab-costs .track{position:relative;height:62px;cursor:ew-resize;touch-action:none;
+  user-select:none;-webkit-user-select:none}
+#tab-costs .track:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+#tab-costs .bed{position:absolute;left:0;right:0;top:8px;height:30px;background:#eef1f5;
+  border:1px solid var(--line);border-radius:3px;overflow:hidden}
+#tab-costs .seg{position:absolute;top:0;bottom:0}
+#tab-costs .fill{position:absolute;top:8px;height:30px;left:0;background:var(--accent);opacity:.5;
+  border-right:2px solid var(--navy);pointer-events:none}
+#tab-costs .pfill{position:absolute;top:8px;height:7px;left:0;background:var(--r2);pointer-events:none}
+#tab-costs .mk{position:absolute;top:2px;height:42px;width:2px;background:var(--navy);pointer-events:none}
+#tab-costs .mk::before{content:"";position:absolute;top:-5px;left:-5px;width:12px;height:12px;
+  background:var(--warn);border:2px solid var(--navy);border-radius:2px;transform:rotate(45deg)}
+#tab-costs .ticks{position:absolute;left:0;right:0;top:40px;height:20px;pointer-events:none}
+#tab-costs .tick{position:absolute;font-size:10px;color:var(--mid);transform:translateX(-50%);
+  font-variant-numeric:tabular-nums}
+#tab-costs .tick i{position:absolute;left:50%;top:-4px;width:1px;height:4px;background:var(--line);
+  display:block}
+#tab-costs .fld{display:flex;flex-wrap:wrap;gap:11px 16px;align-items:flex-end;margin-top:11px}
+#tab-costs .fld .f{min-width:132px}
+#tab-costs .fld input,#tab-costs .fld select{width:100%;padding:8px 9px;border:1px solid #c3ccd7;
+  border-radius:6px;background:#fff;font-variant-numeric:tabular-nums}
+#tab-costs .key{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:10px;font-size:11px;color:var(--mid)}
+#tab-costs .key span{display:flex;align-items:center;gap:5px}
+#tab-costs .key i{width:10px;height:10px;display:block;border:1px solid rgba(0,0,0,.12);border-radius:2px}
+
+#tab-costs .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:8px 18px}
+#tab-costs .rate{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--line)}
+#tab-costs .rate span{flex:1;font-size:12.5px;line-height:1.35}
+#tab-costs .rate span em{display:block;font-style:normal;font-size:10.5px;color:var(--mid);
+  font-variant-numeric:tabular-nums}
+#tab-costs .rate input{width:92px;padding:6px 8px;border:1px solid #c3ccd7;border-radius:6px;
+  text-align:right;font-variant-numeric:tabular-nums}
+#tab-costs .rate input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+#tab-costs .sub{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--navy);margin:18px 0 9px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+#tab-costs .sub:first-child{margin-top:0}
+#tab-costs .unrated{color:var(--danger);font-size:11px;font-weight:600}
+#tab-costs tr.nil td{color:#9aa9bc}
+#tab-costs tfoot td{font-weight:700;background:#eef2f7;border-top:2px solid var(--navy)}
+#tab-costs .note{font-size:11.5px;color:var(--mid);line-height:1.6;max-width:96ch}
+#tab-costs .note b{color:var(--ink)}
+@media (max-width:860px){ #tab-costs .kpis{grid-template-columns:repeat(2,1fr)}
+  #tab-costs .kpi{border-bottom:1px solid var(--line)} }
+</style>
 </head>
 <body>
 
@@ -294,6 +358,7 @@ tbody tr.picked:hover{background:#d7e8f4}
 
 <nav class="tabs">
   <button data-tab="search" class="on">Search</button>
+  <button data-tab="costs">Costs</button>
   <button data-tab="drawings">Drawings</button>
   <button data-tab="quality">Data quality</button>
   <button data-tab="about">About</button>
@@ -425,6 +490,80 @@ tbody tr.picked:hover{background:#d7e8f4}
     <div class="empty" id="noRes" style="display:none"><b>Nothing matches</b>Widen the chainage range, or clear a filter.</div>
   </div>
 
+</section>
+
+<!-- ============ COSTS ============ -->
+<section id="tab-costs" style="display:none">
+
+  <div id="cstWarn" class="empty" style="display:none"><b>Waiting for register data</b>
+    The cost view reads the same records as Search. Load the register first.</div>
+
+  <div id="cstBody" style="display:none">
+
+    <div class="kpis">
+      <div class="kpi lead"><div class="k">Earned to date</div>
+        <div class="v" id="cstEarned">$0</div><div class="s" id="cstEarnedSub">at the face set below</div></div>
+      <div class="kpi"><div class="k">Budget at completion</div>
+        <div class="v" id="cstBudget">$0</div><div class="s">full length, rated items only</div></div>
+      <div class="kpi"><div class="k">Remaining</div>
+        <div class="v" id="cstRemain">$0</div><div class="s" id="cstRemainSub">still to earn</div></div>
+      <div class="kpi"><div class="k">Trench advanced</div>
+        <div class="v" id="cstAdv">0 m</div><div class="s" id="cstAdvSub"></div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Current face</h2>
+      <div id="cstStrips"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Trench by section and type</h2>
+      <div class="tblWrap"><table id="cstTT" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+    </div>
+
+    <div class="panel">
+      <h2>Pipe by asset</h2>
+      <div class="tblWrap"><table id="cstPipe" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+    </div>
+
+    <div class="panel">
+      <h2>Point assets passed</h2>
+      <div class="tblWrap"><table id="cstPA" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+    </div>
+
+    <div class="panel">
+      <h2>Rates</h2>
+      <div class="pad">
+        <p class="note" style="margin:0 0 15px">Type a rate and every figure above moves. Rates live in this page
+          for the session only &mdash; they are never written to the register. Use <b>Save rates</b> to keep them in a
+          file and <b>Load rates</b> to bring them back, then enter the agreed figures on the workbook's
+          <b>Rate Library</b> sheet once they are confirmed.</p>
+        <div id="cstRates"></div>
+        <div class="actions">
+          <button class="btn" id="cstSave">Save rates</button>
+          <button class="btn sec" id="cstLoad">Load rates</button>
+          <button class="btn sec" id="cstCsv">Progress CSV</button>
+          <button class="btn sec" id="cstXlsx">Cost report (Excel)</button>
+          <button class="btn sec" id="cstReset">Clear rates</button>
+          <input type="file" id="cstFile" accept=".json,application/json" style="display:none">
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>How this is worked out</h2>
+      <div class="pad">
+        <p class="note"><b>Chainage drives it.</b> Both sections run unbroken from chainage 0, so one face
+          chainage per section settles every trench section: those behind the face are complete, the one straddling
+          it is complete pro rata, those ahead are zero. Pipe carries its own face because it follows the trench.</p>
+        <p class="note"><b>Earned, not certified.</b> These are quantities at the rates entered above &mdash; a claim
+          position for review, not an approved payment. Point-asset cost is committed cost: with no installation
+          dates in the register, an item is treated as earned once the trench face passes its chainage.</p>
+        <p class="note" id="cstScope"></p>
+      </div>
+    </div>
+
+  </div>
 </section>
 
 <!-- ============ DRAWINGS ============ -->
@@ -1388,8 +1527,9 @@ function rebuild(wb){
 /* ---------- ui plumbing ---------- */
 function switchTab(name){
   $$('nav.tabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===name); });
-  ['search','drawings','quality','about'].forEach(function(t){
+  ['search','costs','drawings','quality','about'].forEach(function(t){
     $('#tab-'+t).style.display = (t===name)?'':'none'; });
+  if(name==='costs' && window.COSTS) window.COSTS.render();
   if(name==='search') setTimeout(function(){ renderStrip(
     $('#chFrom').value===''?null:+$('#chFrom').value,
     $('#chTo').value===''?null:+$('#chTo').value); },0);
@@ -1501,5 +1641,534 @@ document.addEventListener('DOMContentLoaded',init);
 <script></script>
 <script></script>
 <script></script>
+<script>
+/* ============================================================
+   Costs tab - earned value by chainage.
+   Reads the same rows as Search (window.D). Writes nothing back.
+   ============================================================ */
+(function(){
+'use strict';
+
+var PA_TYPES = [
+  {t:'TRENCH STOP',              unit:'each', rate:1112.50},
+  {t:'BULK HEAD',                unit:'each', rate:20507.00},
+  {t:'THRUST BLOCK',             unit:'each', rate:null},
+  {t:'TRENCHED CREEK CROSSING',  unit:'each', rate:null},
+  {t:'MINOR ROAD CROSSING',      unit:'each', rate:null},
+  {t:'MAJOR ROAD CROSSING',      unit:'each', rate:null},
+  {t:'MAJOR RAIL CROSSING',      unit:'each', rate:null},
+  {t:'CARPARK/SIDE LANE',        unit:'each', rate:null},
+  {t:'TREE REMOVAL',             unit:'$/m2', rate:null}
+];
+var PIPES = [
+  {sec:'PHW', type:'DICL', size:'DN600', desc:'DN600 PN35 DICL RRJ'},
+  {sec:'PHW', type:'MSCL', size:'OD660', desc:'OD660x6WT Sintalock Type 2 carrier'},
+  {sec:'PWG', type:'DICL', size:'DN375', desc:'DN375 PN35 DICL RRJ'},
+  {sec:'PWG', type:'MSCL', size:'OD457', desc:'OD457x5WT Sintalock Type 1 carrier'}
+];
+var TINT = ['#dce4ef','#cfdaea','#c2d0e4','#e3d9c8','#d3dfd6','#c6d6cb','#baccc0','#e6dce4',
+            '#dacfdd','#cdc2d6','#eadfcb','#d8e0ea'];
+
+var ST = { face:{}, pipeFace:{}, pipeType:{}, tRate:{}, pRate:{}, paRate:{} };
+var T = [], PA = [], SECS = [], EXT = {}, COMBOS = [], TTS = [], built = false, poll = null;
+
+function q(s){ return document.querySelector(s); }
+function money(v){
+  if(v==null) return '\u2014';
+  return (v<0?'-$':'$')+Math.abs(Math.round(v)).toLocaleString('en-AU');
+}
+function money2(v){
+  return v==null ? '\u2014' : '$'+v.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function m1(v){ return Number(v||0).toLocaleString('en-AU',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function pc(v){ return v==null||!isFinite(v) ? '\u2014' : (v*100).toFixed(1)+'%'; }
+function numOf(inp){ var v=parseFloat(inp.value); return isFinite(v)?v:null; }
+function ce(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls;
+  if(txt!=null)e.textContent=txt; return e; }
+
+/* ---------- pull what we need out of the register ---------- */
+function harvest(){
+  var C = window.D && window.D.C, rows = window.D && window.D.rows;
+  if(!C || !rows || !rows.length) return false;
+  if(C.register==null || C.chainage_start_m==null) return false;
+
+  var iReg=C.register, iSec=C.pipeline_section, iS=C.chainage_start_m, iE=C.chainage_end_m,
+      iTT=C.trench_type, iAT=C.asset_type, iKey=C.record_key, iLen=C.length_m,
+      iArea=C.area_m2, iRate=C.unit_rate, iQty=C.quantity;
+
+  T=[]; PA=[];
+  var paSet={}; PA_TYPES.forEach(function(p){ paSet[p.t]=1; });
+
+  rows.forEach(function(r){
+    var sec=r[iSec], s=r[iS];
+    if(r[iReg]==='Trench Type'){
+      var e=r[iE];
+      if(typeof s==='number' && typeof e==='number' && e>s && (sec==='PHW'||sec==='PWG')){
+        T.push({key:r[iKey], sec:sec, s:s, e:e, len:(iLen!=null&&typeof r[iLen]==='number')?r[iLen]:(e-s),
+                tt:String(r[iTT])});
+      }
+      return;
+    }
+    var at=r[iAT];
+    if(at && paSet[at] && typeof s==='number' && (sec==='PHW'||sec==='PWG')){
+      PA.push({sec:sec, ch:s, type:at,
+               area:(iArea!=null && typeof r[iArea]==='number')?r[iArea]:0,
+               qty:(iQty!=null && typeof r[iQty]==='number')?r[iQty]:1,
+               rate:(iRate!=null && typeof r[iRate]==='number')?r[iRate]:null});
+    }
+  });
+  if(!T.length) return false;
+
+  SECS=[]; EXT={};
+  T.forEach(function(t){
+    if(SECS.indexOf(t.sec)<0){ SECS.push(t.sec); EXT[t.sec]=0; }
+    if(t.e>EXT[t.sec]) EXT[t.sec]=t.e;
+  });
+  SECS.sort();
+
+  /* trench types, in first-seen chainage order, then the section/type combinations that exist */
+  TTS=[];
+  T.slice().sort(function(a,b){ return a.s-b.s; }).forEach(function(t){
+    if(TTS.indexOf(t.tt)<0) TTS.push(t.tt);
+  });
+  COMBOS=[];
+  SECS.forEach(function(sec){
+    TTS.forEach(function(tt){
+      var rs=T.filter(function(t){ return t.sec===sec && t.tt===tt; });
+      if(rs.length) COMBOS.push({sec:sec, tt:tt, n:rs.length,
+        len:rs.reduce(function(a,t){ return a+t.len; },0)});
+    });
+  });
+
+  SECS.forEach(function(s){
+    if(ST.face[s]==null) ST.face[s]=0;
+    if(ST.pipeFace[s]==null) ST.pipeFace[s]=0;
+    if(ST.pipeType[s]==null) ST.pipeType[s]='DICL';
+  });
+  PA_TYPES.forEach(function(p){
+    if(ST.paRate[p.t]===undefined){
+      var found=null;
+      for(var i=0;i<PA.length;i++){ if(PA[i].type===p.t && PA[i].rate!=null){ found=PA[i].rate; break; } }
+      ST.paRate[p.t] = found!=null ? found : p.rate;
+    }
+  });
+  return true;
+}
+
+var done  = function(t){ return Math.min(Math.max(ST.face[t.sec]-t.s,0), t.len); };
+var laid  = function(t){ return Math.min(Math.max(ST.pipeFace[t.sec]-t.s,0), t.len); };
+
+/* ---------- strips ---------- */
+function buildStrips(){
+  var host=q('#cstStrips'); host.innerHTML='';
+  SECS.forEach(function(sec){
+    var ext=EXT[sec];
+    var blk=ce('div','secblk');
+    var hd=ce('div','sechd');
+    hd.appendChild(ce('b',null,sec));
+    hd.appendChild(ce('span','ext','0 \u2013 '+m1(ext)+' m'));
+    var er=ce('span','earn'); er.id='cstSec-'+sec; er.textContent='$0';
+    hd.appendChild(er);
+    blk.appendChild(hd);
+
+    var tr=ce('div','track'); tr.id='cstTrk-'+sec; tr.tabIndex=0;
+    tr.setAttribute('role','slider'); tr.setAttribute('aria-label',sec+' trench face chainage');
+    tr.setAttribute('aria-valuemin','0'); tr.setAttribute('aria-valuemax',String(Math.round(ext)));
+    var bed=ce('div','bed');
+    T.filter(function(t){ return t.sec===sec; }).sort(function(a,b){ return a.s-b.s; })
+     .forEach(function(t){
+       var d=ce('div','seg');
+       d.style.left=(t.s/ext*100)+'%'; d.style.width=(t.len/ext*100)+'%';
+       d.style.background=TINT[TTS.indexOf(t.tt)%TINT.length];
+       d.title=t.key+' \u00b7 type '+t.tt+' \u00b7 '+m1(t.len)+' m';
+       bed.appendChild(d);
+     });
+    tr.appendChild(bed);
+    var fl=ce('div','fill');  fl.id='cstFill-'+sec;  tr.appendChild(fl);
+    var pf=ce('div','pfill'); pf.id='cstPfill-'+sec; tr.appendChild(pf);
+    var mk=ce('div','mk');    mk.id='cstMk-'+sec;    tr.appendChild(mk);
+    var tk=ce('div','ticks');
+    var step = ext>20000 ? 5000 : 2000;
+    for(var x=0; x<=ext; x+=step){
+      var d=ce('div','tick', (x/1000)+'k'); d.style.left=(x/ext*100)+'%';
+      d.appendChild(ce('i')); tk.appendChild(d);
+    }
+    tr.appendChild(tk);
+    blk.appendChild(tr);
+
+    var fld=ce('div','fld');
+    fld.innerHTML =
+      '<div class="f"><label for="cstIn-'+sec+'">Trench face (m)</label>'+
+      '<input type="number" id="cstIn-'+sec+'" min="0" step="1" value="0"></div>'+
+      '<div class="f"><label for="cstPin-'+sec+'">Pipe face (m)</label>'+
+      '<input type="number" id="cstPin-'+sec+'" min="0" step="1" value="0"></div>'+
+      '<div class="f"><label for="cstPt-'+sec+'">Pipe laid in '+sec+'</label>'+
+      '<select id="cstPt-'+sec+'">'+
+        PIPES.filter(function(p){ return p.sec===sec; }).map(function(p){
+          return '<option value="'+p.type+'">'+p.type+' \u2014 '+p.size+'</option>'; }).join('')+
+      '</select></div>';
+    blk.appendChild(fld);
+
+    var key=ce('div','key');
+    key.innerHTML='<span><i style="background:var(--accent);opacity:.5"></i>trench complete</span>'+
+      '<span><i style="background:var(--r2)"></i>pipe laid</span>'+
+      '<span><i style="background:var(--warn)"></i>face</span>'+
+      TTS.filter(function(tt){ return T.some(function(t){ return t.sec===sec&&t.tt===tt; }); })
+         .map(function(tt){ return '<span><i style="background:'+TINT[TTS.indexOf(tt)%TINT.length]+
+              '"></i>type '+tt+'</span>'; }).join('');
+    blk.appendChild(key);
+    host.appendChild(blk);
+
+    /* interaction */
+    function fromX(cx){
+      var r=tr.getBoundingClientRect();
+      var v=Math.min(Math.max((cx-r.left)/r.width,0),1)*ext;
+      setFace(sec, Math.round(v*10)/10);
+    }
+    var drag=false;
+    tr.addEventListener('pointerdown',function(e){ drag=true;
+      if(tr.setPointerCapture) tr.setPointerCapture(e.pointerId); fromX(e.clientX); });
+    tr.addEventListener('pointermove',function(e){ if(drag) fromX(e.clientX); });
+    tr.addEventListener('pointerup',function(){ drag=false; });
+    tr.addEventListener('pointercancel',function(){ drag=false; });
+    tr.addEventListener('keydown',function(e){
+      var step=e.shiftKey?1000:100;
+      if(e.key==='ArrowRight'||e.key==='ArrowUp')        setFace(sec, Math.min(ext, ST.face[sec]+step));
+      else if(e.key==='ArrowLeft'||e.key==='ArrowDown')  setFace(sec, Math.max(0,   ST.face[sec]-step));
+      else if(e.key==='Home')                            setFace(sec, 0);
+      else if(e.key==='End')                             setFace(sec, ext);
+      else return;
+      e.preventDefault();
+    });
+    q('#cstIn-'+sec).max=ext.toFixed(3);
+    q('#cstIn-'+sec).addEventListener('input',function(e){
+      var raw=numOf(e.target);
+      setFace(sec, Math.min(Math.max(raw||0,0),ext), raw===null?e.target:null);
+    });
+    q('#cstPin-'+sec).addEventListener('input',function(e){
+      var raw=numOf(e.target);
+      ST.pipeFace[sec]=Math.min(Math.max(raw||0,0), ST.face[sec]||0);
+      render(raw===null||raw===ST.pipeFace[sec] ? e.target : null);
+    });
+    q('#cstPt-'+sec).addEventListener('change',function(e){ ST.pipeType[sec]=e.target.value; render(); });
+  });
+}
+function setFace(sec,v,skip){
+  ST.face[sec]=v;
+  if(ST.pipeFace[sec]>v) ST.pipeFace[sec]=v;
+  render(skip);
+}
+
+/* ---------- rates panel ---------- */
+function buildRates(){
+  var h='<div class="sub">Trench \u2014 per metre, by section and type</div><div class="rgrid">';
+  COMBOS.forEach(function(c){
+    h+='<div class="rate"><span>'+c.sec+' \u00b7 type '+c.tt+'<em>'+c.n+' section'+(c.n>1?'s':'')+
+       ' \u00b7 '+m1(c.len)+' m</em></span>'+
+       '<input type="number" min="0" step="0.01" placeholder="\u2014" data-kind="t" data-key="'+
+       c.sec+'|'+c.tt+'"></div>';
+  });
+  h+='</div><div class="sub">Pipe \u2014 per metre, four separate assets</div><div class="rgrid">';
+  PIPES.forEach(function(p){
+    h+='<div class="rate"><span>'+p.sec+' \u00b7 '+p.type+'<em>'+p.size+' \u00b7 '+p.desc+'</em></span>'+
+       '<input type="number" min="0" step="0.01" placeholder="\u2014" data-kind="p" data-key="'+
+       p.sec+'|'+p.type+'"></div>';
+  });
+  h+='</div><div class="sub">Point assets \u2014 per item</div><div class="rgrid">';
+  PA_TYPES.forEach(function(p){
+    var n=PA.filter(function(x){ return x.type===p.t; }).length;
+    var v=ST.paRate[p.t];
+    h+='<div class="rate"><span>'+p.t+'<em>'+n+' on a chainage \u00b7 '+p.unit+'</em></span>'+
+       '<input type="number" min="0" step="0.01" placeholder="\u2014" data-kind="a" data-key="'+p.t+'"'+
+       (v!=null?' value="'+v+'"':'')+'></div>';
+  });
+  h+='</div>';
+  var host=q('#cstRates'); host.innerHTML=h;
+  Array.prototype.forEach.call(host.querySelectorAll('input'),function(inp){
+    inp.addEventListener('input',function(){
+      var bag = inp.dataset.kind==='t'?ST.tRate : inp.dataset.kind==='p'?ST.pRate : ST.paRate;
+      bag[inp.dataset.key]=numOf(inp);
+      render();
+    });
+  });
+}
+
+/* ---------- render ---------- */
+function render(skip){
+  var tB=0,tE=0,pB=0,pE=0,aB=0,aE=0,adv=0,totLen=0;
+  var secMoney={}; SECS.forEach(function(s){ secMoney[s]=0; });
+
+  var tRows=COMBOS.map(function(c){
+    var rs=T.filter(function(t){ return t.sec===c.sec && t.tt===c.tt; });
+    var rate=ST.tRate[c.sec+'|'+c.tt];
+    var d=rs.reduce(function(a,t){ return a+done(t); },0);
+    var bud=rate==null?null:c.len*rate, earn=rate==null?null:d*rate;
+    if(bud!=null) tB+=bud;
+    if(earn!=null){ tE+=earn; secMoney[c.sec]+=earn; }
+    return {sec:c.sec, tt:c.tt, n:c.n, len:c.len, rate:rate, done:d, bud:bud, earn:earn};
+  });
+  T.forEach(function(t){ adv+=done(t); totLen+=t.len; });
+
+  var pRows=PIPES.filter(function(p){ return SECS.indexOf(p.sec)>=0; }).map(function(p){
+    var on = ST.pipeType[p.sec]===p.type;
+    var rs = T.filter(function(t){ return t.sec===p.sec; });
+    var asg = on ? rs.reduce(function(a,t){ return a+t.len; },0) : 0;
+    var d   = on ? rs.reduce(function(a,t){ return a+laid(t); },0) : 0;
+    var rate=ST.pRate[p.sec+'|'+p.type];
+    var bud=rate==null?null:asg*rate, earn=rate==null?null:d*rate;
+    if(bud!=null) pB+=bud;
+    if(earn!=null){ pE+=earn; secMoney[p.sec]+=earn; }
+    return {sec:p.sec, type:p.type, size:p.size, rate:rate, asg:asg, done:d, bud:bud, earn:earn};
+  });
+
+  var aRows=PA_TYPES.map(function(p){
+    var all=PA.filter(function(x){ return x.type===p.t; });
+    var rate=ST.paRate[p.t];
+    var qty=function(x){ return p.unit==='$/m2' ? (x.area||0) : (x.qty||1); };
+    var passed=all.filter(function(x){ return x.ch<=ST.face[x.sec]; });
+    var bud=rate==null?null:all.reduce(function(a,x){ return a+rate*qty(x); },0);
+    var earn=rate==null?null:passed.reduce(function(a,x){ return a+rate*qty(x); },0);
+    if(bud!=null) aB+=bud;
+    if(earn!=null){ aE+=earn;
+      passed.forEach(function(x){ secMoney[x.sec]+=rate*qty(x); }); }
+    return {t:p.t, unit:p.unit, rate:rate, n:all.length, passed:passed.length, bud:bud, earn:earn};
+  });
+
+  var earned=tE+pE+aE, budget=tB+pB+aB;
+  q('#cstEarned').textContent=money(earned);
+  q('#cstBudget').textContent=money(budget);
+  q('#cstRemain').textContent=money(budget-earned);
+  q('#cstEarnedSub').textContent = budget>0 ? pc(earned/budget)+' of budget' : 'no rates entered yet';
+  q('#cstRemainSub').textContent = 'trench '+money(tB-tE)+' \u00b7 pipe '+money(pB-pE)+
+                                   ' \u00b7 items '+money(aB-aE);
+  q('#cstAdv').textContent=m1(adv)+' m';
+  q('#cstAdvSub').textContent='of '+m1(totLen)+' m \u00b7 '+pc(totLen?adv/totLen:null);
+
+  SECS.forEach(function(sec){
+    var ext=EXT[sec], f=ST.face[sec], pf=ST.pipeFace[sec];
+    q('#cstFill-'+sec).style.width=(f/ext*100)+'%';
+    q('#cstPfill-'+sec).style.width=(pf/ext*100)+'%';
+    q('#cstMk-'+sec).style.left=(f/ext*100)+'%';
+    q('#cstSec-'+sec).textContent=money(secMoney[sec]);
+    var tr=q('#cstTrk-'+sec);
+    tr.setAttribute('aria-valuenow',String(Math.round(f)));
+    tr.setAttribute('aria-valuetext',m1(f)+' metres');
+    var a=q('#cstIn-'+sec), b=q('#cstPin-'+sec);
+    if(a!==skip) a.value=+f.toFixed(1);
+    if(b!==skip) b.value=+pf.toFixed(1);
+    b.max=f.toFixed(3);
+  });
+
+  /* trench table */
+  head('#cstTT',['Section','Trench type','Rate $/m','Length m','Complete m','%','Budget','Earned','Remaining']);
+  body('#cstTT', tRows.map(function(r){
+    return {nil:r.done===0, cells:[
+      r.sec, 'type '+r.tt,
+      r.rate==null?'<span class="unrated">not rated</span>':money2(r.rate),
+      m1(r.len), m1(r.done), pc(r.len?r.done/r.len:null),
+      money(r.bud), money(r.earn), r.bud==null?'\u2014':money(r.bud-r.earn)]};
+  }), [0,1]);
+  var tLen=tRows.reduce(function(a,r){ return a+r.len; },0),
+      tDone=tRows.reduce(function(a,r){ return a+r.done; },0);
+  foot('#cstTT',['Total', tRows.length+' combinations','',m1(tLen),m1(tDone),
+                 pc(tLen?tDone/tLen:null),money(tB),money(tE),money(tB-tE)],[0,1]);
+
+  /* pipe table */
+  head('#cstPipe',['Section','Pipe','Rate $/m','Assigned m','Laid m','%','Budget','Earned','Remaining']);
+  body('#cstPipe', pRows.map(function(r){
+    return {nil:r.done===0, cells:[
+      r.sec, r.type+' \u00b7 '+r.size,
+      r.rate==null?'<span class="unrated">not rated</span>':money2(r.rate),
+      m1(r.asg), m1(r.done), pc(r.asg?r.done/r.asg:null),
+      money(r.bud), money(r.earn), r.bud==null?'\u2014':money(r.bud-r.earn)]};
+  }), [0,1]);
+  var pAsg=pRows.reduce(function(a,r){ return a+r.asg; },0),
+      pDone=pRows.reduce(function(a,r){ return a+r.done; },0);
+  foot('#cstPipe',['Total','','',m1(pAsg),m1(pDone),pc(pAsg?pDone/pAsg:null),
+                   money(pB),money(pE),money(pB-pE)],[0,1]);
+
+  /* point assets */
+  head('#cstPA',['Asset type','Rate','Unit','Passed','On a chainage','Earned','Budget']);
+  body('#cstPA', aRows.map(function(r){
+    return {nil:r.passed===0, cells:[
+      r.t, r.rate==null?'<span class="unrated">not rated</span>':money2(r.rate), r.unit,
+      String(r.passed), String(r.n), money(r.earn), money(r.bud)]};
+  }), [0,2]);
+  foot('#cstPA',['Total','','',
+    String(aRows.reduce(function(a,r){ return a+r.passed; },0)),
+    String(aRows.reduce(function(a,r){ return a+r.n; },0)),
+    money(aE), money(aB)],[0,1,2]);
+
+  window.COSTS._rows={t:tRows,p:pRows,a:aRows,tB:tB,tE:tE,pB:pB,pE:pE,aB:aB,aE:aE};
+}
+function head(sel,cols){
+  var th=document.querySelector(sel+' thead');
+  if(th.dataset.built) return;
+  var tr=document.createElement('tr');
+  cols.forEach(function(c,i){ var e=document.createElement('th');
+    e.textContent=c; if(i>=2) e.className='num'; tr.appendChild(e); });
+  th.innerHTML=''; th.appendChild(tr); th.dataset.built='1';
+}
+function body(sel,rows,textCols){
+  var tb=document.querySelector(sel+' tbody'); tb.innerHTML='';
+  rows.forEach(function(r){
+    var tr=document.createElement('tr'); if(r.nil) tr.className='nil';
+    r.cells.forEach(function(c,i){
+      var td=document.createElement('td');
+      if(textCols.indexOf(i)<0) td.className='num';
+      td.innerHTML=c; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+}
+function foot(sel,cells,textCols){
+  var tf=document.querySelector(sel+' tfoot'); tf.innerHTML='';
+  var tr=document.createElement('tr');
+  cells.forEach(function(c,i){ var td=document.createElement('td');
+    if(textCols.indexOf(i)<0) td.className='num'; td.textContent=c; tr.appendChild(td); });
+  tf.appendChild(tr);
+}
+
+/* ---------- save / load / export ---------- */
+function dl(blob,name){
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },1500);
+}
+function wire(){
+  q('#cstSave').addEventListener('click',function(){
+    dl(new Blob([JSON.stringify({saved:new Date().toISOString(), face:ST.face, pipeFace:ST.pipeFace,
+      pipeType:ST.pipeType, tRate:ST.tRate, pRate:ST.pRate, paRate:ST.paRate},null,2)],
+      {type:'application/json'}), 't2w-rates.json');
+    if(window.toast) toast('Rates saved to t2w-rates.json');
+  });
+  q('#cstLoad').addEventListener('click',function(){ q('#cstFile').click(); });
+  q('#cstFile').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f) return;
+    var fr=new FileReader();
+    fr.onload=function(){
+      try{
+        var o=JSON.parse(fr.result);
+        ['face','pipeFace','pipeType','tRate','pRate','paRate'].forEach(function(k){
+          if(o[k]) Object.keys(o[k]).forEach(function(kk){ ST[k][kk]=o[k][kk]; });
+        });
+        SECS.forEach(function(s){
+          if(ST.face[s]>EXT[s]) ST.face[s]=EXT[s];
+          if(ST.pipeFace[s]>ST.face[s]) ST.pipeFace[s]=ST.face[s];
+          var sel=q('#cstPt-'+s); if(sel) sel.value=ST.pipeType[s];
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('#cstRates input'),function(inp){
+          var bag = inp.dataset.kind==='t'?ST.tRate : inp.dataset.kind==='p'?ST.pRate : ST.paRate;
+          var v=bag[inp.dataset.key]; inp.value = v==null?'':v;
+        });
+        render();
+        if(window.toast) toast('Rates loaded');
+      }catch(err){
+        if(window.toast) toast('That file could not be read as saved rates');
+      }
+    };
+    fr.readAsText(f); e.target.value='';
+  });
+  q('#cstCsv').addEventListener('click',function(){
+    var rows=[['Record Key','Pipeline Section','Chainage Start (m)','Chainage End (m)','Length (m)',
+               'Trench Type','Trench Complete (m)','Pipe Type','Pipe Laid (m)']];
+    T.slice().sort(function(a,b){ return a.sec===b.sec ? a.s-b.s : (a.sec<b.sec?-1:1); })
+     .forEach(function(t){
+      rows.push([t.key,t.sec,t.s,t.e,t.len.toFixed(3),t.tt,done(t).toFixed(3),
+                 laid(t)>0?ST.pipeType[t.sec]:'',laid(t).toFixed(3)]);
+     });
+    var csv=rows.map(function(r){ return r.map(function(v){
+      v=String(v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(','); }).join('\r\n');
+    dl(new Blob([csv],{type:'text/csv'}),
+       't2w-progress-'+new Date().toISOString().slice(0,10)+'.csv');
+  });
+  q('#cstXlsx').addEventListener('click',function(){
+    if(typeof XLSX==='undefined'){ if(window.toast) toast('Excel writer not available'); return; }
+    var R=window.COSTS._rows||{};
+    var wb=XLSX.utils.book_new();
+    var pos=[['T2W Pipeline \u2014 cost earned by chainage'],
+             ['Generated', new Date().toISOString().slice(0,16).replace('T',' ')],
+             ['Note','Quantities at the rates entered in the register front end. A claim position for review, not an approved payment.'],
+             [],['Face chainage (m)'],['Section','Trench face','Pipe face','Pipe type']];
+    SECS.forEach(function(s){ pos.push([s, ST.face[s], ST.pipeFace[s], ST.pipeType[s]]); });
+    pos.push([],['Position'],['','Budget ($)','Earned ($)','Remaining ($)']);
+    pos.push(['Trench construction', R.tB, R.tE, (R.tB||0)-(R.tE||0)]);
+    pos.push(['Pipe supply and lay', R.pB, R.pE, (R.pB||0)-(R.pE||0)]);
+    pos.push(['Point assets',        R.aB, R.aE, (R.aB||0)-(R.aE||0)]);
+    pos.push(['TOTAL',(R.tB||0)+(R.pB||0)+(R.aB||0),(R.tE||0)+(R.pE||0)+(R.aE||0),
+              ((R.tB||0)+(R.pB||0)+(R.aB||0))-((R.tE||0)+(R.pE||0)+(R.aE||0))]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pos), 'Position');
+
+    var tt=[['Section','Trench type','Rate ($/m)','Length (m)','Complete (m)','Budget ($)','Earned ($)']];
+    (R.t||[]).forEach(function(r){ tt.push([r.sec,r.tt,r.rate,r.len,r.done,r.bud,r.earn]); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(tt), 'Trench');
+
+    var pp=[['Section','Pipe type','Size','Rate ($/m)','Assigned (m)','Laid (m)','Budget ($)','Earned ($)']];
+    (R.p||[]).forEach(function(r){ pp.push([r.sec,r.type,r.size,r.rate,r.asg,r.done,r.bud,r.earn]); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pp), 'Pipe');
+
+    var aa=[['Asset type','Unit','Rate','Passed','On a chainage','Earned ($)','Budget ($)']];
+    (R.a||[]).forEach(function(r){ aa.push([r.t,r.unit,r.rate,r.passed,r.n,r.earn,r.bud]); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aa), 'Point assets');
+
+    var sec=[['Record Key','Pipeline Section','Chainage Start (m)','Chainage End (m)','Length (m)',
+              'Trench Type','Trench Complete (m)','Pipe Type','Pipe Laid (m)']];
+    T.slice().sort(function(a,b){ return a.sec===b.sec ? a.s-b.s : (a.sec<b.sec?-1:1); })
+     .forEach(function(t){ sec.push([t.key,t.sec,t.s,t.e,t.len,t.tt,done(t),
+       laid(t)>0?ST.pipeType[t.sec]:'',laid(t)]); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sec), 'Sections');
+
+    XLSX.writeFile(wb,'T2W cost by chainage '+new Date().toISOString().slice(0,10)+'.xlsx');
+  });
+  q('#cstReset').addEventListener('click',function(){
+    ST.tRate={}; ST.pRate={};
+    PA_TYPES.forEach(function(p){
+      var found=null;
+      for(var i=0;i<PA.length;i++){ if(PA[i].type===p.t && PA[i].rate!=null){ found=PA[i].rate; break; } }
+      ST.paRate[p.t] = found!=null ? found : p.rate;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#cstRates input'),function(inp){
+      var bag = inp.dataset.kind==='t'?ST.tRate : inp.dataset.kind==='p'?ST.pRate : ST.paRate;
+      var v=bag[inp.dataset.key]; inp.value = v==null?'':v;
+    });
+    render();
+    if(window.toast) toast('Rates cleared');
+  });
+}
+
+/* ---------- entry ---------- */
+function build(){
+  if(built) return true;
+  if(!harvest()) return false;
+  buildStrips(); buildRates(); wire();
+  var totalPA = (window.D.rows||[]).filter(function(r){
+    var at=r[window.D.C.asset_type];
+    return at && PA_TYPES.some(function(p){ return p.t===at; });
+  }).length;
+  q('#cstScope').innerHTML='<b>Scope.</b> '+T.length+' trench sections and '+PA.length+
+    ' point assets carry a chainage in '+SECS.join(' or ')+' and appear here'+
+    (totalPA>PA.length ? '. The other '+(totalPA-PA.length)+
+      ' point assets have no position on the pipeline \u2014 facility and off-alignment items \u2014 '+
+      'so no chainage can reach them. They remain in the register.' : '.');
+  q('#cstWarn').style.display='none';
+  q('#cstBody').style.display='';
+  built=true;
+  if(poll){ clearInterval(poll); poll=null; }
+  return true;
+}
+window.COSTS={
+  _rows:{},
+  render:function(){
+    if(build()) render();
+    else { q('#cstWarn').style.display=''; q('#cstBody').style.display='none'; }
+  }
+};
+document.addEventListener('DOMContentLoaded',function(){
+  /* the register data arrives asynchronously - build as soon as it lands */
+  poll=setInterval(function(){ build(); },400);
+  setTimeout(function(){ if(poll){ clearInterval(poll); poll=null; } },30000);
+});
+})();
+</script>
 </body>
 </html>
