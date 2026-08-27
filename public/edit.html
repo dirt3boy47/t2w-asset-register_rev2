@@ -331,8 +331,11 @@ tbody tr.picked:hover{background:#d7e8f4}
 #tab-costs .rate span{flex:1;font-size:12.5px;line-height:1.35}
 #tab-costs .rate span em{display:block;font-style:normal;font-size:10.5px;color:var(--mid);
   font-variant-numeric:tabular-nums}
-#tab-costs .rate input{width:92px;padding:6px 8px;border:1px solid #c3ccd7;border-radius:6px;
+#tab-costs .rate input{width:76px;padding:6px 7px;border:1px solid #c3ccd7;border-radius:6px;
   text-align:right;font-variant-numeric:tabular-nums}
+#tab-costs .rate input.costin{background:#fdf3ea;border-color:#e0c3a8}
+#tab-costs .rate{gap:6px}
+#tab-costs .rgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
 #tab-costs .rate input:focus{outline:2px solid var(--accent);outline-offset:-1px}
 #tab-costs .sub{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
   color:var(--navy);margin:18px 0 9px;padding-bottom:5px;border-bottom:1px solid var(--line)}
@@ -414,6 +417,15 @@ tbody tr.picked:hover{background:#d7e8f4}
 #tab-eod td.del{width:30px;text-align:center;padding:5px 4px}
 #tab-eod td.del button{border:0;background:none;color:var(--danger);cursor:pointer;font-size:16px;
   line-height:1;padding:2px 5px}
+#tab-eod .pabar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:13px}
+#tab-eod .pabar .n{font-size:12px;color:var(--mid)}
+#tab-eod .pabar .n b{color:var(--ink)}
+#tab-eod .pawrap{margin-top:9px;max-height:300px}
+#tab-eod .pawrap.hide{display:none}
+#tab-eod table.eodpa{font-size:12.5px}
+#tab-eod table.eodpa tr.off td{color:var(--mid)}
+#tab-eod table.eodpa tr.off td:first-child{box-shadow:inset 3px 0 0 #c3ccd7}
+#tab-eod table.eodpa tr.on td:first-child{box-shadow:inset 3px 0 0 var(--r2)}
 #eodReport{display:none}
 @media print{
   body.eodprint > *{display:none!important}
@@ -451,6 +463,7 @@ tbody tr.picked:hover{background:#d7e8f4}
   <button data-tab="search" class="on">Search</button>
   <button data-tab="costs">Costs</button>
   <button data-tab="eod">End of day</button>
+  <button data-tab="plr">Plant &amp; labour</button>
   <button data-tab="drawings">Drawings</button>
   <button data-tab="quality">Data quality</button>
   <button data-tab="about">About</button>
@@ -686,7 +699,6 @@ tbody tr.picked:hover{background:#d7e8f4}
           <input type="file" id="cstFile" accept=".json,application/json" style="display:none">
         </div>
         <div class="actions" style="border-top:0;padding-top:0;margin-top:9px">
-          <button class="btn" id="cstWrite">Write progress into the workbook</button>
           <span class="note" id="cstWriteState" style="margin:0"></span>
         </div>
       </div>
@@ -754,6 +766,7 @@ tbody tr.picked:hover{background:#d7e8f4}
       <div class="pad" style="padding-top:10px">
         <button class="btn sec" id="eodPlantAdd">Add a row</button>
         <button class="btn sec" id="eodPlantClear">Clear all rows</button>
+        <button class="btn sec" id="eodPlantRemember">Remember this crew</button>
         <datalist id="eodPlantList"></datalist>
       </div>
     </div>
@@ -807,7 +820,6 @@ tbody tr.picked:hover{background:#d7e8f4}
         </div>
         <div class="actions">
           <button class="btn" id="eodSave">Save the day</button>
-          <button class="btn sec" id="eodWrite">Save and write to the workbook</button>
           <button class="btn sec" id="eodPrint">Print the day</button>
           <button class="btn sec" id="eodCopy">Copy as text</button>
           <button class="btn sec" id="eodClear">Clear the form</button>
@@ -842,6 +854,41 @@ tbody tr.picked:hover{background:#d7e8f4}
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ============ PLANT AND LABOUR ============ -->
+<section id="tab-plr" style="display:none">
+  <div class="panel">
+    <h2>Plant and labour rates</h2>
+    <div class="pad" style="padding-bottom:10px">
+      <p class="note" style="margin:0 0 10px">What an hour of each resource costs us. The end of day cost, and
+        the profit with it, is worked out from these. <b>Charge $/h</b> only applies on dayworks, where hours are
+        billed instead of metres &mdash; leave it blank for anything covered by the schedule of rates, or the work
+        gets counted twice.</p>
+      <p class="note" id="plrNote" style="margin:0"></p>
+    </div>
+    <div class="tblWrap scroll" style="max-height:520px">
+      <table id="plrTable" class="wide"><thead></thead><tbody></tbody></table>
+    </div>
+    <div class="pad" style="padding-top:10px">
+      <span class="count" id="plrCount"></span>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>How this feeds the day</h2>
+    <div class="pad">
+      <p class="note"><b>Cost, not charge.</b> An hour costs money whether it is billed or not, so every resource
+        on the crew needs a cost rate. Hours recorded against a resource with no rate are left out of the day
+        cost, and the End of day page names them rather than quietly costing nothing.</p>
+      <p class="note"><b>Standby counts.</b> The day cost uses worked hours plus standby, because an idle machine
+        on site is still being paid for.</p>
+      <p class="note"><b>Description has to match.</b> The rate is found by Type and Description exactly as typed
+        at end of day. Keeping the standing crew on the Settings sheet is the easiest way to keep the wording the
+        same day to day.</p>
+      <p class="note">Rates edited here are written to the <b>Plant and Labour Rates</b> sheet by
+        <b>Save to Excel</b> in the bar at the top, with everything else waiting.</p>
+    </div>
   </div>
 </section>
 
@@ -2126,10 +2173,11 @@ function rebuild(wb){
 /* ---------- ui plumbing ---------- */
 function switchTab(name){
   $$('nav.tabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===name); });
-  ['search','costs','eod','drawings','quality','about'].forEach(function(t){
+  ['search','costs','eod','plr','drawings','quality','about'].forEach(function(t){
     $('#tab-'+t).style.display = (t===name)?'':'none'; });
   if(name==='costs' && window.COSTS) window.COSTS.render();
   if(name==='eod' && window.COSTS) window.COSTS.renderEOD();
+  if(name==='plr' && window.COSTS) window.COSTS.renderPLR();
   if(name==='search') setTimeout(function(){ renderStrip(
     $('#chFrom').value===''?null:+$('#chFrom').value,
     $('#chTo').value===''?null:+$('#chTo').value); },0);
@@ -3332,7 +3380,10 @@ var TINT = ['#dce4ef','#cfdaea','#c2d0e4','#e3d9c8','#d3dfd6','#c6d6cb','#baccc0
             '#dacfdd','#cdc2d6','#eadfcb','#d8e0ea'];
 
 /* per-item state - the independent variables */
-var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{}, tRate:{}, pRate:{}, paRate:{} };
+var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{},
+           tRate:{}, pRate:{}, paRate:{},          /* charged to the client */
+           tCost:{}, pCost:{}, paCost:{},          /* what it costs us */
+           plant:{} };                             /* $/h by Type|Description */
 
 var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PAMARK={}, RIDX={};
 var PALINES=[], PABY={};
@@ -3517,7 +3568,7 @@ function buildStrips(){
       d.style.left=(Math.min(p.ch,ext)/ext*100)+'%';
       d.title=p.key+' \u00b7 '+p.type+' \u00b7 ch '+m1(p.ch)+' \u2014 click to toggle complete';
       d.addEventListener('click',function(ev){ ev.stopPropagation();
-        ST.paDone[p.key]=!ST.paDone[p.key]; render(); });
+        ST.paDone[p.key]=!ST.paDone[p.key]; markDirty(); render(); });
       PAMARK[p.key]=d; tr.appendChild(d);
     });
 
@@ -3539,7 +3590,12 @@ function buildStrips(){
     blk.appendChild(key);
 
     var bulk=ce('div','bulk');
-    bulk.innerHTML='<span class="lbl">Bulk edit '+sec+'</span>'+
+    bulk.innerHTML='<span class="lbl">Pipe in '+sec+'</span>'+
+      '<select id="cstPt-'+sec+'" style="padding:7px 9px;border:1px solid #c3ccd7;border-radius:6px">'+
+        PIPES.filter(function(p){ return p.sec===sec; }).map(function(p){
+          return '<option value="'+p.type+'">'+p.type+' \u2014 '+p.size+'</option>'; }).join('')+
+      '</select>'+
+      '<span class="lbl">Bulk edit '+sec+'</span>'+
       '<input type="number" id="cstBulk-'+sec+'" min="0" max="'+ext.toFixed(3)+
         '" step="1" placeholder="to chainage">'+
       '<button class="btn sec" id="cstBulkT-'+sec+'">Trench complete to here</button>'+
@@ -3548,6 +3604,13 @@ function buildStrips(){
     blk.appendChild(bulk);
     host.appendChild(blk);
 
+    var pt=q('#cstPt-'+sec);
+    if(pt){
+      pt.value=ST.pipeType[sec]||'DICL';
+      pt.addEventListener('change',function(){
+        ST.pipeType[sec]=pt.value; markDirty(); render();
+      });
+    }
     q('#cstBulkT-'+sec).addEventListener('click',function(){ bulkTrench(sec,'tDone'); });
     q('#cstBulkP-'+sec).addEventListener('click',function(){ bulkTrench(sec,'pDone'); });
     q('#cstBulkA-'+sec).addEventListener('click',function(){
@@ -3574,16 +3637,23 @@ function bulkTrench(sec,field){
 
 /* ---------- rates ---------- */
 function buildRates(){
-  var h='<div class="sub">Trench \u2014 per metre, by section and type</div><div class="rgrid">';
+  var h='<p class="note" style="margin:0 0 12px">Two boxes on every line: <b>charge</b> is what the client '+
+    'pays, <b>cost</b> is what it costs us. Both write to Rate Library, where the margin is calculated.</p>'+
+    '<div class="sub">Trench \u2014 per metre, by section and type</div><div class="rgrid">';
   COMBOS.forEach(function(c){
     h+='<div class="rate"><span>'+c.sec+' \u00b7 type '+c.tt+'<em>'+c.n+' section'+(c.n>1?'s':'')+
-       ' \u00b7 '+m1(c.len)+' m</em></span><input type="number" min="0" step="0.01" placeholder="\u2014" '+
-       'data-kind="t" data-key="'+c.sec+'|'+c.tt+'"></div>';
+       ' \u00b7 '+m1(c.len)+' m</em></span>'+
+       '<input type="number" min="0" step="0.01" placeholder="charge" '+
+       'data-kind="t" data-key="'+c.sec+'|'+c.tt+'">'+
+       '<input type="number" min="0" step="0.01" placeholder="cost" class="costin" '+
+       'data-kind="tc" data-key="'+c.sec+'|'+c.tt+'"></div>';
   });
   h+='</div><div class="sub">Pipe \u2014 per metre, four separate assets</div><div class="rgrid">';
   PIPES.forEach(function(p){
     h+='<div class="rate"><span>'+p.sec+' \u00b7 '+p.type+'<em>'+p.size+' \u00b7 '+p.desc+
-       '</em></span><input type="number" min="0" step="0.01" placeholder="\u2014" data-kind="p" '+
+       '</em></span><input type="number" min="0" step="0.01" placeholder="charge" data-kind="p" '+
+       'data-key="'+p.sec+'|'+p.type+'">'+
+       '<input type="number" min="0" step="0.01" placeholder="cost" class="costin" data-kind="pc" '+
        'data-key="'+p.sec+'|'+p.type+'"></div>';
   });
   h+='</div>';
@@ -3601,17 +3671,24 @@ function buildRates(){
     var v=ST.paRate[g.rkey];
     var sub=(g.item ? g.blocks+(g.blocks===1?' block':' blocks') : g.n+' item'+(g.n===1?'':'s'));
     if(g.regRate!=null) sub+=' \u00b7 from the register';
+    var vc=ST.paCost[g.rkey];
     h+='<div class="rate"><span>'+(g.item? (g.sec+' \u00b7 '+g.ud+' \u00b7 '+g.item) : g.type)+
-       '<em>'+sub+'</em></span><input type="number" min="0" step="0.01" placeholder="\u2014" '+
+       '<em>'+sub+'</em></span><input type="number" min="0" step="0.01" placeholder="charge" '+
        'data-kind="a" data-key="'+g.rkey.replace(/"/g,'&quot;')+'"'+
-       (v!=null?' value="'+v+'"':'')+'></div>';
+       (v!=null?' value="'+v+'"':'')+'>'+
+       '<input type="number" min="0" step="0.01" placeholder="cost" class="costin" '+
+       'data-kind="ac" data-key="'+g.rkey.replace(/"/g,'&quot;')+'"'+
+       (vc!=null?' value="'+vc+'"':'')+'></div>';
   });
   if(curType!==null) h+='</div>';
   q('#cstRates').innerHTML=h;
   qa('#cstRates input').forEach(function(inp){
     inp.addEventListener('input',function(){
-      var bag=inp.dataset.kind==='t'?ST.tRate:inp.dataset.kind==='p'?ST.pRate:ST.paRate;
-      bag[inp.dataset.key]=numOf(inp); render(inp);
+      var BAGS={t:ST.tRate,p:ST.pRate,a:ST.paRate,tc:ST.tCost,pc:ST.pCost,ac:ST.paCost};
+      var bag=BAGS[inp.dataset.kind];
+      var v=numOf(inp);
+      if(v==null) delete bag[inp.dataset.key]; else bag[inp.dataset.key]=v;
+      markDirty(); render(inp);
     });
   });
 }
@@ -3650,7 +3727,7 @@ function renderTS(){
     cb.addEventListener('change',function(){
       ST.tDone[t.key]= cb.checked ? t.len : 0;
       if(!cb.checked) ST.pDone[t.key]=0;
-      render();
+      markDirty(); render();
     });
     td(cb,'tick-col');
     td(t.key); td(t.sec);
@@ -3661,7 +3738,7 @@ function renderTS(){
     mi.addEventListener('input',function(){
       var v=numOf(mi); ST.tDone[t.key]=Math.min(Math.max(v||0,0),t.len);
       if(pDone(t)>ST.tDone[t.key]) ST.pDone[t.key]=ST.tDone[t.key];
-      render(mi);
+      markDirty(); render(mi);
     });
     td(mi,'mtr num');
     var pi=document.createElement('input');
@@ -3669,7 +3746,7 @@ function renderTS(){
     pi.value=pDone(t)?+pDone(t).toFixed(3):''; pi.placeholder='0'; pi.id='cstP-'+t.key;
     pi.addEventListener('input',function(){
       var v=numOf(pi); ST.pDone[t.key]=Math.min(Math.max(v||0,0),tDone(t));
-      render(pi);
+      markDirty(); render(pi);
     });
     td(pi,'mtr num');
     td(money(earn),'num');
@@ -3707,7 +3784,7 @@ function renderPAList(){
         if(c&&c.nodeType) e.appendChild(c); else e.innerHTML=c; tr.appendChild(e); }
       var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=on;
       cb.title='Mark '+p.key+' complete';
-      cb.addEventListener('change',function(){ ST.paDone[p.key]=cb.checked; render(); });
+      cb.addEventListener('change',function(){ ST.paDone[p.key]=cb.checked; markDirty(); render(); });
       td(cb,'tick-col');
       td(p.key); td(p.sec); td(m3(p.ch),'num'); td(p.type);
       td(p.item ? (p.ud+' \u00b7 '+p.item) : (p.name||''));
@@ -3913,6 +3990,7 @@ function render(keep){
    numbers. Yesterday is carried forward so only the new figure is typed.
    ============================================================ */
 var DAYS=[];              /* [{date,by,shift,wx,down,notes,rows:[...],snap:{...}}] */
+var EODBUILT=false;       /* the section inputs only exist once buildEOD has run */
 var EODSEED=false;
 
 function todayISO(){
@@ -3970,7 +4048,9 @@ function buildEOD(){
             '<input type="number" step="0.001" min="0" id="eodPM-'+sec+'" placeholder="m today"></div>'+
           '<div class="out" id="eodPOut-'+sec+'"></div></div>'+
       '</div>'+
-      '<div class="asset" id="eodAssets-'+sec+'"></div>'+
+      '<div class="pabar" id="eodPABar-'+sec+'"></div>'+
+      '<div class="tblWrap scroll pawrap" id="eodPAWrap-'+sec+'">'+
+        '<table class="wide eodpa" id="eodPA-'+sec+'"><thead></thead><tbody></tbody></table></div>'+
       '<div class="none" id="eodNone-'+sec+'"></div>';
     host.appendChild(card);
 
@@ -3996,13 +4076,16 @@ function buildEOD(){
     PLANT=plantCarry(); HP=hpCarry();
     EODSEED=true;
   }
+  EODBUILT=true;
   renderPlant(); renderHP(); eodSafeNote();
   eodRender();
 }
 
 /* the point assets between yesterday's chainage and today's */
 function eodAssetsFor(sec){
-  var from=baseFront(sec), to=numOf(q('#eodTCh-'+sec));
+  if(!EODBUILT) return [];
+  var el=q('#eodTCh-'+sec); if(!el) return [];
+  var from=baseFront(sec), to=numOf(el);
   if(to==null || to<=from) return [];
   return PA.filter(function(p){
     return p.sec===sec && !ST.paDone[p.key] && p.ch>from-1e-9 && p.ch<=to+1e-9;
@@ -4010,6 +4093,7 @@ function eodAssetsFor(sec){
 }
 var EODTICK={};
 function eodRender(only){
+  if(!EODBUILT) return;
   var secs = only ? [only] : SECS;
   secs.forEach(function(sec){
     var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
@@ -4037,34 +4121,46 @@ function eodRender(only){
     q('#eodTOut-'+sec).textContent=tOut;
     q('#eodPOut-'+sec).textContent=pOut;
 
-    /* assets newly covered */
-    var host=q('#eodAssets-'+sec); host.innerHTML='';
+    /* assets newly covered, listed like the Costs tab rather than as pills:
+       31 of them as pills is unreadable, and the record key and cost matter */
     var list=eodAssetsFor(sec);
+    var th=q('#eodPA-'+sec+' thead'), tb=q('#eodPA-'+sec+' tbody');
+    if(!th.dataset.built){
+      th.innerHTML='<tr><th></th><th>Record</th><th class="num">Chainage m</th>'+
+        '<th>Asset type</th><th>Type / item</th><th class="num">Cost</th></tr>';
+      th.dataset.built='1';
+    }
+    tb.innerHTML='';
+    var frag=document.createDocumentFragment();
     list.forEach(function(a){
       if(EODTICK[a.key]===undefined) EODTICK[a.key]=true;   /* the trench went past it */
-      var lab=ce('label','apill'+(EODTICK[a.key]?' on':''));
-      var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!EODTICK[a.key];
+      var on=!!EODTICK[a.key], rate=rateOf(a);
+      var tr=document.createElement('tr'); tr.className=on?'on':'off';
+      function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
+        if(v&&v.nodeType) c.appendChild(v); else c.innerHTML=v; tr.appendChild(c); }
+      var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=on;
+      cb.title='Complete '+a.key+' today';
       cb.addEventListener('change',function(){
         EODTICK[a.key]=cb.checked;
-        lab.classList.toggle('on',cb.checked);
-        eodTally();
+        tr.className=cb.checked?'on':'off';
+        eodPABar(sec); eodTally();
       });
-      lab.appendChild(cb);
-      lab.appendChild(document.createTextNode(a.type==='TREE REMOVAL'?'Tree removal':
-        (a.item? a.item : a.type.toLowerCase())));
-      var em=ce('em',null,' ch '+m1(a.ch)); lab.appendChild(em);
-      lab.title=a.key+' \u00b7 '+a.type+(a.ud?' \u00b7 '+a.ud:'');
-      host.appendChild(lab);
+      td(cb,'tick-col');
+      td(a.key); td(m1(a.ch),'num'); td(a.type);
+      td(a.item ? (a.ud+' \u00b7 '+a.item) : (a.name||''));
+      td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(a)),'num');
+      frag.appendChild(tr);
     });
+    tb.appendChild(frag);
+    q('#eodPAWrap-'+sec).classList.toggle('hide',!list.length);
+    eodPABar(sec);
+
     var n=q('#eodNone-'+sec);
     if(!list.length){
       n.textContent = (t==null||t<=from)
         ? 'Type a chainage and any point assets in the new ground will be listed here to tick.'
         : 'No outstanding point assets between '+m1(from)+' m and '+m1(t)+' m.';
-    } else {
-      n.textContent=list.length+' point asset'+(list.length===1?'':'s')+
-        ' in the new ground, ticked by default — untick anything not finished.';
-    }
+    } else n.textContent='';
     var dt = (t!=null&&t>=from) ? t-from : 0;
     var dp = (p!=null&&p>=pfrom) ? p-pfrom : 0;
     q('#eodToday-'+sec).textContent = (dt||dp)
@@ -4074,8 +4170,26 @@ function eodRender(only){
   eodTally();
 }
 
+function eodPABar(sec){
+  var bar=q('#eodPABar-'+sec); if(!bar) return;
+  var list=eodAssetsFor(sec);
+  if(!list.length){ bar.innerHTML=''; return; }
+  var on=list.filter(function(a){ return EODTICK[a.key]; }).length;
+  var cost=list.reduce(function(t,a){
+    var r=EODTICK[a.key]?rateOf(a):null; return t+(r==null?0:r*qtyOf(a)); },0);
+  bar.innerHTML='<span class="n"><b>'+on+'</b> of <b>'+list.length+
+    '</b> point assets in the new ground complete \u00b7 '+money(cost)+'</span>';
+  var b1=ce('button','btn sec','Tick all'), b2=ce('button','btn sec','Untick all');
+  b1.addEventListener('click',function(){
+    list.forEach(function(a){ EODTICK[a.key]=true; }); eodRender(sec); });
+  b2.addEventListener('click',function(){
+    list.forEach(function(a){ EODTICK[a.key]=false; }); eodRender(sec); });
+  bar.appendChild(b1); bar.appendChild(b2);
+}
 function eodDupCheck(){
-  var d=q('#eodDate').value, box=q('#eodDup');
+  var de=q('#eodDate'), box=q('#eodDup');
+  if(!de||!box) return;
+  var d=de.value;
   var odd=SECS.filter(function(s){ return (EODPIPE[s]||0) > baseFront(s)+1e-9; });
   if(odd.length){
     box.classList.remove('hide');
@@ -4097,7 +4211,9 @@ function eodDupCheck(){
 
 /* what the form currently claims, without changing anything */
 function eodDraft(){
-  var rows=[], mT=0,mP=0,items=0,earn=0, bad=false;
+  var rows=[], mT=0,mP=0,items=0,earn=0,dcost=0, bad=false;
+  if(!EODBUILT) return {rows:rows,mT:0,mP:0,items:0,earn:0,dcost:0,
+                        plant:0,plantMissing:[],cost:0,profit:0,margin:null,bad:false};
   SECS.forEach(function(sec){
     var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
     var t=numOf(q('#eodTCh-'+sec)), p=numOf(q('#eodPCh-'+sec));
@@ -4107,42 +4223,67 @@ function eodDraft(){
     var to = (t!=null && t>=from && t<=ext) ? t : from;
     var pto = (p!=null && p>=pfrom && p<=cap) ? p : pfrom;
     var picked=eodAssetsFor(sec).filter(function(a){ return EODTICK[a.key]; });
-    var e=0;
-    /* trench and pipe earned over the new ground, at the rates in force */
+    var e=0, c=0;
+    /* the same quantities twice: once at the client rate, once at ours */
     T.forEach(function(x){
       if(x.sec!==sec) return;
-      var tr=ST.tRate[x.sec+'|'+x.tt], pr=ST.pRate[x.sec+'|'+ST.pipeType[x.sec]];
+      var pk=x.sec+'|'+ST.pipeType[x.sec];
+      var tr=ST.tRate[x.sec+'|'+x.tt], pr=ST.pRate[pk];
+      var tc=ST.tCost[x.sec+'|'+x.tt], pc=ST.pCost[pk];
       var addT=Math.max(Math.min(to,x.e)-Math.max(from,x.s),0);
       var addP=Math.max(Math.min(pto,x.e)-Math.max(pfrom,x.s),0);
       if(tr!=null) e+=addT*tr;
       if(pr!=null) e+=addP*pr;
+      if(tc!=null) c+=addT*tc;
+      if(pc!=null) c+=addP*pc;
     });
-    picked.forEach(function(a){ var r=rateOf(a); if(r!=null) e+=r*qtyOf(a); });
+    picked.forEach(function(a){
+      var r=rateOf(a); if(r!=null) e+=r*qtyOf(a);
+      var cc=ST.paCost[a.rkey]; if(cc!=null) c+=cc*qtyOf(a);
+    });
     if(to>from || pto>pfrom || picked.length){
       rows.push({sec:sec,from:from,to:to,pfrom:pfrom,pto:pto,
-                 dt:to-from,dp:pto-pfrom,picked:picked,earn:e});
-      mT+=to-from; mP+=pto-pfrom; items+=picked.length; earn+=e;
+                 dt:to-from,dp:pto-pfrom,picked:picked,earn:e,cost:c});
+      mT+=to-from; mP+=pto-pfrom; items+=picked.length; earn+=e; dcost+=c;
     }
   });
-  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,bad:bad};
+  var pl=plantCostOf(PLANT);
+  var total=dcost+pl.cost;
+  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,dcost:dcost,
+          plant:pl.cost,plantMissing:pl.missing,cost:total,
+          profit:earn-total, margin:(earn>0?(earn-total)/earn:null), bad:bad};
 }
 
 function eodTally(){
+  if(!EODBUILT) return;
   var d=eodDraft();
   var host=q('#eodTally');
+
   host.innerHTML=
-    '<div class="lead"><div class="k">Earned today</div><div class="v">'+money(d.earn)+'</div></div>'+
-    '<div><div class="k">Trench</div><div class="v">'+m1(d.mT)+' m</div></div>'+
-    '<div><div class="k">Pipe</div><div class="v">'+m1(d.mP)+' m</div></div>'+
-    '<div><div class="k">Point assets</div><div class="v">'+d.items+'</div></div>'+
-    '<div><div class="k">Sections worked</div><div class="v">'+d.rows.length+'</div></div>';
+    '<div><div class="k">Earned today</div><div class="v">'+money(d.earn)+'</div>'+
+      '<div class="s">'+m1(d.mT)+' m trench \u00b7 '+m1(d.mP)+' m pipe \u00b7 '+d.items+' item(s)</div></div>'+
+    '<div><div class="k">Our cost</div><div class="v">'+money(d.dcost)+'</div>'+
+      '<div class="s">trench, pipe and items at cost</div></div>'+
+    '<div><div class="k">Plant and labour</div><div class="v">'+money(d.plant)+'</div>'+
+      '<div class="s">'+m1(PLANT.reduce(function(a,p){ return a+(p.n||0)*((p.hrs||0)+(p.sb||0)); },0))+
+      ' hours</div></div>'+
+    '<div class="lead"><div class="k">Profit today</div>'+
+      '<div class="v" style="color:'+(d.profit<0?'#ffb3ab':'#b7f0c8')+'">'+money(d.profit)+'</div>'+
+      '<div class="s">'+(d.margin==null?'no revenue yet':pc(d.margin)+' margin')+'</div></div>';
   var note=q('#eodSaveNote');
   if(d.bad) note.innerHTML='<b>Check the figures in red before saving.</b>';
   else if(!d.rows.length) note.textContent='Nothing to save yet.';
-  else note.textContent='Ready: '+d.rows.length+' section row'+(d.rows.length===1?'':'s')+
-       ' for '+auDate(q('#eodDate').value)+'.';
-  q('#eodSave').disabled=d.bad||!d.rows.length;
-  q('#eodWrite').disabled=d.bad||!d.rows.length;
+  else {
+    var bits=['Ready: '+d.rows.length+' section row'+(d.rows.length===1?'':'s')+
+              ' for '+auDate(q('#eodDate').value)+'.'];
+    if(d.plantMissing.length)
+      bits.push('<span class="unrated">'+d.plantMissing.length+' resource(s) with no cost rate</span> ('+
+        d.plantMissing.join(', ')+') are left out of the day cost \u2014 set them on the Plant and labour page.');
+    if(d.earn>0 && d.dcost===0)
+      bits.push('No cost rates are entered for the work done, so the profit shown is the full revenue.');
+    note.innerHTML=bits.join(' ');
+  }
+  var sv=q('#eodSave'); if(sv) sv.disabled=d.bad||!d.rows.length;
 }
 
 /* apply the day to the per-item state - the same state the Costs tab reads */
@@ -4190,8 +4331,12 @@ function eodEntryFromForm(d){
           rows:d.rows.map(function(r){
             return {sec:r.sec,from:r.from,to:r.to,pfrom:r.pfrom,pto:r.pto,
                     dt:r.dt,dp:r.dp,items:r.picked.length,
-                    keys:r.picked.map(function(a){ return a.key; }),earn:r.earn};
+                    keys:r.picked.map(function(a){ return a.key; }),
+                    earn:r.earn, cost:r.cost||0};
           }),
+          money:{earn:d.earn,dcost:d.dcost,plant:d.plant,cost:d.cost,
+                 profit:d.profit,margin:d.margin,
+                 hours:PLANT.reduce(function(a,p){ return a+(p.n||0)*((p.hrs||0)+(p.sb||0)); },0)},
           plant:PLANT.filter(function(p){ return p.desc||p.hrs; })
                      .map(function(p){ return {kind:p.kind,desc:p.desc,n:p.n||0,
                         hrs:p.hrs||0,sb:p.sb||0,notes:p.notes||''}; }),
@@ -4403,6 +4548,136 @@ function hpNote(){
     : 'No hold points. Anything raised on an earlier day and not yet released would appear here.';
 }
 
+
+/* ---------- plant and labour rates ----------
+   An hour of a resource costs money whether or not it is billed. The cost rate
+   is what the day's profit is worked out from; the charge rate only matters on
+   dayworks, so it is usually left blank. */
+var SHEET_PLR='Plant and Labour Rates';
+var PLRIDX=null;
+function plantKey(kind,desc){ return String(kind||'')+'|'+String(desc||''); }
+function indexPlantRates(wb){
+  var g=sheetGrid(wb,SHEET_PLR);
+  if(!g) return null;
+  var hr=-1, cols=null;
+  for(var r=0;r<g.length&&hr<0;r++){
+    var txt=(g[r]||[]).map(function(v){ return String(v==null?'':v).trim(); });
+    if(txt.indexOf('Description')>=0 && txt.indexOf('Cost Rate ($/h)')>=0){
+      hr=r;
+      cols={kind:txt.indexOf('Type'),desc:txt.indexOf('Description'),
+            unit:txt.indexOf('Unit'),charge:txt.indexOf('Charge Rate ($/h)'),
+            cost:txt.indexOf('Cost Rate ($/h)'),notes:txt.indexOf('Notes')};
+    }
+  }
+  if(hr<0) return null;
+  var out={hdrRow:hr+1,cols:cols,first:hr+2,rows:{},list:[]};
+  for(var r2=hr+1;r2<g.length;r2++){
+    var row=(g[r2]||[]).map(function(v){ return String(v==null?'':v).trim(); });
+    var kind=row[cols.kind], desc=row[cols.desc];
+    if(!kind&&!desc) continue;
+    var k=plantKey(kind,desc);
+    out.rows[k]=r2+1;
+    out.list.push({key:k,kind:kind,desc:desc,row:r2+1,
+      charge:Number((g[r2]||[])[cols.charge]),
+      cost:Number((g[r2]||[])[cols.cost])});
+    out.last=r2+1;
+  }
+  return out;
+}
+function seedPlantRates(){
+  if(!PLRIDX) return 0;
+  var n=0;
+  PLRIDX.list.forEach(function(x){
+    if(isFinite(x.cost)&&x.cost>0){ ST.plant[x.key]=x.cost; n++; }
+  });
+  return n;
+}
+function plantRateOf(p){
+  var v=ST.plant[plantKey(p.kind,p.desc)];
+  if(v!=null) return v;
+  /* a description not on the rates sheet has no cost, and says so rather than
+     quietly costing nothing */
+  return null;
+}
+function plantCostOf(list){
+  var cost=0, missing=[];
+  (list||[]).forEach(function(p){
+    if(!p.desc) return;
+    var r=plantRateOf(p);
+    var hrs=(p.n||0)*((p.hrs||0)+(p.sb||0));
+    if(r==null){ if(missing.indexOf(p.desc)<0) missing.push(p.desc); return; }
+    cost+=hrs*r;
+  });
+  return {cost:cost, missing:missing};
+}
+function plantRateWrites(){
+  if(!PLRDIRTY||!PLRIDX) return [];
+  var out=[], c=PLRIDX.cols;
+  Object.keys(ST.plant).forEach(function(k){
+    var row=PLRIDX.rows[k];
+    if(!row) return;
+    var cur=null;
+    PLRIDX.list.forEach(function(x){ if(x.key===k) cur=x.cost; });
+    if(same(cur,ST.plant[k])) return;
+    out.push({ref:ref(c.cost,row), value:ST.plant[k], kind:'n', key:k,
+      field:'Cost Rate ($/h)', before:cur, after:ST.plant[k]});
+  });
+  return out;
+}
+var PLRDIRTY=false;
+function renderPlantRates(){
+  var th=q('#plrTable thead'), tb=q('#plrTable tbody');
+  if(!th) return;
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th>Type</th><th>Description</th><th class="num">Charge $/h</th>'+
+      '<th class="num">Cost $/h</th><th class="num">Margin $/h</th><th>Used at end of day</th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  if(!PLRIDX){
+    q('#plrNote').innerHTML='Open the workbook to load the rates. This page edits the '+
+      '<b>'+SHEET_PLR+'</b> sheet.';
+    return;
+  }
+  var used={};
+  DAYS.forEach(function(d){ (d.plant||[]).forEach(function(p){
+    used[plantKey(p.kind,p.desc)]=(used[plantKey(p.kind,p.desc)]||0)+(p.n||0)*((p.hrs||0)+(p.sb||0)); }); });
+  PLANT.forEach(function(p){
+    var k=plantKey(p.kind,p.desc);
+    if(p.desc) used[k]=(used[k]||0)+(p.n||0)*((p.hrs||0)+(p.sb||0)); });
+  var frag=document.createDocumentFragment(), rated=0;
+  PLRIDX.list.forEach(function(x){
+    var tr=document.createElement('tr');
+    function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
+      if(v&&v.nodeType) c.appendChild(v); else c.innerHTML=v; tr.appendChild(c); }
+    td(x.kind); td(x.desc);
+    td(isFinite(x.charge)&&x.charge?money2(x.charge):'\u2014','num');
+    var inp=document.createElement('input');
+    inp.type='number'; inp.min='0'; inp.step='0.01';
+    inp.value=(ST.plant[x.key]!=null)?ST.plant[x.key]:'';
+    inp.placeholder='\u2014';
+    inp.addEventListener('input',function(){
+      var v=numOf(inp);
+      if(v==null) delete ST.plant[x.key]; else ST.plant[x.key]=v;
+      PLRDIRTY=true; refreshSaveBar(); renderPlantRates(); eodTally();
+    });
+    var cell=document.createElement('td'); cell.className='tin num'; cell.appendChild(inp);
+    tr.appendChild(cell);
+    var cost=ST.plant[x.key];
+    td((isFinite(x.charge)&&x.charge&&cost!=null)?money2(x.charge-cost):'\u2014','num');
+    var h=used[x.key]||0;
+    td(h?(m1(h)+' h'):'','num');
+    if(cost!=null) rated++;
+    frag.appendChild(tr);
+  });
+  tb.appendChild(frag);
+  var miss=Object.keys(used).filter(function(k){ return used[k]>0 && ST.plant[k]==null; });
+  q('#plrNote').innerHTML='<b>'+rated+'</b> of '+PLRIDX.list.length+' resources have a cost rate.'+
+    (miss.length ? ' <span class="unrated">'+miss.length+' recorded at end of day with no rate</span> \u2014 '+
+      miss.map(function(k){ return k.split('|')[1]; }).join(', ')+
+      '. Their hours are left out of the day cost until a rate is entered.' : '');
+}
+
 /* ---------- the day as a report ---------- */
 function eodReportHTML(e){
   function esc(x){ return String(x==null?'':x)
@@ -4520,8 +4795,17 @@ function eodSheetRows(e){
   return e.rows.map(function(r){
     return [e.date, e.by, e.shift, r.sec,
             r.from, r.to, r.dt, r.pfrom, r.pto, r.dp,
-            r.items, r.earn, e.wx, e.down||'', e.notes];
+            r.items, r.earn, r.cost||0, (r.earn||0)-(r.cost||0),
+            e.wx, e.down||'', e.notes];
   });
+}
+function eodProfitRows(e){
+  var m=e.money||{};
+  return [[e.date, e.by, e.shift, m.earn||0, m.dcost||0, m.plant||0, m.cost||0,
+           m.profit||0, (m.margin==null?'':m.margin),
+           e.rows.reduce(function(a,r){ return a+r.dt; },0),
+           e.rows.reduce(function(a,r){ return a+r.dp; },0),
+           m.hours||0, e.notes||'']];
 }
 function eodPlantRows(e){
   return (e.plant||[]).map(function(p){
@@ -4548,7 +4832,10 @@ function eodAppends(e){
     {sheet:'Daily Safety', rows:eodSafetyRows(e),
      summary:function(row){ return 'toolbox '+row[2]+' \u00b7 '+row[4]+' on site \u00b7 '+row[5]; }},
     {sheet:'Daily Hold Points', rows:eodHPRows(e),
-     summary:function(row){ return row[2]+' '+row[4]; }}
+     summary:function(row){ return row[2]+' '+row[4]; }},
+    {sheet:'Daily Profit', rows:eodProfitRows(e),
+     summary:function(row){ return 'earned '+money(row[3])+', cost '+money(row[6])+
+       ', profit '+money(row[7]); }}
   ];
 }
 
@@ -4559,17 +4846,10 @@ function wireEOD(){
   });
   q('#eodSave').addEventListener('click',function(){
     var e=eodApply();
-    if(e&&window.toast) toast('Saved '+auDate(e.date)+' — held in this page until you write to the workbook');
-  });
-  q('#eodWrite').addEventListener('click',function(){
-    var e=eodApply();
-    if(!e) return;
-    if(!canWrite()){
-      if(window.toast) toast('Saved here. Open the workbook on the editing page to write it in.');
-      return;
+    if(e){
+      refreshSaveBar();
+      if(window.toast) toast('Day saved \u2014 press Save to Excel at the top to write it in');
     }
-    if(writeToWorkbook({appends:eodAppends(e)})) e.written=true;
-    renderEODLog();
   });
   q('#eodClear').addEventListener('click',function(){
     EODTICK={};
@@ -4589,13 +4869,19 @@ function wireEOD(){
   q('#eodUndo').addEventListener('click',eodUndo);
 
   q('#eodPlantAdd').addEventListener('click',function(){
-    PLANT.push({kind:'Labour',desc:'',n:1,hrs:PLANT.length?PLANT[0].hrs:10,sb:0,notes:''});
+    PLANT.push({kind:'Labour',desc:'',n:1,hrs:PLANT.length?PLANT[0].hrs:DEFHOURS,sb:0,notes:''});
     renderPlant();
     var rows=document.querySelectorAll('#eodPlant tbody tr');
     var last=rows[rows.length-1];
     if(last){ var inp=last.querySelectorAll('input')[0]; if(inp) inp.focus(); }
   });
   q('#eodPlantClear').addEventListener('click',function(){ PLANT=[]; renderPlant(); });
+  q('#eodPlantRemember').addEventListener('click',function(){
+    if(!PLANT.filter(function(p){ return p.desc; }).length){
+      if(window.toast) toast('Nothing to remember \u2014 add a row first'); return; }
+    CREWDIRTY=true; refreshSaveBar();
+    if(window.toast) toast('Crew will be written to Settings on the next save');
+  });
   q('#eodHPAdd').addEventListener('click',function(){
     HP.push({ref:'',desc:'',status:'Raised',key:'',notes:''});
     renderHP();
@@ -4646,8 +4932,9 @@ function dl(blob,name){
   setTimeout(function(){ URL.revokeObjectURL(a.href); },1500);
 }
 function refreshRateInputs(){
+  var BAGS={t:ST.tRate,p:ST.pRate,a:ST.paRate,tc:ST.tCost,pc:ST.pCost,ac:ST.paCost};
   qa('#cstRates input').forEach(function(inp){
-    var bag=inp.dataset.kind==='t'?ST.tRate:inp.dataset.kind==='p'?ST.pRate:ST.paRate;
+    var bag=BAGS[inp.dataset.kind]; if(!bag) return;
     var v=bag[inp.dataset.key]; inp.value=v==null?'':v;
   });
 }
@@ -4688,7 +4975,9 @@ function wire(){
   q('#cstSave').addEventListener('click',function(){
     dl(new Blob([JSON.stringify({saved:new Date().toISOString(),
       tDone:ST.tDone,pDone:ST.pDone,paDone:ST.paDone,pipeType:ST.pipeType,
-      tRate:ST.tRate,pRate:ST.pRate,paRate:ST.paRate,days:DAYS},null,2)],{type:'application/json'}),
+      tRate:ST.tRate,pRate:ST.pRate,paRate:ST.paRate,
+      tCost:ST.tCost,pCost:ST.pCost,paCost:ST.paCost,plant:ST.plant,
+      days:DAYS},null,2)],{type:'application/json'}),
       't2w-progress.json');
     if(window.toast) toast('Progress saved to t2w-progress.json');
   });
@@ -4699,7 +4988,8 @@ function wire(){
     fr.onload=function(){
       try{
         var o=JSON.parse(fr.result);
-        ['tDone','pDone','paDone','pipeType','tRate','pRate','paRate'].forEach(function(k){
+        ['tDone','pDone','paDone','pipeType','tRate','pRate','paRate',
+         'tCost','pCost','paCost','plant'].forEach(function(k){
           if(o[k]) Object.keys(o[k]).forEach(function(kk){ ST[k][kk]=o[k][kk]; });
         });
         if(Array.isArray(o.days)){ DAYS.length=0; o.days.forEach(function(x){ DAYS.push(x); }); }
@@ -4770,10 +5060,9 @@ function wire(){
 
     XLSX.writeFile(wb,'T2W cost to chainage '+new Date().toISOString().slice(0,10)+'.xlsx');
   });
-  q('#cstWrite').addEventListener('click',writeToWorkbook);
   q('#cstReset').addEventListener('click',function(){
     ST.tDone={}; ST.pDone={}; ST.paDone={}; ST.tRate={}; ST.pRate={};
-    ST.paRate={};
+    ST.paRate={}; ST.tCost={}; ST.pCost={}; ST.paCost={};
     PALINES.forEach(function(g){
       var d=null;
       for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===g.type) d=PA_TYPES[i].rate;
@@ -4797,7 +5086,8 @@ var SHEET_TRACKER='Cost Tracker - Linear', SHEET_RATES='Rate Library', SHEET_MR=
    numbers and dates as dates - a text date will not sort and text metres will
    not add up */
 var DAYSHEETS={
-  'Daily Progress':      ['d','s','s','s','n','n','n','n','n','n','n','n','s','n','s'],
+  'Daily Progress':      ['d','s','s','s','n','n','n','n','n','n','n','n','n','n','s','n','s'],
+  'Daily Profit':        ['d','s','s','n','n','n','n','n','n','n','n','n','s'],
   'Daily Plant and Labour':['d','s','s','s','n','n','n','s'],
   'Daily Safety':        ['d','s','s','s','n','s','s','n'],
   'Daily Hold Points':   ['d','s','s','s','s','s','s']
@@ -4853,6 +5143,7 @@ function buildIndex(){
     /* walk the sheet, remembering the most recent header row, so the three rate
        tables are found by what they say rather than by where they sit */
     var lay=null, tr={}, pi={}, pa={};
+    var trC={}, piC={}, paC={};
     gr.forEach(function(rowArr,r){
       rowArr=rowArr||[];
       var txt=rowArr.map(function(v){ return String(v==null?'':v).trim(); });
@@ -4864,21 +5155,27 @@ function buildIndex(){
              at:txt.indexOf('Asset Type'),
              tb:txt.indexOf('Thrust Block Type'),
              item:txt.indexOf('Item'),
+             cost:txt.indexOf('Cost Rate'),
              eff:txt.indexOf('Effective From')};
         return;
       }
       if(!lay || lay.rate<0) return;
       var rec={row:r+1, rateCol:lay.rate, effCol:lay.eff, cur:rowArr[lay.rate]};
-      if(lay.tb>=0 && lay.item>=0 && lay.sec>=0 && txt[lay.sec] && txt[lay.tb] && txt[lay.item])
-        pa[txt[lay.sec]+'|'+txt[lay.tb]+'|'+txt[lay.item]]=rec;   /* Table 4, per block */
-      else if(lay.sec>=0 && lay.tt>=0 && txt[lay.sec] && txt[lay.tt])
-        tr[txt[lay.sec]+'|'+txt[lay.tt]]=rec;
-      else if(lay.sec>=0 && lay.pt>=0 && txt[lay.sec] && txt[lay.pt])
-        pi[txt[lay.sec]+'|'+txt[lay.pt]]=rec;
-      else if(lay.at>=0 && txt[lay.at])
-        pa[txt[lay.at]]=rec;
+      var crec=lay.cost>=0
+        ? {row:r+1, rateCol:lay.cost, effCol:-1, cur:rowArr[lay.cost]} : null;
+      var key=null, bag=null, bagC=null;
+      if(lay.tb>=0 && lay.item>=0 && lay.sec>=0 && txt[lay.sec] && txt[lay.tb] && txt[lay.item]){
+        key=txt[lay.sec]+'|'+txt[lay.tb]+'|'+txt[lay.item]; bag=pa; bagC=paC;   /* Table 4, per block */
+      } else if(lay.sec>=0 && lay.tt>=0 && txt[lay.sec] && txt[lay.tt]){
+        key=txt[lay.sec]+'|'+txt[lay.tt]; bag=tr; bagC=trC;
+      } else if(lay.sec>=0 && lay.pt>=0 && txt[lay.sec] && txt[lay.pt]){
+        key=txt[lay.sec]+'|'+txt[lay.pt]; bag=pi; bagC=piC;
+      } else if(lay.at>=0 && txt[lay.at]){
+        key=txt[lay.at]; bag=pa; bagC=paC;
+      }
+      if(key){ bag[key]=rec; if(crec) bagC[key]=crec; }
     });
-    idx.rates={trench:tr,pipe:pi,point:pa};
+    idx.rates={trench:tr,pipe:pi,point:pa,trenchCost:trC,pipeCost:piC,pointCost:paC};
   }
 
   idx.day={};
@@ -4900,6 +5197,9 @@ function buildIndex(){
     }
     idx.day[nm]={hdrRow:dhr+1,firstCol:dateCol,nextRow:next};
   });
+
+  SETIDX=indexSettings(wb);
+  PLRIDX=indexPlantRates(wb);
 
   WBIDX=idx; WBIDXFOR=window.WB.bytes;
   return idx;
@@ -4969,6 +5269,12 @@ function collectWrites(){
       push(idx.rates.pipe[k], ST.pRate[k], 'Pipe '+k); });
     Object.keys(ST.paRate).forEach(function(k){
       push(idx.rates.point[k], ST.paRate[k], k); });
+    Object.keys(ST.tCost).forEach(function(k){
+      push(idx.rates.trenchCost[k], ST.tCost[k], 'Cost trench '+k); });
+    Object.keys(ST.pCost).forEach(function(k){
+      push(idx.rates.pipeCost[k], ST.pCost[k], 'Cost pipe '+k); });
+    Object.keys(ST.paCost).forEach(function(k){
+      push(idx.rates.pointCost[k], ST.paCost[k], 'Cost '+k); });
   }
 
   /* point assets: the register's own Complete column, which is validated Yes/No.
@@ -5174,30 +5480,560 @@ function seedFromWorkbook(){
     take(idx.rates.trench,ST.tRate);
     take(idx.rates.pipe,ST.pRate);
     take(idx.rates.point,ST.paRate);
+    take(idx.rates.trenchCost,ST.tCost);
+    take(idx.rates.pipeCost,ST.pCost);
+    take(idx.rates.pointCost,ST.paCost);
+    n+=seedPlantRates();
     refreshRateInputs();
   }
   /* the register itself is rebuilt from the workbook on open, so the Complete
      flags have to be re-read here too, not just at first build */
   n+=seedPointAssets();
+  n+=applySettings();
   if(n&&window.toast) toast('Loaded the saved position from '+window.WB.name);
   return n>0;
 }
 
 function setWriteState(){
-  var b=q('#cstWrite'), s=q('#cstWriteState');
-  if(!b) return;
+  var s=q('#cstWriteState');
+  if(!s) return;
   if(canWrite()){
     if(seedFromWorkbook()) render();
-    b.disabled=false;
-    s.innerHTML='Writes to <b>'+window.WB.name+'</b>: metres onto '+SHEET_TRACKER+
-      ', rates onto '+SHEET_RATES+', Complete onto the Master Register.';
+    s.innerHTML='Rates and metres are saved by <b>Save to Excel</b> in the bar at the top, together with '+
+      'everything else waiting \u2014 there is one save for the whole workbook.';
   }else{
-    b.disabled=true;
     s.innerHTML= (typeof window.canEdit==='function')
-      ? 'Open the workbook with <b>Open workbook</b> above and this writes straight into it.'
+      ? 'Open the workbook with <b>Open workbook</b> above, then save from the bar at the top.'
       : 'This page reads a published copy of the register, so it has nothing to write to. '+
-        'Use the editing page to write progress back into the workbook.';
+        'Use the editing page to save changes back into the workbook.';
   }
+  var eb=q('#eodSaveNote'); if(eb) eodTally();
+}
+
+
+
+
+/* ============================================================
+   Settings, held in the workbook.
+
+   The browser can remember a folder handle and nothing else useful. Everything
+   that is really configuration - who is recording, the day defaults, the
+   standing crew, the pipe type per section - lives on the Settings sheet, so
+   the file carries it and a different machine starts configured.
+   ============================================================ */
+var SHEET_SET='Settings';
+var SETIDX=null, CREWDIRTY=false, SETDIRTY=false;
+function indexSettings(wb){
+  var g=sheetGrid(wb,SHEET_SET);
+  if(!g) return null;
+  var out={prefRow:{},prefCol:null,crewHdr:null,crewFirst:null,crewLast:null,pref:{},crew:[]};
+  for(var r=0;r<g.length;r++){
+    var row=(g[r]||[]).map(function(v){ return String(v==null?'':v).trim(); });
+    if(out.prefCol===null && row.indexOf('Setting')>=0 && row.indexOf('Value')>=0){
+      out.prefCol={key:row.indexOf('Setting'),val:row.indexOf('Value')};
+      continue;
+    }
+    if(out.crewHdr===null && row.indexOf('Type')>=0 && row.indexOf('Description')>=0 &&
+       row.indexOf('Default Hours')>=0){
+      out.crewHdr={kind:row.indexOf('Type'),desc:row.indexOf('Description'),
+                   n:row.indexOf('Number'),hrs:row.indexOf('Default Hours'),
+                   notes:row.indexOf('Notes')};
+      out.crewFirst=r+2;      /* 1-based row after the header */
+      continue;
+    }
+    if(out.prefCol && out.crewHdr===null){
+      var k=row[out.prefCol.key];
+      if(k){ out.prefRow[k]=r+1; out.pref[k]=(g[r]||[])[out.prefCol.val]; }
+    } else if(out.crewHdr){
+      var c=out.crewHdr, kind=row[c.kind], desc=row[c.desc];
+      if(['Labour','Plant','Subcontractor'].indexOf(kind)>=0 && desc){
+        out.crew.push({kind:kind||'Labour',desc:desc||'',
+                       n:Number((g[r]||[])[c.n])||0,hrs:Number((g[r]||[])[c.hrs])||0,
+                       notes:row[c.notes]||''});
+        out.crewLast=r+1;
+      }
+    }
+  }
+  if(out.crewFirst&&!out.crewLast) out.crewLast=out.crewFirst-1;
+  return out.prefCol ? out : null;
+}
+function applySettings(){
+  if(!SETIDX) return 0;
+  var p=SETIDX.pref, n=0;
+  function str(k){ var v=p[k]; return (v==null||String(v).trim()==='')?null:String(v).trim(); }
+  var who=str('Recorded By');
+  if(who){
+    if(!window.EDITOR_NAME) window.EDITOR_NAME=who;
+    var by=q('#eodBy'); if(by && !by.value) { by.value=who; n++; }
+  }
+  var sh=str('Default Shift'), wx=str('Default Weather');
+  var se=q('#eodShift'), we=q('#eodWx');
+  if(sh&&se&&!se.dataset.touched){ se.value=sh; n++; }
+  if(wx&&we&&!we.dataset.touched){ we.value=wx; n++; }
+  var dh=Number(p['Default Shift Hours']);
+  if(isFinite(dh)&&dh>0){ DEFHOURS=dh; n++; }
+  SECS.forEach(function(sec){
+    var v=str('Pipe Type '+sec);
+    if(v){ ST.pipeType[sec]=v; var el=q('#cstPt-'+sec); if(el) el.value=v; n++; }
+  });
+  if(SETIDX.crew && SETIDX.crew.length){
+    PLANT_SEED=SETIDX.crew.map(function(c){
+      return {kind:c.kind,desc:c.desc,n:c.n||1,hrs:c.hrs||DEFHOURS}; });
+    n++;
+    /* nothing recorded yet, so the standing list is what a day starts from */
+    if(!DAYS.length){ PLANT=plantCarry(); renderPlant(); }
+  }
+  var fn=str('Workbook File Name'); if(fn) SETFILE=fn;
+  var bf=str('Backups Folder'); if(bf) BACKUPDIR=bf;
+  var pf=str('Project Folder (last used)'); if(pf) SETFOLDER=pf;
+  return n;
+}
+var DEFHOURS=10, SETFILE=null, BACKUPDIR='backups', SETFOLDER=null;
+
+/* the cells this page owns on the Settings sheet */
+function settingsWrites(){
+  if(!SETIDX||!SETIDX.prefCol) return [];
+  var out=[], p=SETIDX.pref;
+  function put(key,val,kind){
+    var row=SETIDX.prefRow[key];
+    if(!row||val==null||val==='') return;
+    if(same(p[key],val)) return;
+    out.push({ref:ref(SETIDX.prefCol.val,row), value:val, kind:kind||'s',
+              key:key, field:'Settings', before:p[key], after:val});
+  }
+  put('Recorded By', window.EDITOR_NAME||'');
+  SECS.forEach(function(sec){ put('Pipe Type '+sec, ST.pipeType[sec]); });
+  if(FSDIR) put('Project Folder (last used)', FSDIR.name);
+  if(window.WB&&window.WB.name) put('Workbook File Name', window.WB.name);
+  return out;
+}
+/* the standing crew, rewritten only when asked for */
+function crewWrites(){
+  if(!CREWDIRTY||!SETIDX||!SETIDX.crewHdr||!SETIDX.crewFirst) return [];
+  var c=SETIDX.crewHdr, out=[], rows=PLANT.filter(function(p){ return p.desc; });
+  var span=Math.max(rows.length, (SETIDX.crewLast||SETIDX.crewFirst-1)-SETIDX.crewFirst+1);
+  for(var i=0;i<span;i++){
+    var rr=SETIDX.crewFirst+i, p=rows[i]||null;
+    out.push({ref:ref(c.kind,rr),  value:p?p.kind:null, kind:'s', key:'crew '+(i+1),
+              field:'Settings crew', before:'', after:p?p.kind:''});
+    out.push({ref:ref(c.desc,rr),  value:p?p.desc:null, kind:'s', key:'crew '+(i+1),
+              field:'Settings crew', before:'', after:p?p.desc:''});
+    out.push({ref:ref(c.n,rr),     value:p?(p.n||0):null, kind:'n', key:'crew '+(i+1),
+              field:'Settings crew', before:'', after:p?String(p.n||0):''});
+    out.push({ref:ref(c.hrs,rr),   value:p?(p.hrs||0):null, kind:'n', key:'crew '+(i+1),
+              field:'Settings crew', before:'', after:p?String(p.hrs||0):''});
+  }
+  return out;
+}
+
+/* ============================================================
+   The project folder.
+
+   Picked once and remembered, so Open workbook starts where the repository
+   lives and a save goes back to the same file rather than into Downloads.
+   Every save also drops a timestamped copy into a backups folder beside it,
+   so the master is never the only version of the day's work.
+   ============================================================ */
+var FSDIR=null, FSDB=null;
+function idb(){
+  return new Promise(function(res,rej){
+    if(FSDB) return res(FSDB);
+    if(!window.indexedDB) return rej(new Error('no indexedDB'));
+    var rq=indexedDB.open('t2w-fs',1);
+    rq.onupgradeneeded=function(){ rq.result.createObjectStore('h'); };
+    rq.onsuccess=function(){ FSDB=rq.result; res(FSDB); };
+    rq.onerror=function(){ rej(rq.error); };
+  });
+}
+function idbPut(k,v){
+  return idb().then(function(db){
+    return new Promise(function(res,rej){
+      var tx=db.transaction('h','readwrite');
+      tx.objectStore('h').put(v,k);
+      tx.oncomplete=function(){ res(); }; tx.onerror=function(){ rej(tx.error); };
+    });
+  });
+}
+function idbGet(k){
+  return idb().then(function(db){
+    return new Promise(function(res,rej){
+      var tx=db.transaction('h','readonly');
+      var rq=tx.objectStore('h').get(k);
+      rq.onsuccess=function(){ res(rq.result||null); }; rq.onerror=function(){ rej(rq.error); };
+    });
+  });
+}
+function fsSupported(){ return !!(window.showDirectoryPicker); }
+function fsLabel(){
+  var el=document.querySelector('#fsState');
+  if(!el) return;
+  el.innerHTML = FSDIR
+    ? ('folder <b>'+FSDIR.name+'</b> \u00b7 saves here, backups in '+FSDIR.name+'/'+(BACKUPDIR||'backups'))
+    : (fsSupported() ? ('no folder set \u2014 saves will download'+
+        (SETFOLDER?' \u00b7 the register was last opened from <b>'+SETFOLDER+'</b>':''))
+                     : 'this browser cannot write to a folder \u2014 saves will download');
+}
+function fsAsk(h,mode){
+  if(!h||!h.queryPermission) return Promise.resolve(true);
+  return h.queryPermission({mode:mode||'readwrite'}).then(function(p){
+    if(p==='granted') return true;
+    if(!h.requestPermission) return false;
+    return h.requestPermission({mode:mode||'readwrite'}).then(function(p2){ return p2==='granted'; });
+  }).catch(function(){ return false; });
+}
+function fsPick(){
+  if(!fsSupported()){
+    if(window.toast) toast('This browser cannot write to a folder \u2014 use Chrome or Edge');
+    return Promise.resolve(null);
+  }
+  return window.showDirectoryPicker({id:'t2w-base',mode:'readwrite'}).then(function(dir){
+    FSDIR=dir;
+    idbPut('dir',dir).catch(function(){});
+    fsLabel(); refreshSaveBar();
+    if(window.toast) toast('Project folder set to '+dir.name);
+    return dir;
+  }).catch(function(err){
+    if(err && err.name==='AbortError') return null;
+    console.error(err);
+    if(window.toast) toast('Could not use that folder: '+err.message);
+    return null;
+  });
+}
+function fsRestore(){
+  if(!fsSupported()) { fsLabel(); return; }
+  idbGet('dir').then(function(h){
+    if(!h) { fsLabel(); return; }
+    return fsAsk(h,'readwrite').then(function(ok){
+      if(ok){ FSDIR=h; }
+      fsLabel(); refreshSaveBar();
+    });
+  }).catch(function(){ fsLabel(); });
+}
+/* the workbook in the project folder, so Open workbook does not go hunting */
+function fsFindWorkbook(){
+  if(!FSDIR || !FSDIR.values) return Promise.resolve(null);
+  var found=[];
+  return (function(){
+    var it=FSDIR.values(), step=function(){
+      return it.next().then(function(r){
+        if(r.done) return;
+        var e=r.value;
+        if(e.kind==='file' && /\.xlsx?$/i.test(e.name) && !/^~\$/.test(e.name)) found.push(e);
+        return step();
+      });
+    };
+    return step();
+  })().then(function(){
+    if(!found.length) return null;
+    if(found.length===1) return found[0];
+    /* more than one: prefer the register by name */
+    var pick=null;
+    found.forEach(function(f){ if(/register/i.test(f.name)) pick=pick||f; });
+    return pick||found[0];
+  });
+}
+function stampName(name){
+  var d=new Date();
+  var p=function(n){ return String(n).padStart(2,'0'); };
+  var t=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+p(d.getMinutes());
+  var m=/^(.*?)(\.xlsx?)$/i.exec(name||'workbook.xlsx');
+  return m ? (m[1]+' '+t+m[2]) : (name+' '+t);
+}
+function writeFile(handle,bytes){
+  return handle.createWritable().then(function(w){
+    return w.write(bytes).then(function(){ return w.close(); });
+  });
+}
+/* master in place, plus a timestamped copy in backups */
+function persistWorkbook(bytes,count){
+  var name=window.WB.name||SETFILE||'T2W register.xlsx';
+  function done(where){
+    if(typeof window.refreshEditUI==='function') window.refreshEditUI();
+    refreshSaveBar(); setWriteState();
+    if(window.toast) toast(count+' change'+(count===1?'':'s')+' saved \u2014 '+where);
+  }
+  function backupTo(dir){
+    return dir.getDirectoryHandle(BACKUPDIR||'backups',{create:true}).then(function(bd){
+      return bd.getFileHandle(stampName(name),{create:true}).then(function(fh){
+        return writeFile(fh,bytes).then(function(){ return fh.name; });
+      });
+    });
+  }
+  if(FSDIR){
+    var target = (window.WB.handle && window.WB.fromFolder) ? Promise.resolve(window.WB.handle)
+               : FSDIR.getFileHandle(name,{create:true});
+    target.then(function(fh){
+      window.WB.handle=fh; window.WB.fromFolder=true;
+      return writeFile(fh,bytes).then(function(){ return backupTo(FSDIR); });
+    }).then(function(bn){
+      done('master '+name+' and backups/'+bn);
+    }).catch(function(err){
+      console.error(err);
+      if(typeof window.downloadCopy==='function') window.downloadCopy(bytes);
+      done('downloaded (the folder refused the write: '+err.message+')');
+    });
+    return;
+  }
+  if(window.WB.handle && window.WB.handle.createWritable){
+    writeFile(window.WB.handle,bytes).then(function(){
+      done('into '+name+' \u2014 set a project folder to keep backups too');
+    }).catch(function(err){
+      console.error(err);
+      if(typeof window.downloadCopy==='function') window.downloadCopy(bytes);
+      done('downloaded (in-place write refused)');
+    });
+    return;
+  }
+  if(typeof window.downloadCopy==='function') window.downloadCopy(bytes);
+  done('downloaded to your Downloads folder');
+}
+/* Open workbook: start in the project folder, and open its workbook outright
+   when there is only one there */
+function fsOpen(){
+  if(FSDIR){
+    return fsFindWorkbook().then(function(fh){
+      if(fh){
+        return fsAsk(fh,'readwrite').then(function(){
+          return fh.getFile().then(function(f){
+            window.WB.fromFolder=true;
+            window.ingestWorkbook(f,fh);
+          });
+        });
+      }
+      return fsPickFile();
+    }).catch(function(err){ console.error(err); return fsPickFile(); });
+  }
+  return fsPickFile();
+}
+function fsPickFile(){
+  if(!window.showOpenFilePicker){ var fi=document.querySelector('#fileIn'); if(fi) fi.click(); return; }
+  var opts={types:[{description:'Excel workbook',accept:{
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx'],
+      'application/vnd.ms-excel.sheet.macroEnabled.12':['.xlsm']}}],
+    multiple:false, id:'t2w-base'};
+  if(FSDIR) opts.startIn=FSDIR;
+  return window.showOpenFilePicker(opts).then(function(hs){
+    var h=hs[0];
+    return h.getFile().then(function(f){
+      window.WB.fromFolder=!!FSDIR;
+      window.ingestWorkbook(f,h);
+    });
+  }).catch(function(e){
+    if(e && e.name==='AbortError') return;
+    var fi=document.querySelector('#fileIn'); if(fi) fi.click();
+  });
+}
+/* a folder control in the register's own edit bar, where the save button lives */
+function fsMountUI(){
+  var bar=document.querySelector('#editBar');
+  if(!bar || document.querySelector('#fsFolder')) return;
+  var b=document.createElement('button');
+  b.id='fsFolder'; b.textContent='Project folder\u2026';
+  b.title='Pick the folder the register lives in. Saves go there, with a copy in backups.';
+  b.addEventListener('click',function(){ fsPick().then(function(d){ if(d) fsOpen(); }); });
+  var s=document.createElement('span');
+  s.id='fsState'; s.className='es'; s.style.marginLeft='4px';
+  bar.appendChild(b); bar.appendChild(s);
+  fsLabel();
+}
+
+/* ============================================================
+   One save for the whole workbook.
+
+   The register's own attribute edits, the cost rates and metres, the point
+   asset Complete flags and any unwritten days all go in together, in one pass,
+   to one file - plus a timestamped copy in the backups folder. Two separate
+   "write to the workbook" buttons meant two writes and two chances to save half
+   a position, so they are gone.
+   ============================================================ */
+var COSTDIRTY=false;
+function markDirty(){ COSTDIRTY=true; refreshSaveBar(); }
+function unwrittenDays(){ return DAYS.filter(function(d){ return !d.written; }); }
+function extrasPending(){
+  var d=unwrittenDays().length;
+  return {cost:COSTDIRTY, days:d, crew:CREWDIRTY, plr:PLRDIRTY,
+          any:(COSTDIRTY||d>0||CREWDIRTY||PLRDIRTY)};
+}
+/* the register's own save bar is the one place to press save, so it has to show
+   what is waiting from these tabs too */
+var origRefresh=null;
+function refreshSaveBar(){
+  if(typeof window.canEdit!=='function' || !window.canEdit()) return;
+  var e=extrasPending();
+  var btn=document.querySelector('#btnSave');
+  if(!btn) return;
+  var n=(typeof window.pendingCount==='function')?window.pendingCount():0;
+  var bits=[];
+  if(n) bits.push(n+' edit'+(n===1?'':'s'));
+  if(e.cost) bits.push('cost changes');
+  if(e.days) bits.push(e.days+' day'+(e.days===1?'':'s'));
+  if(e.crew) bits.push('crew list');
+  if(PLRDIRTY) bits.push('plant rates');
+  btn.disabled = !(n||e.any);
+  btn.textContent = bits.length ? ('Save '+bits.join(', ')+' to Excel') : 'Save to Excel';
+  var st=document.querySelector('#editState');
+  if(st && e.any && window.WB){
+    st.textContent=window.WB.name+' \u2014 '+bits.join(', ')+' unsaved';
+  }
+}
+function masterSave(){
+  if(!window.WB || !window.WB.bytes){
+    if(window.toast) toast('Open the workbook first'); return;
+  }
+  var e=extrasPending();
+  var hasPending=(typeof window.pendingCount==='function')?window.pendingCount()>0:false;
+  if(!e.any && !hasPending){
+    if(window.toast) toast('Nothing to save'); return;
+  }
+  /* a new asset is an inserted row, which renumbers everything below it. That
+     path is the register's own and is left to it, then this runs again. */
+  if(typeof NEW_ASSETS!=='undefined' && NEW_ASSETS.length){
+    if(origSave) origSave();
+    if(window.toast) toast('New asset saved first \u2014 press save again for the rest');
+    return;
+  }
+  if(!window.EDITOR_NAME){
+    var nm=(window.prompt('Your name, for the edit log:','')||'').trim();
+    if(!nm){ if(window.toast) toast('Save cancelled \u2014 a name is needed for the log'); return; }
+    window.EDITOR_NAME=nm;
+  }
+
+  var days=unwrittenDays();
+  var appends=[];
+  days.forEach(function(d){
+    eodAppends(d).forEach(function(a){
+      if(!a.rows.length) return;
+      var found=null;
+      appends.forEach(function(x){ if(x.sheet===a.sheet) found=x; });
+      if(found) found.rows=found.rows.concat(a.rows);
+      else appends.push({sheet:a.sheet,rows:a.rows.slice(),summary:a.summary});
+    });
+  });
+
+  var W;
+  try{ W=collectWrites(); }
+  catch(err){ console.error(err);
+    if(window.toast) toast('Could not read the workbook: '+err.message); return; }
+
+  /* the register's own pending attribute edits ride in the Master Register pass */
+  var regEdits=[], regLog=[];
+  var stamp=new Date().toLocaleString('en-AU',{year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
+  if(hasPending && typeof PENDING!=='undefined'){
+    Object.keys(PENDING).sort().forEach(function(id){
+      var p=PENDING[id];
+      regEdits.push({ref:p.ref,value:p.value,kind:p.kind});
+      var f=function(v){ return (v===''||v==null)?'':String(v); };
+      regLog.push([stamp, window.EDITOR_NAME, p.key, p.assetId,
+        (window.HDR_OF&&window.HDR_OF[p.field])||p.field, f(p.before), f(p.after),
+        'Master Register!'+p.ref]);
+    });
+  }
+
+  var setEdits=settingsWrites().concat(crewWrites());
+  var plrEdits=plantRateWrites();
+  var idxD=buildIndex().day||{};
+  var missing=appends.filter(function(a){ return !idxD[a.sheet]; }).map(function(a){ return a.sheet; });
+  if(missing.length){
+    if(window.toast) toast('This workbook has no "'+missing[0]+'" sheet \u2014 open the Rev 5.5 register');
+    return;
+  }
+
+  function logOf(list,sheet){
+    return list.map(function(x){
+      var f=function(v){ return (v==null||v==='')?'':String(v); };
+      return [stamp, window.EDITOR_NAME, x.key, '', x.field, f(x.before), f(x.after), sheet+'!'+x.ref];
+    });
+  }
+  var passes=[];
+  var mrEdits=regEdits.concat(W.mr.map(function(x){
+    return {ref:x.ref,value:x.value,kind:x.kind}; }));
+  var mrLog=regLog.concat(logOf(W.mr,SHEET_MR));
+  if(mrEdits.length)      passes.push({sheet:SHEET_MR, edits:mrEdits, log:mrLog});
+  if(W.tracker.length)    passes.push({sheet:SHEET_TRACKER, edits:W.tracker.map(function(x){
+                            return {ref:x.ref,value:x.value,kind:x.kind}; }),
+                            log:logOf(W.tracker,SHEET_TRACKER)});
+  if(W.rates.length)      passes.push({sheet:SHEET_RATES, edits:W.rates.map(function(x){
+                            return {ref:x.ref,value:x.value,kind:x.kind}; }),
+                            log:logOf(W.rates,SHEET_RATES)});
+  if(plrEdits.length)     passes.push({sheet:SHEET_PLR, edits:plrEdits.map(function(x){
+                            return {ref:x.ref,value:x.value,kind:x.kind}; }),
+                            log:logOf(plrEdits,SHEET_PLR)});
+  if(setEdits.length)     passes.push({sheet:SHEET_SET, edits:setEdits.map(function(x){
+                            return {ref:x.ref,value:x.value,kind:x.kind}; }),
+                            log:logOf(setEdits.filter(function(x){ return x.field==='Settings'; }),SHEET_SET)});
+
+  var cells=mrEdits.length+W.tracker.length+W.rates.length+setEdits.length+plrEdits.length;
+  var dayRows=appends.reduce(function(a,x){ return a+x.rows.length; },0);
+  if(!cells && !dayRows){
+    COSTDIRTY=false; refreshSaveBar();
+    if(window.toast) toast('Nothing to save \u2014 the workbook already matches'); return;
+  }
+
+  var where=FSDIR ? ('into '+FSDIR.name+' with a copy in '+FSDIR.name+'/backups')
+                  : (window.WB.handle ? 'into '+window.WB.name : 'as a download');
+  if(!window.confirm('Save to '+window.WB.name+'?\n\n'+
+      (regEdits.length? regEdits.length+' attribute edit(s)\n':'')+
+      (W.tracker.length? W.tracker.length+' cell(s) on '+SHEET_TRACKER+'\n':'')+
+      (W.rates.length? W.rates.length+' cell(s) on '+SHEET_RATES+'\n':'')+
+      (W.mr.length? W.mr.length+' cell(s) on '+SHEET_MR+' (Complete = Yes)\n':'')+
+      (plrEdits.length? plrEdits.length+' cell(s) on '+SHEET_PLR+'\n':'')+
+      (setEdits.length? setEdits.length+' cell(s) on '+SHEET_SET+'\n':'')+
+      appends.map(function(a){ return a.rows.length+' row(s) appended to '+a.sheet+'\n'; }).join('')+
+      '\nWriting '+where+'.')) return;
+
+  var bytes=window.WB.bytes;
+  try{
+    passes.forEach(function(p){
+      var out=window.applyEdits(bytes,{sheet:p.sheet, logSheet:'Edit Log',
+        logStartRow:window.WB.logNextRow, edits:p.edits, inserts:[], log:p.log});
+      bytes=out.bytes||out;
+      window.WB.logNextRow+=p.log.length;
+    });
+    appends.forEach(function(a){
+      var ix=idxD[a.sheet], KIND=DAYSHEETS[a.sheet]||[];
+      var ed=[], lg=[];
+      a.rows.forEach(function(row,i){
+        var rr=ix.nextRow+i;
+        row.forEach(function(v,j){
+          if(v===''||v==null) return;
+          var k=KIND[j]||'s', val=v, kind='s';
+          if(k==='d'){ val=window.isoToSerial(v); kind='n'; if(val===null){ val=v; kind='s'; } }
+          else if(k==='n'){ val=Number(v); kind='n'; if(!isFinite(val)){ val=v; kind='s'; } }
+          ed.push({ref:ref(ix.firstCol+j,rr), value:val, kind:kind});
+        });
+        lg.push([stamp, window.EDITOR_NAME, String(row[3]==null?'':row[3]), '', a.sheet,
+          '', auDate(row[0])+(a.summary?' \u00b7 '+a.summary(row):''),
+          a.sheet+'!'+ref(ix.firstCol,rr)]);
+      });
+      var out=window.applyEdits(bytes,{sheet:a.sheet, logSheet:'Edit Log',
+        logStartRow:window.WB.logNextRow, edits:ed, inserts:[], log:lg});
+      bytes=out.bytes||out;
+      window.WB.logNextRow+=lg.length;
+    });
+  }catch(err){
+    console.error(err);
+    if(window.toast) toast('Could not write the workbook: '+err.message);
+    return;
+  }
+
+  window.WB.bytes=bytes; WBIDX=null; WBIDXFOR=null; SEEDED=window.WB.bytes;
+  /* keep the register in memory in step with what was written */
+  if(W.mr.length && window.D && RIDX){
+    var C=window.D.C, HO=window.HDR_OF||{};
+    W.mr.forEach(function(x){
+      var ri=RIDX[x.key]; if(ri==null) return;
+      if(x.field===HO['complete']) window.D.rows[ri][C.complete]='Yes';
+      if(x.field===HO['completion_date']) window.D.rows[ri][C.completion_date]=x.value;
+    });
+  }
+  if(typeof PENDING!=='undefined') for(var k in PENDING) delete PENDING[k];
+  days.forEach(function(d){ d.written=true; });
+  COSTDIRTY=false; CREWDIRTY=false; PLRDIRTY=false; SETIDX=null; PLRIDX=null;
+  renderEODLog();
+  if(typeof window.renderTable==='function') window.renderTable();
+
+  persistWorkbook(bytes, cells+dayRows);
 }
 
 /* ---------- entry ---------- */
@@ -5214,6 +6050,23 @@ function rebuildForNewData(){
   captureBase(); buildEOD(); renderEODLog();
   if(window.toast) toast('Cost view refreshed for the workbook just opened');
   return true;
+}
+var origSave=null;
+function takeOver(){
+  if(typeof window.saveToExcel==='function' && window.saveToExcel!==masterSave){
+    origSave=window.saveToExcel;
+    window.saveToExcel=masterSave;              /* bound by name, so this wins */
+  }
+  if(typeof window.openWorkbookForEdit==='function' && window.openWorkbookForEdit!==fsOpen){
+    window.openWorkbookForEdit=fsOpen;
+  }
+  if(typeof window.refreshEditUI==='function' && !window.refreshEditUI.__wrapped){
+    var orig=window.refreshEditUI;
+    var wrapped=function(){ orig.apply(this,arguments); refreshSaveBar(); };
+    wrapped.__wrapped=true;
+    window.refreshEditUI=wrapped;
+  }
+  fsMountUI();
 }
 function build(){
   if(built) return true;
@@ -5247,13 +6100,24 @@ window.COSTS={
     if(build()){ render(); setWriteState(); }
     else { q('#cstWarn').style.display=''; q('#cstBody').style.display='none'; }
   },
+  renderPLR:function(){
+    if(built && window.D!==DFOR){ rebuildForNewData(); return; }
+    build();
+    renderPlantRates();
+    var c=q('#plrCount');
+    if(c) c.innerHTML=PLRIDX ? ('<b>'+PLRIDX.list.length+'</b> resources listed')
+                             : 'no workbook open';
+  },
   renderEOD:function(){
     if(built && window.D!==DFOR){ rebuildForNewData(); return; }
     if(build()){ captureBase(); buildEOD(); renderEODLog(); }
     else { q('#eodWarn').style.display=''; q('#eodBody').style.display='none'; }
   }
 };
+takeOver();          /* before the editor binds its buttons */
 document.addEventListener('DOMContentLoaded',function(){
+  takeOver();        /* and again once the bar exists */
+  fsRestore();
   poll=setInterval(function(){ build(); },400);
   setTimeout(function(){ if(poll){ clearInterval(poll); poll=null; } },30000);
   /* a workbook can be opened at any time on the editing page */
@@ -5261,6 +6125,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!built) return;
     if(window.D!==DFOR){ rebuildForNewData(); return; }
     if(canWrite() && SEEDED!==window.WB.bytes) setWriteState();
+    takeOver();
   },800);
 });
 })();
