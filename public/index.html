@@ -355,6 +355,58 @@ tbody tr.picked:hover{background:#d7e8f4}
 #tab-costs .note+.note{margin-top:9px}
 @media (max-width:860px){ #tab-costs .kpis{grid-template-columns:repeat(2,1fr)}
   #tab-costs .kpi{border-bottom:1px solid var(--line)} }
+
+/* ---------- End of day ---------- */
+#tab-eod .eodhead{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px}
+#tab-eod .eodhead label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--mid);margin-bottom:5px}
+#tab-eod .eodhead input,#tab-eod .eodhead select{width:100%;padding:9px 10px;border:1px solid #c3ccd7;
+  border-radius:6px;background:#fff}
+#tab-eod .eodhead input:focus,#tab-eod .eodhead select:focus{outline:2px solid var(--accent);
+  outline-offset:-1px;border-color:var(--accent)}
+#tab-eod .seccard{border-top:1px solid var(--line);padding:15px 14px}
+#tab-eod .seccard:first-child{border-top:0}
+#tab-eod .schd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-bottom:4px}
+#tab-eod .schd b{font-size:16px}
+#tab-eod .schd .prev{font-size:12px;color:var(--mid);font-variant-numeric:tabular-nums}
+#tab-eod .schd .today{margin-left:auto;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+#tab-eod .pair2{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:12px 16px;
+  margin-top:11px}
+#tab-eod .fld2{border:1px solid var(--line);border-radius:8px;padding:10px 11px;background:#fbfcfe}
+#tab-eod .fld2 .cap{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--mid);display:flex;justify-content:space-between;gap:8px}
+#tab-eod .fld2 .cap i{font-style:normal;color:var(--accent);text-transform:none;letter-spacing:0;
+  font-variant-numeric:tabular-nums}
+#tab-eod .fld2 .two{display:flex;gap:8px;align-items:center;margin-top:7px}
+#tab-eod .fld2 input{width:100%;padding:9px 10px;border:1px solid #c3ccd7;border-radius:6px;
+  font-variant-numeric:tabular-nums;font-size:15px}
+#tab-eod .fld2 input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+#tab-eod .fld2 .sep{font-size:11px;color:var(--mid);white-space:nowrap}
+#tab-eod .fld2 .out{font-size:11.5px;color:var(--mid);margin-top:6px;font-variant-numeric:tabular-nums}
+#tab-eod .fld2.err input{border-color:var(--danger);background:#fdf3f2}
+#tab-eod .fld2.err .out{color:var(--danger)}
+#tab-eod .asset{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+#tab-eod .apill{display:flex;align-items:center;gap:7px;border:1px solid #c3ccd7;border-radius:20px;
+  padding:5px 12px 5px 9px;font-size:12px;background:#fff;cursor:pointer;user-select:none}
+#tab-eod .apill input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+#tab-eod .apill.on{background:var(--accent-w);border-color:var(--accent);color:var(--navy);font-weight:600}
+#tab-eod .apill em{font-style:normal;color:var(--mid);font-weight:400;font-variant-numeric:tabular-nums}
+#tab-eod .apill.on em{color:var(--navy)}
+#tab-eod .none{font-size:12px;color:var(--mid);margin-top:9px}
+#tab-eod .tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;
+  border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+#tab-eod .tally div{padding:12px 14px;border-right:1px solid var(--line)}
+#tab-eod .tally div:last-child{border-right:0}
+#tab-eod .tally .k{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mid)}
+#tab-eod .tally .v{font-size:20px;font-variant-numeric:tabular-nums;margin-top:4px;white-space:nowrap}
+#tab-eod .tally .lead{background:var(--navy);color:#fff}
+#tab-eod .tally .lead .k{color:#a9bdd4}
+#tab-eod textarea{width:100%;min-height:62px;padding:9px 10px;border:1px solid #c3ccd7;border-radius:6px;
+  font:inherit;resize:vertical}
+#tab-eod textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+#tab-eod .warnbox{border-left:3px solid var(--warn);background:var(--warn-bg);padding:11px 14px;
+  font-size:12.5px;margin-top:12px}
+#tab-eod .warnbox.hide{display:none}
 </style>
 </head>
 <body>
@@ -371,6 +423,7 @@ tbody tr.picked:hover{background:#d7e8f4}
 <nav class="tabs">
   <button data-tab="search" class="on">Search</button>
   <button data-tab="costs">Costs</button>
+  <button data-tab="eod">End of day</button>
   <button data-tab="drawings">Drawings</button>
   <button data-tab="quality">Data quality</button>
   <button data-tab="about">About</button>
@@ -626,6 +679,85 @@ tbody tr.picked:hover{background:#d7e8f4}
         <p class="note"><b>Earned, not certified.</b> Quantities at the rates entered above &mdash; a claim position
           for review, not an approved payment.</p>
         <p class="note" id="cstScope"></p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ END OF DAY ============ -->
+<section id="tab-eod" style="display:none">
+
+  <div id="eodWarn" class="empty" style="display:none"><b>Waiting for register data</b>
+    The end of day page works from the same records as Search. Load the register first.</div>
+
+  <div id="eodBody" style="display:none">
+
+    <div class="panel">
+      <h2>The day</h2>
+      <div class="pad">
+        <div class="eodhead">
+          <div><label for="eodDate">Date</label><input type="date" id="eodDate"></div>
+          <div><label for="eodBy">Recorded by</label><input type="text" id="eodBy" placeholder="your name"></div>
+          <div><label for="eodShift">Shift</label><select id="eodShift">
+            <option>Day</option><option>Night</option></select></div>
+          <div><label for="eodWx">Weather</label><select id="eodWx">
+            <option>Fine</option><option>Overcast</option><option>Showers</option>
+            <option>Rain</option><option>Wet — stood down</option><option>Hot — stood down</option>
+          </select></div>
+          <div><label for="eodDown">Downtime (hrs)</label>
+            <input type="number" id="eodDown" min="0" step="0.5" placeholder="0"></div>
+        </div>
+        <div class="warnbox hide" id="eodDup"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Progress</h2>
+      <div id="eodSecs"></div>
+    </div>
+
+    <div class="panel">
+      <h2>The day in figures</h2>
+      <div class="pad">
+        <div class="tally" id="eodTally"></div>
+        <div style="margin-top:14px">
+          <label for="eodNotes" style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;
+            letter-spacing:.5px;color:var(--mid);margin-bottom:5px">Notes</label>
+          <textarea id="eodNotes" placeholder="anything worth recording — hold points, issues, plant, visitors"></textarea>
+        </div>
+        <div class="actions">
+          <button class="btn" id="eodSave">Save the day</button>
+          <button class="btn sec" id="eodWrite">Save and write to the workbook</button>
+          <button class="btn sec" id="eodClear">Clear the form</button>
+        </div>
+        <p class="note" id="eodSaveNote" style="margin-top:11px"></p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Days recorded</h2>
+      <div class="tblWrap"><table id="eodLog" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+      <div class="pad" style="padding-top:10px">
+        <span class="count" id="eodLogCount"></span>
+        <button class="btn sec" id="eodUndo" style="margin-left:12px">Undo the last day</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>How this page works</h2>
+      <div class="pad">
+        <p class="note"><b>Yesterday is carried forward.</b> Each section shows the chainage it had already
+          reached, so the only thing to type is where it got to today. Type the chainage reached or the metres
+          done &mdash; either one fills the other.</p>
+        <p class="note"><b>It writes to the same place as the Costs tab.</b> Saving a day sets the metres on the
+          trench sections it covers and ticks the point assets you confirm, so the cost position and the day log
+          cannot drift apart. Nothing is recorded twice.</p>
+        <p class="note"><b>Point assets are listed, not assumed.</b> Anything sitting between yesterday's
+          chainage and today's is offered with a tick, because if the trench went past it, it is probably done
+          &mdash; but it stays your call, and an untick leaves it outstanding.</p>
+        <p class="note"><b>Append only.</b> A saved day is what was reported that day. To correct one, either undo
+          the last day while it is still the last, or record the true position on the next day.</p>
       </div>
     </div>
 
@@ -1593,9 +1725,10 @@ function rebuild(wb){
 /* ---------- ui plumbing ---------- */
 function switchTab(name){
   $$('nav.tabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===name); });
-  ['search','costs','drawings','quality','about'].forEach(function(t){
+  ['search','costs','eod','drawings','quality','about'].forEach(function(t){
     $('#tab-'+t).style.display = (t===name)?'':'none'; });
   if(name==='costs' && window.COSTS) window.COSTS.render();
+  if(name==='eod' && window.COSTS) window.COSTS.renderEOD();
   if(name==='search') setTimeout(function(){ renderStrip(
     $('#chFrom').value===''?null:+$('#chFrom').value,
     $('#chTo').value===''?null:+$('#chTo').value); },0);
@@ -2311,6 +2444,375 @@ function render(keep){
     advTo:advTo,advAll:advAll,totLen:totLen};
 }
 
+
+/* ============================================================
+   End of day.
+
+   A form over the same per-item state the Costs tab uses: saving a day
+   writes metres onto the trench sections it covers and ticks the point
+   assets confirmed, so the day log and the cost position are the same
+   numbers. Yesterday is carried forward so only the new figure is typed.
+   ============================================================ */
+var DAYS=[];              /* [{date,by,shift,wx,down,notes,rows:[...],snap:{...}}] */
+var EODSEED=false;
+
+function todayISO(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
+         String(d.getDate()).padStart(2,'0');
+}
+function auDate(iso){
+  var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
+  return m ? (m[3]+'/'+m[2]+'/'+m[1]) : String(iso||'');
+}
+/* what the section had reached before today's entry */
+function baseFront(sec){
+  var b=EODBASE[sec];
+  return b==null ? 0 : b;
+}
+var EODBASE={}, EODPIPE={};
+function captureBase(){
+  computeFront();
+  SECS.forEach(function(s){
+    EODBASE[s]=FRONT[s];
+    /* pipe front: the far end of continuous laid pipe, same rule as trench */
+    var rs=T.filter(function(t){ return t.sec===s; }), ch=0;
+    for(var i=0;i<rs.length;i++){
+      var t=rs[i], d=pDone(t);
+      if(d>=t.len-1e-9){ ch=t.e; continue; }
+      ch=t.s+d; break;
+    }
+    EODPIPE[s]=ch;
+  });
+}
+
+function buildEOD(){
+  var host=q('#eodSecs'); host.innerHTML='';
+  SECS.forEach(function(sec){
+    var ext=EXT[sec];
+    var card=ce('div','seccard');
+    card.innerHTML=
+      '<div class="schd"><b>'+sec+'</b>'+
+        '<span class="prev" id="eodPrev-'+sec+'"></span>'+
+        '<span class="today" id="eodToday-'+sec+'"></span></div>'+
+      '<div class="pair2">'+
+        '<div class="fld2" id="eodTF-'+sec+'"><div class="cap"><span>Trench</span>'+
+          '<i id="eodTWas-'+sec+'"></i></div>'+
+          '<div class="two"><input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+
+            '" id="eodTCh-'+sec+'" placeholder="reached ch">'+
+            '<span class="sep">or</span>'+
+            '<input type="number" step="0.001" min="0" id="eodTM-'+sec+'" placeholder="m today"></div>'+
+          '<div class="out" id="eodTOut-'+sec+'"></div></div>'+
+        '<div class="fld2" id="eodPF-'+sec+'"><div class="cap"><span>Pipe</span>'+
+          '<i id="eodPWas-'+sec+'"></i></div>'+
+          '<div class="two"><input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+
+            '" id="eodPCh-'+sec+'" placeholder="reached ch">'+
+            '<span class="sep">or</span>'+
+            '<input type="number" step="0.001" min="0" id="eodPM-'+sec+'" placeholder="m today"></div>'+
+          '<div class="out" id="eodPOut-'+sec+'"></div></div>'+
+      '</div>'+
+      '<div class="asset" id="eodAssets-'+sec+'"></div>'+
+      '<div class="none" id="eodNone-'+sec+'"></div>';
+    host.appendChild(card);
+
+    /* chainage and metres fill each other, so either can be typed */
+    function link(chId,mId,base,cb){
+      var ch=q(chId), m=q(mId);
+      ch.addEventListener('input',function(){
+        var v=numOf(ch);
+        m.value = v==null ? '' : +Math.max(v-base(),0).toFixed(3);
+        cb();
+      });
+      m.addEventListener('input',function(){
+        var v=numOf(m);
+        ch.value = v==null ? '' : +(base()+v).toFixed(3);
+        cb();
+      });
+    }
+    link('#eodTCh-'+sec,'#eodTM-'+sec,function(){ return baseFront(sec); },function(){ eodRender(sec); });
+    link('#eodPCh-'+sec,'#eodPM-'+sec,function(){ return EODPIPE[sec]||0; },function(){ eodRender(sec); });
+  });
+  if(!EODSEED){
+    q('#eodDate').value=todayISO();
+    EODSEED=true;
+  }
+  eodRender();
+}
+
+/* the point assets between yesterday's chainage and today's */
+function eodAssetsFor(sec){
+  var from=baseFront(sec), to=numOf(q('#eodTCh-'+sec));
+  if(to==null || to<=from) return [];
+  return PA.filter(function(p){
+    return p.sec===sec && !ST.paDone[p.key] && p.ch>from-1e-9 && p.ch<=to+1e-9;
+  });
+}
+var EODTICK={};
+function eodRender(only){
+  var secs = only ? [only] : SECS;
+  secs.forEach(function(sec){
+    var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
+    q('#eodPrev-'+sec).textContent='yesterday: trench '+m1(from)+' m \u00b7 pipe '+m1(pfrom)+' m'+
+      (pfrom>from+1e-9 ? '  \u26a0 pipe is recorded ahead of the trench' : '');
+    q('#eodTWas-'+sec).textContent='was '+m1(from)+' m';
+    q('#eodPWas-'+sec).textContent='was '+m1(pfrom)+' m';
+
+    var t=numOf(q('#eodTCh-'+sec)), p=numOf(q('#eodPCh-'+sec));
+    var tf=q('#eodTF-'+sec), pf=q('#eodPF-'+sec);
+    tf.classList.remove('err'); pf.classList.remove('err');
+    var tOut='', pOut='';
+    if(t!=null){
+      if(t<from){ tf.classList.add('err'); tOut='behind yesterday\u2019s '+m1(from)+' m — a day cannot go backwards'; }
+      else if(t>ext){ tf.classList.add('err'); tOut='past the end of '+sec+' at '+m1(ext)+' m'; }
+      else tOut='+'+m1(t-from)+' m of trench';
+    }
+    if(p!=null){
+      var cap = t!=null && t>=from && t<=ext ? t : from;
+      if(p<pfrom){ pf.classList.add('err'); pOut='behind yesterday\u2019s '+m1(pfrom)+' m'; }
+      else if(p>cap){ pf.classList.add('err');
+        pOut='ahead of the trench at '+m1(cap)+' m — pipe cannot outrun its own trench'; }
+      else pOut='+'+m1(p-pfrom)+' m of pipe';
+    }
+    q('#eodTOut-'+sec).textContent=tOut;
+    q('#eodPOut-'+sec).textContent=pOut;
+
+    /* assets newly covered */
+    var host=q('#eodAssets-'+sec); host.innerHTML='';
+    var list=eodAssetsFor(sec);
+    list.forEach(function(a){
+      if(EODTICK[a.key]===undefined) EODTICK[a.key]=true;   /* the trench went past it */
+      var lab=ce('label','apill'+(EODTICK[a.key]?' on':''));
+      var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=!!EODTICK[a.key];
+      cb.addEventListener('change',function(){
+        EODTICK[a.key]=cb.checked;
+        lab.classList.toggle('on',cb.checked);
+        eodTally();
+      });
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(a.type==='TREE REMOVAL'?'Tree removal':
+        (a.item? a.item : a.type.toLowerCase())));
+      var em=ce('em',null,' ch '+m1(a.ch)); lab.appendChild(em);
+      lab.title=a.key+' \u00b7 '+a.type+(a.ud?' \u00b7 '+a.ud:'');
+      host.appendChild(lab);
+    });
+    var n=q('#eodNone-'+sec);
+    if(!list.length){
+      n.textContent = (t==null||t<=from)
+        ? 'Type a chainage and any point assets in the new ground will be listed here to tick.'
+        : 'No outstanding point assets between '+m1(from)+' m and '+m1(t)+' m.';
+    } else {
+      n.textContent=list.length+' point asset'+(list.length===1?'':'s')+
+        ' in the new ground, ticked by default — untick anything not finished.';
+    }
+    var dt = (t!=null&&t>=from) ? t-from : 0;
+    var dp = (p!=null&&p>=pfrom) ? p-pfrom : 0;
+    q('#eodToday-'+sec).textContent = (dt||dp)
+      ? ('today: +'+m1(dt)+' m trench \u00b7 +'+m1(dp)+' m pipe') : '';
+  });
+  eodDupCheck();
+  eodTally();
+}
+
+function eodDupCheck(){
+  var d=q('#eodDate').value, box=q('#eodDup');
+  var odd=SECS.filter(function(s){ return (EODPIPE[s]||0) > baseFront(s)+1e-9; });
+  if(odd.length){
+    box.classList.remove('hide');
+    box.innerHTML='<b>The opening position does not add up in '+odd.join(' and ')+'.</b> '+
+      odd.map(function(s){ return s+' has pipe recorded to '+m1(EODPIPE[s])+
+        ' m but trench only to '+m1(baseFront(s))+' m'; }).join('; ')+
+      '. Pipe cannot be laid in a trench that is not recorded as dug, so one of the two is wrong \u2014 most '+
+      'likely a figure entered while trialling the page. Fix it on Cost Tracker - Linear, or record the trench '+
+      'it sits in, before the day\u2019s pipe figure will be accepted.';
+    return;
+  }
+  var hit=DAYS.filter(function(x){ return x.date===d; });
+  if(hit.length){
+    box.classList.remove('hide');
+    box.innerHTML='<b>'+auDate(d)+' is already recorded.</b> Saving again adds a second set of rows for that '+
+      'date. If you are correcting it, undo the last day first, or record the true position on the next day.';
+  } else box.classList.add('hide');
+}
+
+/* what the form currently claims, without changing anything */
+function eodDraft(){
+  var rows=[], mT=0,mP=0,items=0,earn=0, bad=false;
+  SECS.forEach(function(sec){
+    var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
+    var t=numOf(q('#eodTCh-'+sec)), p=numOf(q('#eodPCh-'+sec));
+    if(t!=null && (t<from || t>ext)) bad=true;
+    var cap = t!=null && t>=from && t<=ext ? t : from;
+    if(p!=null && (p<pfrom || p>cap)) bad=true;
+    var to = (t!=null && t>=from && t<=ext) ? t : from;
+    var pto = (p!=null && p>=pfrom && p<=cap) ? p : pfrom;
+    var picked=eodAssetsFor(sec).filter(function(a){ return EODTICK[a.key]; });
+    var e=0;
+    /* trench and pipe earned over the new ground, at the rates in force */
+    T.forEach(function(x){
+      if(x.sec!==sec) return;
+      var tr=ST.tRate[x.sec+'|'+x.tt], pr=ST.pRate[x.sec+'|'+ST.pipeType[x.sec]];
+      var addT=Math.max(Math.min(to,x.e)-Math.max(from,x.s),0);
+      var addP=Math.max(Math.min(pto,x.e)-Math.max(pfrom,x.s),0);
+      if(tr!=null) e+=addT*tr;
+      if(pr!=null) e+=addP*pr;
+    });
+    picked.forEach(function(a){ var r=rateOf(a); if(r!=null) e+=r*qtyOf(a); });
+    if(to>from || pto>pfrom || picked.length){
+      rows.push({sec:sec,from:from,to:to,pfrom:pfrom,pto:pto,
+                 dt:to-from,dp:pto-pfrom,picked:picked,earn:e});
+      mT+=to-from; mP+=pto-pfrom; items+=picked.length; earn+=e;
+    }
+  });
+  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,bad:bad};
+}
+
+function eodTally(){
+  var d=eodDraft();
+  var host=q('#eodTally');
+  host.innerHTML=
+    '<div class="lead"><div class="k">Earned today</div><div class="v">'+money(d.earn)+'</div></div>'+
+    '<div><div class="k">Trench</div><div class="v">'+m1(d.mT)+' m</div></div>'+
+    '<div><div class="k">Pipe</div><div class="v">'+m1(d.mP)+' m</div></div>'+
+    '<div><div class="k">Point assets</div><div class="v">'+d.items+'</div></div>'+
+    '<div><div class="k">Sections worked</div><div class="v">'+d.rows.length+'</div></div>';
+  var note=q('#eodSaveNote');
+  if(d.bad) note.innerHTML='<b>Check the figures in red before saving.</b>';
+  else if(!d.rows.length) note.textContent='Nothing to save yet.';
+  else note.textContent='Ready: '+d.rows.length+' section row'+(d.rows.length===1?'':'s')+
+       ' for '+auDate(q('#eodDate').value)+'.';
+  q('#eodSave').disabled=d.bad||!d.rows.length;
+  q('#eodWrite').disabled=d.bad||!d.rows.length;
+}
+
+/* apply the day to the per-item state - the same state the Costs tab reads */
+function eodApply(){
+  var d=eodDraft();
+  if(d.bad||!d.rows.length) return null;
+  var snap={tDone:{},pDone:{},paDone:{}};
+  d.rows.forEach(function(row){
+    T.forEach(function(t){
+      if(t.sec!==row.sec) return;
+      var wantT=Math.min(Math.max(row.to-t.s,0),t.len);
+      var wantP=Math.min(Math.max(row.pto-t.s,0),t.len);
+      if(wantT>tDone(t)){ snap.tDone[t.key]=ST.tDone[t.key]||0; ST.tDone[t.key]=wantT; }
+      if(wantP>pDone(t)){ snap.pDone[t.key]=ST.pDone[t.key]||0; ST.pDone[t.key]=wantP; }
+    });
+    row.picked.forEach(function(a){
+      snap.paDone[a.key]=!!ST.paDone[a.key]; ST.paDone[a.key]=true;
+    });
+  });
+  var entry={date:q('#eodDate').value, by:(q('#eodBy').value||'').trim(),
+             shift:q('#eodShift').value, wx:q('#eodWx').value,
+             down:numOf(q('#eodDown'))||0, notes:(q('#eodNotes').value||'').trim(),
+             rows:d.rows.map(function(r){
+               return {sec:r.sec,from:r.from,to:r.to,pfrom:r.pfrom,pto:r.pto,
+                       dt:r.dt,dp:r.dp,items:r.picked.length,
+                       keys:r.picked.map(function(a){ return a.key; }),earn:r.earn};
+             }),
+             snap:snap, written:false};
+  DAYS.push(entry);
+  EODTICK={};
+  ['eodTCh','eodTM','eodPCh','eodPM'].forEach(function(p){
+    SECS.forEach(function(s){ var e=q('#'+p+'-'+s); if(e) e.value=''; });
+  });
+  q('#eodNotes').value='';
+  q('#eodDown').value='';
+  captureBase();
+  render();          /* the Costs tab moves with it */
+  buildEOD();
+  renderEODLog();
+  return entry;
+}
+
+function renderEODLog(){
+  var th=q('#eodLog thead'), tb=q('#eodLog tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th>Date</th><th>Sec</th><th>Shift</th><th>By</th>'+
+      '<th class="num">Trench from</th><th class="num">to</th><th class="num">m</th>'+
+      '<th class="num">Pipe from</th><th class="num">to</th><th class="num">m</th>'+
+      '<th class="num">Items</th><th class="num">Earned</th><th>Weather</th>'+
+      '<th class="num">Down hrs</th><th>Notes</th><th>Workbook</th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  var mT=0,mP=0,it=0,er=0;
+  DAYS.slice().reverse().forEach(function(e){
+    e.rows.forEach(function(r,i){
+      var tr=document.createElement('tr');
+      function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
+        c.textContent=v; tr.appendChild(c); }
+      td(i===0?auDate(e.date):''); td(r.sec); td(i===0?e.shift:''); td(i===0?e.by:'');
+      td(m1(r.from),'num'); td(m1(r.to),'num'); td(m1(r.dt),'num');
+      td(m1(r.pfrom),'num'); td(m1(r.pto),'num'); td(m1(r.dp),'num');
+      td(String(r.items),'num'); td(money(r.earn),'num');
+      td(i===0?e.wx:''); td(i===0?(e.down?m1(e.down):''):'','num');
+      td(i===0?e.notes:''); td(i===0?(e.written?'written':'not written'):'');
+      tb.appendChild(tr);
+      mT+=r.dt; mP+=r.dp; it+=r.items; er+=r.earn;
+    });
+  });
+  foot('#eodLog',['Total','','','','','',m1(mT),'','',m1(mP),String(it),money(er),'','','',''],
+       [0,1,2,3,12,14,15]);
+  q('#eodLogCount').innerHTML='<b>'+DAYS.length+'</b> day'+(DAYS.length===1?'':'s')+' recorded';
+  q('#eodUndo').disabled=!DAYS.length;
+}
+
+function eodUndo(){
+  var e=DAYS[DAYS.length-1];
+  if(!e) return;
+  if(!window.confirm('Undo '+auDate(e.date)+'?\n\nThe metres and ticks it set are put back to what they were.'+
+     (e.written?'\n\nThis day was already written to the workbook. Undoing here does NOT unwrite it — '+
+       'correct the workbook separately.':''))) return;
+  Object.keys(e.snap.tDone).forEach(function(k){ ST.tDone[k]=e.snap.tDone[k]; });
+  Object.keys(e.snap.pDone).forEach(function(k){ ST.pDone[k]=e.snap.pDone[k]; });
+  Object.keys(e.snap.paDone).forEach(function(k){ ST.paDone[k]=e.snap.paDone[k]; });
+  DAYS.pop();
+  captureBase(); render(); buildEOD(); renderEODLog();
+  if(window.toast) toast('Undid '+auDate(e.date));
+}
+
+/* the Daily Progress rows for one day, in the sheet's column order */
+function eodSheetRows(e){
+  return e.rows.map(function(r){
+    return [e.date, e.by, e.shift, r.sec,
+            r.from, r.to, r.dt, r.pfrom, r.pto, r.dp,
+            r.items, r.earn, e.wx, e.down||'', e.notes];
+  });
+}
+
+function wireEOD(){
+  ['#eodDate','#eodBy','#eodShift','#eodWx','#eodDown'].forEach(function(sel){
+    q(sel).addEventListener('input',eodTally);
+    q(sel).addEventListener('change',function(){ eodDupCheck(); eodTally(); });
+  });
+  q('#eodSave').addEventListener('click',function(){
+    var e=eodApply();
+    if(e&&window.toast) toast('Saved '+auDate(e.date)+' — held in this page until you write to the workbook');
+  });
+  q('#eodWrite').addEventListener('click',function(){
+    var e=eodApply();
+    if(!e) return;
+    if(!canWrite()){
+      if(window.toast) toast('Saved here. Open the workbook on the editing page to write it in.');
+      return;
+    }
+    if(writeToWorkbook({dayRows:eodSheetRows(e)})) e.written=true;
+    renderEODLog();
+  });
+  q('#eodClear').addEventListener('click',function(){
+    EODTICK={};
+    SECS.forEach(function(s){
+      ['eodTCh','eodTM','eodPCh','eodPM'].forEach(function(p){
+        var el=q('#'+p+'-'+s); if(el) el.value='';
+      });
+    });
+    q('#eodNotes').value=''; q('#eodDown').value='';
+    buildEOD();
+    if(window.toast) toast('Form cleared');
+  });
+  q('#eodUndo').addEventListener('click',eodUndo);
+}
+
 /* ---------- save / load / export ---------- */
 function dl(blob,name){
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
@@ -2360,7 +2862,7 @@ function wire(){
   q('#cstSave').addEventListener('click',function(){
     dl(new Blob([JSON.stringify({saved:new Date().toISOString(),
       tDone:ST.tDone,pDone:ST.pDone,paDone:ST.paDone,pipeType:ST.pipeType,
-      tRate:ST.tRate,pRate:ST.pRate,paRate:ST.paRate},null,2)],{type:'application/json'}),
+      tRate:ST.tRate,pRate:ST.pRate,paRate:ST.paRate,days:DAYS},null,2)],{type:'application/json'}),
       't2w-progress.json');
     if(window.toast) toast('Progress saved to t2w-progress.json');
   });
@@ -2374,7 +2876,9 @@ function wire(){
         ['tDone','pDone','paDone','pipeType','tRate','pRate','paRate'].forEach(function(k){
           if(o[k]) Object.keys(o[k]).forEach(function(kk){ ST[k][kk]=o[k][kk]; });
         });
+        if(Array.isArray(o.days)){ DAYS.length=0; o.days.forEach(function(x){ DAYS.push(x); }); }
         refreshRateInputs(); render();
+        captureBase(); buildEOD(); renderEODLog();
         if(window.toast) toast('Progress loaded');
       }catch(err){ if(window.toast) toast('That file could not be read as saved progress'); }
     };
@@ -2461,7 +2965,8 @@ function wire(){
    here goes through the editor's own applyEdits() so the Edit Log, the
    in-place file handle and the recalc flag all behave exactly as they do for
    an attribute edit. */
-var SHEET_TRACKER='Cost Tracker - Linear', SHEET_RATES='Rate Library', SHEET_MR='Master Register';
+var SHEET_TRACKER='Cost Tracker - Linear', SHEET_RATES='Rate Library', SHEET_MR='Master Register',
+    SHEET_DAY='Daily Progress';
 var WBIDX=null, WBIDXFOR=null;
 
 function canWrite(){
@@ -2539,6 +3044,25 @@ function buildIndex(){
         pa[txt[lay.at]]=rec;
     });
     idx.rates={trench:tr,pipe:pi,point:pa};
+  }
+
+  var gd=sheetGrid(wb,SHEET_DAY);
+  if(gd){
+    var dhr=-1;
+    for(var r3=0;r3<gd.length&&dhr<0;r3++){
+      var rowv=(gd[r3]||[]).map(function(v){ return String(v==null?'':v).trim(); });
+      if(rowv.indexOf('Date')>=0 && rowv.indexOf('Pipeline Section')>=0) dhr=r3;
+    }
+    if(dhr>=0){
+      var hv=(gd[dhr]||[]).map(function(v){ return String(v==null?'':v).trim(); });
+      var dateCol=hv.indexOf('Date');
+      var next=dhr+2;                       /* 1-based row after the header */
+      for(var r4=dhr+1;r4<gd.length;r4++){
+        var v4=(gd[r4]||[])[dateCol];
+        if(v4!=null&&String(v4).trim()!=='') next=r4+2;
+      }
+      idx.day={hdrRow:dhr+1,firstCol:dateCol,nextRow:next};
+    }
   }
 
   WBIDX=idx; WBIDXFOR=window.WB.bytes;
@@ -2642,10 +3166,11 @@ function collectWrites(){
   return out;
 }
 
-function writeToWorkbook(){
+function writeToWorkbook(opts){
+  opts=opts||{};
   if(!canWrite()){
     if(window.toast) toast('Open the workbook on the editing page first');
-    return;
+    return false;
   }
   /* ask for the name FIRST: it is written into Updated By, so collecting the
      edits before knowing it leaves that column blank */
@@ -2661,18 +3186,26 @@ function writeToWorkbook(){
 
   if(W.noTracker){
     if(window.toast) toast('This workbook has no "'+SHEET_TRACKER+'" sheet \u2014 open the Rev 5 register');
-    return;
+    return false;
+  }
+  var days=opts.dayRows||[];
+  var idxD=buildIndex().day;
+  if(days.length && !idxD){
+    if(window.toast) toast('This workbook has no "'+SHEET_DAY+'" sheet \u2014 open the Rev 5.4 register');
+    return false;
   }
   var n=W.tracker.length+W.rates.length+W.mr.length;
-  if(!n){ if(window.toast) toast('Nothing to write \u2014 the workbook already matches'); return; }
+  if(!n && !days.length){
+    if(window.toast) toast('Nothing to write \u2014 the workbook already matches'); return false; }
 
   var msg='Write into '+window.WB.name+'?\n\n'+
+    (days.length ? days.length+' row(s) appended to '+SHEET_DAY+'\n' : '')+
     W.tracker.length+' cell(s) on '+SHEET_TRACKER+'\n'+
     W.rates.length+' cell(s) on '+SHEET_RATES+'\n'+
     W.mr.length+' cell(s) on '+SHEET_MR+' (Complete = Yes)\n\n'+
     'Every change is recorded in the Edit Log.';
   if(W.missing.length) msg+='\n\n'+W.missing.length+' record(s) could not be matched and will be skipped.';
-  if(!window.confirm(msg)) return;
+  if(!window.confirm(msg)) return false;
 
   var stamp=new Date().toLocaleString('en-AU',{year:'numeric',month:'2-digit',day:'2-digit',
     hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
@@ -2697,10 +3230,34 @@ function writeToWorkbook(){
       bytes=out.bytes||out;
       window.WB.logNextRow+=log.length;
     });
+    if(days.length){
+      /* Written as typed cells rather than appended as log rows: the Edit Log
+         append writes everything as text, which would leave the date unsortable
+         and the metres unaddable. */
+      var KIND=['d','s','s','s','n','n','n','n','n','n','n','n','s','n','s'];
+      var dayEdits=[], dayLog=[];
+      days.forEach(function(row,i){
+        var rr=idxD.nextRow+i;
+        row.forEach(function(v,j){
+          if(v===''||v==null) return;
+          var k=KIND[j]||'s', val=v, kind='s';
+          if(k==='d'){ val=window.isoToSerial(v); kind='n'; if(val===null){ val=v; kind='s'; } }
+          else if(k==='n'){ val=Number(v); kind='n'; if(!isFinite(val)) { val=v; kind='s'; } }
+          dayEdits.push({ref:ref(idxD.firstCol+j,rr), value:val, kind:kind});
+        });
+        dayLog.push([stamp, window.EDITOR_NAME, row[3]||'', '', 'Daily Progress',
+          '', auDate(row[0])+' \u00b7 +'+m1(row[6])+' m trench, +'+m1(row[9])+
+          ' m pipe, '+(row[10]||0)+' item(s)', SHEET_DAY+'!'+ref(idxD.firstCol,rr)]);
+      });
+      var out2=window.applyEdits(bytes,{sheet:SHEET_DAY, logSheet:'Edit Log',
+        logStartRow:window.WB.logNextRow, edits:dayEdits, inserts:[], log:dayLog});
+      bytes=out2.bytes||out2;
+      window.WB.logNextRow+=dayLog.length;
+    }
   }catch(err){
     console.error(err);
     if(window.toast) toast('Could not write the workbook: '+err.message);
-    return;
+    return false;
   }
 
   window.WB.bytes=bytes; WBIDX=null; WBIDXFOR=null;
@@ -2718,7 +3275,8 @@ function writeToWorkbook(){
   function done(where){
     if(typeof window.refreshEditUI==='function') window.refreshEditUI();
     setWriteState();
-    if(window.toast) toast(n+' cell'+(n>1?'s':'')+' written \u2014 '+where);
+    if(window.toast) toast((days.length? days.length+' day row(s) and ':'')+
+      n+' cell'+(n===1?'':'s')+' written \u2014 '+where);
   }
   if(window.WB.handle && window.WB.handle.createWritable){
     window.WB.handle.createWritable().then(function(w){
@@ -2731,6 +3289,7 @@ function writeToWorkbook(){
     if(typeof window.downloadCopy==='function') window.downloadCopy(bytes);
     done('downloaded to your Downloads folder');
   }
+  return true;
 }
 
 /* ---------- seed from what is already recorded ----------
@@ -2813,6 +3372,7 @@ function rebuildForNewData(){
   DFOR=window.D; SEEDED=null;
   setWriteState();
   render();
+  captureBase(); buildEOD(); renderEODLog();
   if(window.toast) toast('Cost view refreshed for the workbook just opened');
   return true;
 }
@@ -2835,15 +3395,23 @@ function build(){
   built=true;
   DFOR=window.D;
   setWriteState();
+  captureBase(); buildEOD(); wireEOD(); renderEODLog();
+  q('#eodWarn').style.display='none';
+  q('#eodBody').style.display='';
   if(poll){ clearInterval(poll); poll=null; }
   return true;
 }
 window.COSTS={
-  _rows:{}, _paList:[],
+  _rows:{}, _paList:[], _days:DAYS,
   render:function(){
     if(built && window.D!==DFOR){ rebuildForNewData(); return; }
     if(build()){ render(); setWriteState(); }
     else { q('#cstWarn').style.display=''; q('#cstBody').style.display='none'; }
+  },
+  renderEOD:function(){
+    if(built && window.D!==DFOR){ rebuildForNewData(); return; }
+    if(build()){ captureBase(); buildEOD(); renderEODLog(); }
+    else { q('#eodWarn').style.display=''; q('#eodBody').style.display='none'; }
   }
 };
 document.addEventListener('DOMContentLoaded',function(){
