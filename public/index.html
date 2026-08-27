@@ -552,6 +552,9 @@ tbody tr.picked:hover{background:#d7e8f4}
         <p class="note" style="margin-bottom:12px">A point asset is earned when you tick it, not when the trench
           front goes past it. One finished early &mdash; a thrust block at ch 18.8, say &mdash; counts towards cost
           to chainage as soon as the front reaches it, and is reported separately until then.</p>
+        <p class="note" style="margin-bottom:12px">Thrust blocks are not one rate. Each carries the rate of its
+          own line &mdash; section, thrust block type and the fitting it is built against &mdash; taken from Unit
+          Rate on the register, which reads Rate Library Table 4. The Type / item column shows which line applied.</p>
         <div class="chips" id="cstPAFilter">
           <span class="chip" data-f="range">In the installed range</span>
           <span class="chip" data-f="ahead">Complete beyond the front</span>
@@ -1740,6 +1743,7 @@ var TINT = ['#dce4ef','#cfdaea','#c2d0e4','#e3d9c8','#d3dfd6','#c6d6cb','#baccc0
 var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{}, tRate:{}, pRate:{}, paRate:{} };
 
 var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PAMARK={}, RIDX={};
+var PALINES=[], PABY={};
 var built=false, poll=null, TSFILT='all', PAFILT='range', PATYPE='';
 
 function q(s){ return document.querySelector(s); }
@@ -1768,7 +1772,8 @@ function harvest(){
   if(C.register==null||C.chainage_start_m==null) return false;
   var iReg=C.register,iSec=C.pipeline_section,iS=C.chainage_start_m,iE=C.chainage_end_m,
       iTT=C.trench_type,iAT=C.asset_type,iKey=C.record_key,iLen=C.length_m,
-      iArea=C.area_m2,iRate=C.unit_rate,iQty=C.quantity,iFeat=C.feature_name;
+      iArea=C.area_m2,iRate=C.unit_rate,iQty=C.quantity,iFeat=C.feature_name,
+      iUD=C.utility_description,iItem=C.thrust_block_item,iFit=C.fitting_type;
 
   T=[]; PA=[];
   var paSet={}; PA_TYPES.forEach(function(p){ paSet[p.t]=1; });
@@ -1785,8 +1790,17 @@ function harvest(){
     }
     var at=r[iAT];
     if(at&&paSet[at]&&typeof s==='number'&&(sec==='PHW'||sec==='PWG')){
+      /* An asset type is not always one rate. Thrust blocks are priced per
+         section, type and fitting, so each record carries the key of the rate
+         line it belongs to. Types with no such breakdown keep one line. */
+      var ud=(iUD!=null&&r[iUD])?String(r[iUD]).trim():'';
+      var item=(iItem!=null&&r[iItem])?String(r[iItem]).trim():'';
+      var rkey=item ? (sec+'|'+ud+'|'+item) : at;
+      var rlab=item ? (sec+' \u00b7 '+ud+' \u00b7 '+item) : at;
       PA.push({key:String(r[iKey]),sec:sec,ch:s,type:at,
         name:(iFeat!=null&&r[iFeat])?String(r[iFeat]):'',
+        ud:ud, item:item, rkey:rkey, rlab:rlab,
+        fit:(iFit!=null&&r[iFit])?String(r[iFit]):'',
         area:(iArea!=null&&typeof r[iArea]==='number')?r[iArea]:0,
         qty:(iQty!=null&&typeof r[iQty]==='number')?r[iQty]:1,
         rate:(iRate!=null&&typeof r[iRate]==='number')?r[iRate]:null});
@@ -1817,15 +1831,44 @@ function harvest(){
   }); });
 
   SECS.forEach(function(s){ if(ST.pipeType[s]==null) ST.pipeType[s]='DICL'; });
-  PA_TYPES.forEach(function(p){
-    if(ST.paRate[p.t]===undefined){
-      var f=null;
-      for(var i=0;i<PA.length;i++){ if(PA[i].type===p.t&&PA[i].rate!=null){ f=PA[i].rate; break; } }
-      ST.paRate[p.t]= f!=null?f:p.rate;
+  /* rate lines, in a stable order: by asset type, then section, then item */
+  PALINES=[]; PABY={};
+  PA.forEach(function(p){
+    var g=PABY[p.rkey];
+    if(!g){
+      g={rkey:p.rkey,label:p.rlab,type:p.type,sec:p.item?p.sec:'',ud:p.ud,item:p.item,
+         n:0,blocks:0,regRate:null};
+      PABY[p.rkey]=g; PALINES.push(g);
+    }
+    g.n++; g.blocks+=qtyOf(p);
+    if(g.regRate==null && p.rate!=null) g.regRate=p.rate;
+  });
+  PALINES.sort(function(a,b){
+    var ai=paOrder(a.type), bi=paOrder(b.type);
+    if(ai!==bi) return ai-bi;
+    if(a.sec!==b.sec) return a.sec<b.sec?-1:1;
+    var at=tbOrder(a.ud), bt=tbOrder(b.ud);
+    if(at!==bt) return at-bt;
+    return a.item<b.item?-1:(a.item>b.item?1:0);
+  });
+  PALINES.forEach(function(g){
+    if(ST.paRate[g.rkey]===undefined){
+      var d=null;
+      for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===g.type) d=PA_TYPES[i].rate;
+      ST.paRate[g.rkey]= g.regRate!=null ? g.regRate : d;
     }
   });
   return true;
 }
+function paOrder(t){
+  for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===t) return i;
+  return 99;
+}
+function tbOrder(ud){
+  var m=/(\d+)\s*$/.exec(String(ud||''));
+  return (/^\s*\d+\s*x/i.test(String(ud||''))?1000:0) + (m?parseInt(m[1],10):999);
+}
+function rateOf(p){ var v=ST.paRate[p.rkey]; return v==null?null:v; }
 
 function tDone(t){ return Math.min(Math.max(ST.tDone[t.key]||0,0),t.len); }
 function pDone(t){ return Math.min(Math.max(ST.pDone[t.key]||0,0),t.len); }
@@ -1950,14 +1993,27 @@ function buildRates(){
        '</em></span><input type="number" min="0" step="0.01" placeholder="\u2014" data-kind="p" '+
        'data-key="'+p.sec+'|'+p.type+'"></div>';
   });
-  h+='</div><div class="sub">Point assets \u2014 per item</div><div class="rgrid">';
-  PA_TYPES.forEach(function(p){
-    var n=PA.filter(function(x){ return x.type===p.t; }).length, v=ST.paRate[p.t];
-    h+='<div class="rate"><span>'+p.t+'<em>'+n+' on a chainage \u00b7 '+p.unit+
-       '</em></span><input type="number" min="0" step="0.01" placeholder="\u2014" data-kind="a" '+
-       'data-key="'+p.t+'"'+(v!=null?' value="'+v+'"':'')+'></div>';
-  });
   h+='</div>';
+  /* point assets: a line per rate, not a line per asset type */
+  var curType=null;
+  PALINES.forEach(function(g){
+    if(g.type!==curType){
+      if(curType!==null) h+='</div>';
+      curType=g.type;
+      var lines=PALINES.filter(function(x){ return x.type===curType; }).length;
+      var items=PA.filter(function(x){ return x.type===curType; }).length;
+      h+='<div class="sub">'+curType+' \u2014 '+items+' on a chainage'+
+         (lines>1 ? ' \u00b7 '+lines+' rate lines' : '')+'</div><div class="rgrid">';
+    }
+    var v=ST.paRate[g.rkey];
+    var sub=(g.item ? g.blocks+(g.blocks===1?' block':' blocks') : g.n+' item'+(g.n===1?'':'s'));
+    if(g.regRate!=null) sub+=' \u00b7 from the register';
+    h+='<div class="rate"><span>'+(g.item? (g.sec+' \u00b7 '+g.ud+' \u00b7 '+g.item) : g.type)+
+       '<em>'+sub+'</em></span><input type="number" min="0" step="0.01" placeholder="\u2014" '+
+       'data-kind="a" data-key="'+g.rkey.replace(/"/g,'&quot;')+'"'+
+       (v!=null?' value="'+v+'"':'')+'></div>';
+  });
+  if(curType!==null) h+='</div>';
   q('#cstRates').innerHTML=h;
   qa('#cstRates input').forEach(function(inp){
     inp.addEventListener('input',function(){
@@ -2035,7 +2091,7 @@ function renderPAList(){
   var th=q('#cstPAList thead'), tb=q('#cstPAList tbody');
   if(!th.dataset.built){
     th.innerHTML='<tr><th></th><th>Record</th><th>Sec</th><th class="num">Chainage m</th>'+
-      '<th>Asset type</th><th>Feature</th><th class="num">Cost</th><th>Status</th></tr>';
+      '<th>Asset type</th><th>Type / item</th><th class="num">Cost</th><th>Status</th></tr>';
     th.dataset.built='1';
   }
   var list=PA.filter(function(p){
@@ -2051,7 +2107,7 @@ function renderPAList(){
   var frag=document.createDocumentFragment();
   for(var i=0;i<cap;i++){
     (function(p){
-      var on=!!ST.paDone[p.key], inRange=p.ch<=FRONT[p.sec]+1e-9, rate=ST.paRate[p.type];
+      var on=!!ST.paDone[p.key], inRange=p.ch<=FRONT[p.sec]+1e-9, rate=rateOf(p);
       var tr=document.createElement('tr');
       tr.className=(on?'done':'')+(on&&!inRange?' ahead':'');
       function td(c,cls){ var e=document.createElement('td'); if(cls)e.className=cls;
@@ -2060,7 +2116,8 @@ function renderPAList(){
       cb.title='Mark '+p.key+' complete';
       cb.addEventListener('change',function(){ ST.paDone[p.key]=cb.checked; render(); });
       td(cb,'tick-col');
-      td(p.key); td(p.sec); td(m3(p.ch),'num'); td(p.type); td(p.name||'');
+      td(p.key); td(p.sec); td(m3(p.ch),'num'); td(p.type);
+      td(p.item ? (p.ud+' \u00b7 '+p.item) : (p.name||''));
       td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(p)),'num');
       td(!on?'Outstanding':(inRange?'Complete':'Complete \u00b7 beyond the front'));
       frag.appendChild(tr);
@@ -2139,22 +2196,27 @@ function render(keep){
   });
 
   var aRows=PA_TYPES.map(function(p){
-    var rate=ST.paRate[p.t], nTo=0,nAh=0,cTo=0,cAh=0,bud=0,n=0;
+    var nTo=0,nAh=0,cTo=0,cAh=0,bud=0,n=0,blocks=0,anyRate=false,allRate=true;
+    var rates={};
     PA.forEach(function(x){
       if(x.type!==p.t) return;
-      n++;
-      if(rate!=null) bud+=rate*qtyOf(x);
+      var rate=rateOf(x), qy=qtyOf(x);
+      n++; blocks+=qy;
+      if(rate!=null){ anyRate=true; rates[rate]=1; bud+=rate*qy; } else allRate=false;
       if(!ST.paDone[x.key]) return;
       var inR=x.ch<=FRONT[x.sec]+1e-9;
       if(inR) nTo++; else nAh++;
       if(rate!=null){
-        if(inR) cTo+=rate*qtyOf(x); else cAh+=rate*qtyOf(x);
-        secMoney[x.sec]+=rate*qtyOf(x);
+        if(inR) cTo+=rate*qy; else cAh+=rate*qy;
+        secMoney[x.sec]+=rate*qy;
       }
     });
-    if(rate!=null){ aB+=bud; aTo+=cTo; aAh+=cAh; }
-    return {t:p.t,unit:p.unit,rate:rate,n:n,nTo:nTo,nAh:nAh,
-            cTo:rate==null?null:cTo,cAh:rate==null?null:cAh,bud:rate==null?null:bud};
+    if(anyRate){ aB+=bud; aTo+=cTo; aAh+=cAh; }
+    var rs=Object.keys(rates).map(Number).sort(function(a,b){ return a-b; });
+    var lines=PALINES.filter(function(g){ return g.type===p.t; }).length;
+    return {t:p.t,unit:p.unit,n:n,blocks:blocks,lines:lines,rates:rs,
+            partial:anyRate&&!allRate,nTo:nTo,nAh:nAh,
+            cTo:anyRate?cTo:null,cAh:anyRate?cAh:null,bud:anyRate?bud:null};
   });
 
   var toCh=tTo+pTo+aTo, ahead=tAh+pAh+aAh, budget=tB+pB+aB;
@@ -2213,18 +2275,24 @@ function render(keep){
     m1(pRows.reduce(function(a,r){ return a+r.ah; },0)),
     money(pB),money(pTo+pAh)],[0,1]);
 
-  head('#cstPA',['Asset type','Rate','Unit','Complete to chainage','Complete ahead','Total items',
-                 'Cost to chainage','Cost ahead','Budget'],3);
+  head('#cstPA',['Asset type','Rate','Rate lines','Unit','Complete to chainage','Complete ahead',
+                 'Total items','Blocks','Cost to chainage','Cost ahead','Budget'],4);
   body('#cstPA',aRows.map(function(r){
-    return {nil:(r.nTo+r.nAh)===0,cells:[r.t,
-      r.rate==null?'<span class="unrated">not rated</span>':money2(r.rate),r.unit,
-      String(r.nTo),String(r.nAh),String(r.n),money(r.cTo),money(r.cAh),money(r.bud)]};
-  }),[0,2]);
-  foot('#cstPA',['Total','','',
+    var rc;
+    if(!r.rates.length) rc='<span class="unrated">not rated</span>';
+    else if(r.rates.length===1) rc=money2(r.rates[0]);
+    else rc=money(r.rates[0])+' \u2013 '+money(r.rates[r.rates.length-1]);
+    if(r.partial) rc+=' <span class="unrated">part rated</span>';
+    return {nil:(r.nTo+r.nAh)===0,cells:[r.t, rc, String(r.lines), r.unit,
+      String(r.nTo),String(r.nAh),String(r.n),String(r.blocks),
+      money(r.cTo),money(r.cAh),money(r.bud)]};
+  }),[0,3]);
+  foot('#cstPA',['Total','',String(PALINES.length),'',
     String(aRows.reduce(function(a,r){ return a+r.nTo; },0)),
     String(aRows.reduce(function(a,r){ return a+r.nAh; },0)),
     String(aRows.reduce(function(a,r){ return a+r.n; },0)),
-    money(aTo),money(aAh),money(aB)],[0,1,2]);
+    String(aRows.reduce(function(a,r){ return a+r.blocks; },0)),
+    money(aTo),money(aAh),money(aB)],[0,1,3]);
 
   var keepId = keep && keep.id ? keep.id : null;
   renderTS(); renderPAList();
@@ -2361,9 +2429,11 @@ function wire(){
         d>=t.len-1e-9?'Complete':(d>0?'Under way':'Not started')]); });
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sc),'Trench sections');
 
-    var pa=[['Record Key','Pipeline Section','Chainage (m)','Asset Type','Complete','In installed range','Cost ($)']];
-    PA.forEach(function(p){ var rate=ST.paRate[p.type];
-      pa.push([p.key,p.sec,p.ch,p.type,ST.paDone[p.key]?'Y':'',
+    var pa=[['Record Key','Pipeline Section','Chainage (m)','Asset Type','Type','Item','Fitting',
+             'Blocks','Rate ($)','Complete','In installed range','Cost ($)']];
+    PA.forEach(function(p){ var rate=rateOf(p);
+      pa.push([p.key,p.sec,p.ch,p.type,p.ud||'',p.item||'',p.fit||'',qtyOf(p),
+        rate, ST.paDone[p.key]?'Y':'',
         p.ch<=R.front[p.sec]+1e-9?'Y':'', rate==null?null:rate*qtyOf(p)]); });
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pa),'Point assets');
 
@@ -2372,10 +2442,11 @@ function wire(){
   q('#cstWrite').addEventListener('click',writeToWorkbook);
   q('#cstReset').addEventListener('click',function(){
     ST.tDone={}; ST.pDone={}; ST.paDone={}; ST.tRate={}; ST.pRate={};
-    PA_TYPES.forEach(function(p){
-      var f=null;
-      for(var i=0;i<PA.length;i++){ if(PA[i].type===p.t&&PA[i].rate!=null){ f=PA[i].rate; break; } }
-      ST.paRate[p.t]= f!=null?f:p.rate;
+    ST.paRate={};
+    PALINES.forEach(function(g){
+      var d=null;
+      for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===g.type) d=PA_TYPES[i].rate;
+      ST.paRate[g.rkey]= g.regRate!=null ? g.regRate : d;
     });
     refreshRateInputs(); render();
     if(window.toast) toast('Progress and rates cleared');
@@ -2450,12 +2521,16 @@ function buildIndex(){
              tt:txt.indexOf('Trench Type'),
              pt:txt.indexOf('Pipe Type'),
              at:txt.indexOf('Asset Type'),
+             tb:txt.indexOf('Thrust Block Type'),
+             item:txt.indexOf('Item'),
              eff:txt.indexOf('Effective From')};
         return;
       }
       if(!lay || lay.rate<0) return;
       var rec={row:r+1, rateCol:lay.rate, effCol:lay.eff, cur:rowArr[lay.rate]};
-      if(lay.sec>=0 && lay.tt>=0 && txt[lay.sec] && txt[lay.tt])
+      if(lay.tb>=0 && lay.item>=0 && lay.sec>=0 && txt[lay.sec] && txt[lay.tb] && txt[lay.item])
+        pa[txt[lay.sec]+'|'+txt[lay.tb]+'|'+txt[lay.item]]=rec;   /* Table 4, per block */
+      else if(lay.sec>=0 && lay.tt>=0 && txt[lay.sec] && txt[lay.tt])
         tr[txt[lay.sec]+'|'+txt[lay.tt]]=rec;
       else if(lay.sec>=0 && lay.pt>=0 && txt[lay.sec] && txt[lay.pt])
         pi[txt[lay.sec]+'|'+txt[lay.pt]]=rec;
