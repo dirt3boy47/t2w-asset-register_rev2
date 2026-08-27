@@ -3123,6 +3123,7 @@ var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{}, tRate:{}, pRate:{}, paRat
 var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PAMARK={}, RIDX={};
 var PALINES=[], PABY={};
 var built=false, poll=null, TSFILT='all', PAFILT='range', PATYPE='';
+var DFOR=null;   /* the dataset the tab was built from */
 
 function q(s){ return document.querySelector(s); }
 function qa(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
@@ -4180,6 +4181,19 @@ function setWriteState(){
 }
 
 /* ---------- entry ---------- */
+/* Opening a workbook replaces the register in memory, and it may carry columns
+   the published data.json did not have - the thrust block item, for one. So the
+   tab re-harvests instead of holding on to whatever it first saw. Progress and
+   rates already entered are kept. */
+function rebuildForNewData(){
+  if(!harvest()) return false;
+  buildStrips(); buildRates(); seedPointAssets();
+  DFOR=window.D; SEEDED=null;
+  setWriteState();
+  render();
+  if(window.toast) toast('Cost view refreshed for the workbook just opened');
+  return true;
+}
 function build(){
   if(built) return true;
   if(!harvest()) return false;
@@ -4197,6 +4211,7 @@ function build(){
   q('#cstBody').style.display='';
   seedPointAssets();
   built=true;
+  DFOR=window.D;
   setWriteState();
   if(poll){ clearInterval(poll); poll=null; }
   return true;
@@ -4204,6 +4219,7 @@ function build(){
 window.COSTS={
   _rows:{}, _paList:[],
   render:function(){
+    if(built && window.D!==DFOR){ rebuildForNewData(); return; }
     if(build()){ render(); setWriteState(); }
     else { q('#cstWarn').style.display=''; q('#cstBody').style.display='none'; }
   }
@@ -4213,7 +4229,9 @@ document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){ if(poll){ clearInterval(poll); poll=null; } },30000);
   /* a workbook can be opened at any time on the editing page */
   setInterval(function(){
-    if(built && canWrite() && SEEDED!==window.WB.bytes) setWriteState();
+    if(!built) return;
+    if(window.D!==DFOR){ rebuildForNewData(); return; }
+    if(canWrite() && SEEDED!==window.WB.bytes) setWriteState();
   },800);
 });
 })();
