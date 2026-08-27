@@ -407,6 +407,33 @@ tbody tr.picked:hover{background:#d7e8f4}
 #tab-eod .warnbox{border-left:3px solid var(--warn);background:var(--warn-bg);padding:11px 14px;
   font-size:12.5px;margin-top:12px}
 #tab-eod .warnbox.hide{display:none}
+#tab-eod td.tin input,#tab-eod td.tin select{width:100%;padding:5px 6px;border:1px solid #c3ccd7;
+  border-radius:5px;font:inherit;font-size:12.5px;background:#fff}
+#tab-eod td.tin input[type=number]{text-align:right;font-variant-numeric:tabular-nums}
+#tab-eod td.tin{padding:5px 8px}
+#tab-eod td.del{width:30px;text-align:center;padding:5px 4px}
+#tab-eod td.del button{border:0;background:none;color:var(--danger);cursor:pointer;font-size:16px;
+  line-height:1;padding:2px 5px}
+#eodReport{display:none}
+@media print{
+  body.eodprint > *{display:none!important}
+  body.eodprint #tab-eod{display:block!important}
+  body.eodprint #tab-eod > *{display:none!important}
+  body.eodprint #eodReport{display:block!important}
+  body.eodprint main{display:block!important;padding:0}
+  #eodReport h1{font-size:17px;margin:0 0 2px}
+  #eodReport .sub{font-size:11px;color:#444;margin-bottom:12px}
+  #eodReport h2{font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 5px;
+    border-bottom:1px solid #999;padding-bottom:3px}
+  #eodReport table{width:100%;border-collapse:collapse;font-size:11px}
+  #eodReport th,#eodReport td{border:1px solid #bbb;padding:3px 5px;text-align:left}
+  #eodReport th{background:#eee}
+  #eodReport td.n{text-align:right}
+  #eodReport .kv{font-size:11.5px;margin:2px 0}
+  #eodReport .sign{margin-top:26px;font-size:11px}
+  #eodReport .sign div{display:inline-block;width:46%;border-top:1px solid #666;padding-top:4px;
+    margin-right:3%}
+}
 </style>
 </head>
 <body>
@@ -683,6 +710,7 @@ tbody tr.picked:hover{background:#d7e8f4}
     </div>
 
   </div>
+  <div id="eodReport" aria-hidden="true"></div>
 </section>
 
 <!-- ============ END OF DAY ============ -->
@@ -718,6 +746,57 @@ tbody tr.picked:hover{background:#d7e8f4}
     </div>
 
     <div class="panel">
+      <h2>Plant and labour</h2>
+      <div class="pad" style="padding-bottom:8px">
+        <p class="note" id="eodPlantNote" style="margin-bottom:11px"></p>
+      </div>
+      <div class="tblWrap"><table id="eodPlant" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
+      <div class="pad" style="padding-top:10px">
+        <button class="btn sec" id="eodPlantAdd">Add a row</button>
+        <button class="btn sec" id="eodPlantClear">Clear all rows</button>
+        <datalist id="eodPlantList"></datalist>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Safety</h2>
+      <div class="pad">
+        <div class="eodhead">
+          <div><label for="eodTbx">Toolbox talk</label><select id="eodTbx">
+            <option value="Yes">Held</option><option value="No">Not held</option></select></div>
+          <div style="grid-column:span 2"><label for="eodTbxTopic">Topic</label>
+            <input type="text" id="eodTbxTopic" placeholder="what was covered"></div>
+          <div><label for="eodPers">Personnel on site</label>
+            <input type="number" id="eodPers" min="0" step="1" placeholder="0"></div>
+          <div><label for="eodInc">Incident</label><select id="eodInc">
+            <option>Nil</option><option>Near miss</option><option>First aid</option>
+            <option>Medical treatment</option><option>Lost time</option>
+            <option>Environmental</option><option>Property damage</option>
+            <option>Utility strike</option></select></div>
+          <div><label for="eodLost">Lost time (hrs)</label>
+            <input type="number" id="eodLost" min="0" step="0.5" placeholder="0"></div>
+        </div>
+        <div style="margin-top:13px" id="eodIncWrap">
+          <label for="eodIncDetail" style="display:block;font-size:11px;font-weight:600;
+            text-transform:uppercase;letter-spacing:.5px;color:var(--mid);margin-bottom:5px">Incident detail</label>
+          <textarea id="eodIncDetail" placeholder="what happened, who was involved, what was done"></textarea>
+        </div>
+        <p class="note" id="eodSafeNote" style="margin-top:10px"></p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Hold points</h2>
+      <div class="pad" style="padding-bottom:8px">
+        <p class="note" id="eodHPNote" style="margin-bottom:11px"></p>
+      </div>
+      <div class="tblWrap"><table id="eodHP" class="wide"><thead></thead><tbody></tbody></table></div>
+      <div class="pad" style="padding-top:10px">
+        <button class="btn sec" id="eodHPAdd">Add a hold point</button>
+      </div>
+    </div>
+
+    <div class="panel">
       <h2>The day in figures</h2>
       <div class="pad">
         <div class="tally" id="eodTally"></div>
@@ -729,6 +808,8 @@ tbody tr.picked:hover{background:#d7e8f4}
         <div class="actions">
           <button class="btn" id="eodSave">Save the day</button>
           <button class="btn sec" id="eodWrite">Save and write to the workbook</button>
+          <button class="btn sec" id="eodPrint">Print the day</button>
+          <button class="btn sec" id="eodCopy">Copy as text</button>
           <button class="btn sec" id="eodClear">Clear the form</button>
         </div>
         <p class="note" id="eodSaveNote" style="margin-top:11px"></p>
@@ -2534,8 +2615,10 @@ function buildEOD(){
   });
   if(!EODSEED){
     q('#eodDate').value=todayISO();
+    PLANT=plantCarry(); HP=hpCarry();
     EODSEED=true;
   }
+  renderPlant(); renderHP(); eodSafeNote();
   eodRender();
 }
 
@@ -2701,15 +2784,8 @@ function eodApply(){
       snap.paDone[a.key]=!!ST.paDone[a.key]; ST.paDone[a.key]=true;
     });
   });
-  var entry={date:q('#eodDate').value, by:(q('#eodBy').value||'').trim(),
-             shift:q('#eodShift').value, wx:q('#eodWx').value,
-             down:numOf(q('#eodDown'))||0, notes:(q('#eodNotes').value||'').trim(),
-             rows:d.rows.map(function(r){
-               return {sec:r.sec,from:r.from,to:r.to,pfrom:r.pfrom,pto:r.pto,
-                       dt:r.dt,dp:r.dp,items:r.picked.length,
-                       keys:r.picked.map(function(a){ return a.key; }),earn:r.earn};
-             }),
-             snap:snap, written:false};
+  var entry=eodEntryFromForm(d);
+  entry.snap=snap;
   DAYS.push(entry);
   EODTICK={};
   ['eodTCh','eodTM','eodPCh','eodPM'].forEach(function(p){
@@ -2717,6 +2793,11 @@ function eodApply(){
   });
   q('#eodNotes').value='';
   q('#eodDown').value='';
+  q('#eodIncDetail').value=''; q('#eodInc').value='Nil'; q('#eodLost').value='';
+  q('#eodTbxTopic').value='';
+  var pers=q('#eodPers'); pers.value=''; delete pers.dataset.touched;
+  PLANT=plantCarry(); HP=hpCarry();
+  renderPlant(); renderHP();
   captureBase();
   render();          /* the Costs tab moves with it */
   buildEOD();
@@ -2724,6 +2805,26 @@ function eodApply(){
   return entry;
 }
 
+function eodEntryFromForm(d){
+  return {date:q('#eodDate').value, by:(q('#eodBy').value||'').trim(),
+          shift:q('#eodShift').value, wx:q('#eodWx').value,
+          down:numOf(q('#eodDown'))||0, notes:(q('#eodNotes').value||'').trim(),
+          rows:d.rows.map(function(r){
+            return {sec:r.sec,from:r.from,to:r.to,pfrom:r.pfrom,pto:r.pto,
+                    dt:r.dt,dp:r.dp,items:r.picked.length,
+                    keys:r.picked.map(function(a){ return a.key; }),earn:r.earn};
+          }),
+          plant:PLANT.filter(function(p){ return p.desc||p.hrs; })
+                     .map(function(p){ return {kind:p.kind,desc:p.desc,n:p.n||0,
+                        hrs:p.hrs||0,sb:p.sb||0,notes:p.notes||''}; }),
+          safety:{toolbox:q('#eodTbx').value, topic:(q('#eodTbxTopic').value||'').trim(),
+                  personnel:numOf(q('#eodPers'))||0, incident:q('#eodInc').value,
+                  detail:(q('#eodIncDetail').value||'').trim(), lost:numOf(q('#eodLost'))||0},
+          hp:HP.filter(function(h){ return h.ref||h.desc; })
+               .map(function(h){ return {ref:h.ref||'',desc:h.desc||'',status:h.status||'Outstanding',
+                  key:h.key||'',notes:h.notes||''}; }),
+          snap:null, written:false};
+}
 function renderEODLog(){
   var th=q('#eodLog thead'), tb=q('#eodLog tbody');
   if(!th.dataset.built){
@@ -2731,7 +2832,8 @@ function renderEODLog(){
       '<th class="num">Trench from</th><th class="num">to</th><th class="num">m</th>'+
       '<th class="num">Pipe from</th><th class="num">to</th><th class="num">m</th>'+
       '<th class="num">Items</th><th class="num">Earned</th><th>Weather</th>'+
-      '<th class="num">Down hrs</th><th>Notes</th><th>Workbook</th></tr>';
+      '<th class="num">Down hrs</th><th class="num">Crew</th><th class="num">Hours</th>'+
+      '<th>Incident</th><th class="num">Hold pts</th><th>Notes</th><th>Workbook</th></tr>';
     th.dataset.built='1';
   }
   tb.innerHTML='';
@@ -2746,13 +2848,18 @@ function renderEODLog(){
       td(m1(r.pfrom),'num'); td(m1(r.pto),'num'); td(m1(r.dp),'num');
       td(String(r.items),'num'); td(money(r.earn),'num');
       td(i===0?e.wx:''); td(i===0?(e.down?m1(e.down):''):'','num');
+      var crew=(e.plant||[]).reduce(function(a,p){ return a+(p.kind!=='Plant'?(p.n||0):0); },0);
+      var hrs=(e.plant||[]).reduce(function(a,p){ return a+(p.n||0)*(p.hrs||0); },0);
+      td(i===0?(crew||''):'','num'); td(i===0?(hrs?m1(hrs):''):'','num');
+      td(i===0?((e.safety&&e.safety.incident!=='Nil')?e.safety.incident:''):'');
+      td(i===0?((e.hp||[]).length||''):'','num');
       td(i===0?e.notes:''); td(i===0?(e.written?'written':'not written'):'');
       tb.appendChild(tr);
       mT+=r.dt; mP+=r.dp; it+=r.items; er+=r.earn;
     });
   });
-  foot('#eodLog',['Total','','','','','',m1(mT),'','',m1(mP),String(it),money(er),'','','',''],
-       [0,1,2,3,12,14,15]);
+  foot('#eodLog',['Total','','','','','',m1(mT),'','',m1(mP),String(it),money(er),
+       '','','','','','','',''],[0,1,2,3,12,16,18,19]);
   q('#eodLogCount').innerHTML='<b>'+DAYS.length+'</b> day'+(DAYS.length===1?'':'s')+' recorded';
   q('#eodUndo').disabled=!DAYS.length;
 }
@@ -2771,13 +2878,300 @@ function eodUndo(){
   if(window.toast) toast('Undid '+auDate(e.date));
 }
 
-/* the Daily Progress rows for one day, in the sheet's column order */
+
+/* ---------- plant and labour ----------
+   Carried forward: yesterday's rows reappear with their hours, so a day with the
+   same crew needs no typing. Descriptions seen before are offered as you type. */
+var PLANT=[];             /* [{kind,desc,n,hrs,sb,notes}] */
+var PLANT_SEED=[
+  {kind:'Labour',desc:'Supervisor',n:1,hrs:10},
+  {kind:'Labour',desc:'Pipe crew',n:6,hrs:10},
+  {kind:'Plant',desc:'Excavator 30t',n:1,hrs:9},
+  {kind:'Plant',desc:'Sideboom',n:1,hrs:9}
+];
+function plantCarry(){
+  for(var i=DAYS.length-1;i>=0;i--){
+    if(DAYS[i].plant&&DAYS[i].plant.length)
+      return DAYS[i].plant.map(function(p){
+        return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:0,notes:''};
+      });
+  }
+  return PLANT_SEED.map(function(p){
+    return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:0,notes:''};
+  });
+}
+function plantList(){
+  var seen={}, out=[];
+  DAYS.forEach(function(d){ (d.plant||[]).forEach(function(p){
+    if(p.desc&&!seen[p.desc]){ seen[p.desc]=1; out.push(p.desc); } }); });
+  PLANT_SEED.concat([{desc:'Welder'},{desc:'Trades assistant'},{desc:'Traffic controller'},
+    {desc:'Surveyor'},{desc:'Excavator 20t'},{desc:'Padding machine'},{desc:'Water cart'},
+    {desc:'Compactor'},{desc:'Dozer'},{desc:'Float'}]).forEach(function(p){
+    if(!seen[p.desc]){ seen[p.desc]=1; out.push(p.desc); } });
+  return out;
+}
+function renderPlant(){
+  var th=q('#eodPlant thead'), tb=q('#eodPlant tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th>Type</th><th>Description</th><th class="num">No.</th>'+
+      '<th class="num">Hours</th><th class="num">Standby</th><th>Notes</th><th></th></tr>';
+    th.dataset.built='1';
+  }
+  q('#eodPlantList').innerHTML=plantList().map(function(d){
+    return '<option value="'+d.replace(/"/g,'&quot;')+'">'; }).join('');
+  tb.innerHTML='';
+  PLANT.forEach(function(p,i){
+    var tr=document.createElement('tr');
+    function cell(cls){ var td=document.createElement('td'); td.className=cls; tr.appendChild(td); return td; }
+    var s1=document.createElement('select');
+    ['Labour','Plant','Subcontractor'].forEach(function(k){
+      var o=document.createElement('option'); o.textContent=k; o.selected=(p.kind===k); s1.appendChild(o); });
+    s1.addEventListener('change',function(){ p.kind=s1.value; plantTally(); });
+    cell('tin').appendChild(s1);
+    var d1=document.createElement('input'); d1.type='text'; d1.value=p.desc||'';
+    d1.setAttribute('list','eodPlantList'); d1.placeholder='what or who';
+    d1.addEventListener('input',function(){ p.desc=d1.value; plantTally(); });
+    cell('tin').appendChild(d1);
+    [['n','1',1],['hrs','0.5',2],['sb','0.5',3]].forEach(function(f){
+      var inp=document.createElement('input'); inp.type='number'; inp.min='0'; inp.step=f[1];
+      inp.value=(p[f[0]]===0||p[f[0]]) ? p[f[0]] : '';
+      inp.addEventListener('input',function(){ p[f[0]]=numOf(inp); plantTally(); });
+      cell('tin num').appendChild(inp);
+    });
+    var n1=document.createElement('input'); n1.type='text'; n1.value=p.notes||'';
+    n1.addEventListener('input',function(){ p.notes=n1.value; });
+    cell('tin').appendChild(n1);
+    var del=document.createElement('button'); del.innerHTML='&times;'; del.title='Remove this row';
+    del.addEventListener('click',function(){ PLANT.splice(i,1); renderPlant(); });
+    cell('del').appendChild(del);
+    tb.appendChild(tr);
+  });
+  plantTally();
+}
+function plantTally(){
+  var lab=0,pl=0,hrs=0,sb=0,head=0;
+  PLANT.forEach(function(p){
+    var n=p.n||0, h=p.hrs||0;
+    if(p.kind==='Plant') pl+=n*h; else lab+=n*h;
+    hrs+=n*h; sb+=n*(p.sb||0);
+    if(p.kind!=='Plant') head+=n;
+  });
+  foot('#eodPlant',['Total','',String(head),m1(hrs),m1(sb),
+    'labour '+m1(lab)+' h \u00b7 plant '+m1(pl)+' h',''],[0,1,5,6]);
+  q('#eodPlantNote').innerHTML=PLANT.length
+    ? 'Carried forward from the last day recorded \u2014 change the hours, add or remove rows. '+
+      '<b>'+head+'</b> on the crew, <b>'+m1(hrs)+'</b> hours worked'+(sb?', <b>'+m1(sb)+'</b> standby':'')+'.'
+    : 'No rows. Add one, or save the day without plant and labour.';
+  var pers=q('#eodPers');
+  if(pers && !pers.dataset.touched) pers.value=head||'';
+}
+
+/* ---------- hold points ----------
+   Anything left Outstanding carries forward and keeps appearing until a day
+   records it Released, so it cannot quietly drop off the list. */
+var HP=[];
+function hpCarry(){
+  var open={}, order=[];
+  DAYS.forEach(function(d){
+    (d.hp||[]).forEach(function(h){
+      if(!h.ref&&!h.desc) return;
+      var k=(h.ref||'')+'|'+(h.desc||'');
+      if(h.status==='Released'||h.status==='Closed'){ delete open[k]; }
+      else { if(!open[k]) order.push(k); open[k]={ref:h.ref,desc:h.desc,status:'Outstanding',key:h.key,notes:''}; }
+    });
+  });
+  return order.filter(function(k){ return open[k]; }).map(function(k){ return open[k]; });
+}
+function renderHP(){
+  var th=q('#eodHP thead'), tb=q('#eodHP tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th>Reference</th><th>Description</th><th>Status</th>'+
+      '<th>Record key</th><th>Notes</th><th></th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  HP.forEach(function(h,i){
+    var tr=document.createElement('tr');
+    function cell(cls){ var td=document.createElement('td'); td.className=cls; tr.appendChild(td); return td; }
+    [['ref','e.g. ITP-12 HP3'],['desc','what is held']].forEach(function(f){
+      var inp=document.createElement('input'); inp.type='text'; inp.value=h[f[0]]||''; inp.placeholder=f[1];
+      inp.addEventListener('input',function(){ h[f[0]]=inp.value; hpNote(); });
+      cell('tin').appendChild(inp);
+    });
+    var sel=document.createElement('select');
+    ['Raised','Outstanding','Released','Closed'].forEach(function(k){
+      var o=document.createElement('option'); o.textContent=k; o.selected=(h.status===k); sel.appendChild(o); });
+    sel.addEventListener('change',function(){ h.status=sel.value; hpNote(); });
+    cell('tin').appendChild(sel);
+    var kk=document.createElement('input'); kk.type='text'; kk.value=h.key||'';
+    kk.placeholder='PHW-TB-001'; kk.setAttribute('list','eodKeyList');
+    kk.addEventListener('input',function(){ h.key=kk.value; });
+    cell('tin').appendChild(kk);
+    var nn=document.createElement('input'); nn.type='text'; nn.value=h.notes||'';
+    nn.addEventListener('input',function(){ h.notes=nn.value; });
+    cell('tin').appendChild(nn);
+    var del=document.createElement('button'); del.innerHTML='&times;'; del.title='Remove';
+    del.addEventListener('click',function(){ HP.splice(i,1); renderHP(); });
+    cell('del').appendChild(del);
+    tb.appendChild(tr);
+  });
+  hpNote();
+}
+function hpNote(){
+  var open=HP.filter(function(h){ return h.status==='Raised'||h.status==='Outstanding'; }).length;
+  var rel=HP.filter(function(h){ return h.status==='Released'||h.status==='Closed'; }).length;
+  q('#eodHPNote').innerHTML=HP.length
+    ? '<b>'+open+'</b> open, <b>'+rel+'</b> released today. Anything left open carries to tomorrow.'
+    : 'No hold points. Anything raised on an earlier day and not yet released would appear here.';
+}
+
+/* ---------- the day as a report ---------- */
+function eodReportHTML(e){
+  function esc(x){ return String(x==null?'':x)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  var h='<h1>Daily report \u2014 Toowoomba to Warwick pipeline</h1>'+
+    '<div class="sub">'+auDate(e.date)+' \u00b7 '+esc(e.shift)+' shift \u00b7 recorded by '+
+      esc(e.by||'\u2014')+' \u00b7 weather '+esc(e.wx)+
+      (e.down?' \u00b7 downtime '+m1(e.down)+' h':'')+'</div>';
+
+  h+='<h2>Progress</h2><table><tr><th>Section</th><th>Trench from</th><th>to</th><th>m</th>'+
+     '<th>Pipe from</th><th>to</th><th>m</th><th>Point assets</th><th>Earned</th></tr>';
+  e.rows.forEach(function(r){
+    h+='<tr><td>'+esc(r.sec)+'</td><td class="n">'+m1(r.from)+'</td><td class="n">'+m1(r.to)+
+       '</td><td class="n">'+m1(r.dt)+'</td><td class="n">'+m1(r.pfrom)+'</td><td class="n">'+
+       m1(r.pto)+'</td><td class="n">'+m1(r.dp)+'</td><td class="n">'+r.items+
+       '</td><td class="n">'+money(r.earn)+'</td></tr>';
+  });
+  var tT=e.rows.reduce(function(a,r){ return a+r.dt; },0),
+      tP=e.rows.reduce(function(a,r){ return a+r.dp; },0),
+      tI=e.rows.reduce(function(a,r){ return a+r.items; },0),
+      tE=e.rows.reduce(function(a,r){ return a+r.earn; },0);
+  h+='<tr><th>Total</th><th></th><th></th><th class="n">'+m1(tT)+'</th><th></th><th></th>'+
+     '<th class="n">'+m1(tP)+'</th><th class="n">'+tI+'</th><th class="n">'+money(tE)+'</th></tr></table>';
+
+  if((e.plant||[]).length){
+    h+='<h2>Plant and labour</h2><table><tr><th>Type</th><th>Description</th><th>No.</th>'+
+       '<th>Hours</th><th>Standby</th><th>Notes</th></tr>';
+    e.plant.forEach(function(p){
+      h+='<tr><td>'+esc(p.kind)+'</td><td>'+esc(p.desc)+'</td><td class="n">'+(p.n||0)+
+         '</td><td class="n">'+m1(p.hrs||0)+'</td><td class="n">'+m1(p.sb||0)+'</td><td>'+
+         esc(p.notes)+'</td></tr>';
+    });
+    var ph=e.plant.reduce(function(a,p){ return a+(p.n||0)*(p.hrs||0); },0);
+    h+='<tr><th>Total</th><th></th><th class="n">'+
+       e.plant.reduce(function(a,p){ return a+(p.kind!=='Plant'?(p.n||0):0); },0)+
+       '</th><th class="n">'+m1(ph)+'</th><th></th><th></th></tr></table>';
+  }
+
+  var sf=e.safety||{};
+  h+='<h2>Safety</h2>'+
+     '<div class="kv"><b>Toolbox talk:</b> '+esc(sf.toolbox||'\u2014')+
+       (sf.topic?' \u2014 '+esc(sf.topic):'')+'</div>'+
+     '<div class="kv"><b>Personnel on site:</b> '+(sf.personnel||0)+'</div>'+
+     '<div class="kv"><b>Incident:</b> '+esc(sf.incident||'Nil')+
+       (sf.lost?' \u00b7 lost time '+m1(sf.lost)+' h':'')+'</div>'+
+     (sf.detail?'<div class="kv">'+esc(sf.detail)+'</div>':'');
+
+  if((e.hp||[]).length){
+    h+='<h2>Hold points</h2><table><tr><th>Reference</th><th>Description</th><th>Status</th>'+
+       '<th>Record</th><th>Notes</th></tr>';
+    e.hp.forEach(function(x){
+      h+='<tr><td>'+esc(x.ref)+'</td><td>'+esc(x.desc)+'</td><td>'+esc(x.status)+'</td><td>'+
+         esc(x.key)+'</td><td>'+esc(x.notes)+'</td></tr>';
+    });
+    h+='</table>';
+  }
+  if(e.notes) h+='<h2>Notes</h2><div class="kv">'+esc(e.notes).replace(/\n/g,'<br>')+'</div>';
+  h+='<div class="sign"><div>Supervisor</div><div>Client representative</div></div>';
+  return h;
+}
+function eodReportText(e){
+  var L=[];
+  L.push('DAILY REPORT \u2014 Toowoomba to Warwick pipeline');
+  L.push(auDate(e.date)+' \u00b7 '+e.shift+' shift \u00b7 recorded by '+(e.by||'-'));
+  L.push('Weather '+e.wx+(e.down?' \u00b7 downtime '+m1(e.down)+' h':''));
+  L.push('');
+  L.push('PROGRESS');
+  e.rows.forEach(function(r){
+    L.push('  '+r.sec+'  trench '+m1(r.from)+' \u2192 '+m1(r.to)+' m (+'+m1(r.dt)+
+           ')   pipe '+m1(r.pfrom)+' \u2192 '+m1(r.pto)+' m (+'+m1(r.dp)+
+           ')   '+r.items+' point asset(s)   '+money(r.earn));
+  });
+  if((e.plant||[]).length){
+    L.push(''); L.push('PLANT AND LABOUR');
+    e.plant.forEach(function(p){
+      L.push('  '+p.kind+'  '+p.desc+'  x'+(p.n||0)+'  '+m1(p.hrs||0)+' h'+
+             ((p.sb)?'  ('+m1(p.sb)+' h standby)':'')+(p.notes?'  \u2014 '+p.notes:''));
+    });
+  }
+  var sf=e.safety||{};
+  L.push(''); L.push('SAFETY');
+  L.push('  Toolbox talk: '+(sf.toolbox||'-')+(sf.topic?' \u2014 '+sf.topic:''));
+  L.push('  Personnel on site: '+(sf.personnel||0));
+  L.push('  Incident: '+(sf.incident||'Nil')+(sf.lost?' \u00b7 lost time '+m1(sf.lost)+' h':''));
+  if(sf.detail) L.push('  '+sf.detail);
+  if((e.hp||[]).length){
+    L.push(''); L.push('HOLD POINTS');
+    e.hp.forEach(function(x){
+      L.push('  '+(x.ref||'-')+'  '+(x.desc||'')+'  ['+x.status+']'+(x.key?'  '+x.key:'')+
+             (x.notes?'  \u2014 '+x.notes:''));
+    });
+  }
+  if(e.notes){ L.push(''); L.push('NOTES'); L.push('  '+e.notes); }
+  return L.join('\n');
+}
+/* the day currently on the form, or the last one saved */
+function eodForReport(){
+  var d=eodDraft();
+  if(d.rows.length) return eodEntryFromForm(d);
+  return DAYS.length ? DAYS[DAYS.length-1] : null;
+}
+function eodPrint(){
+  var e=eodForReport();
+  if(!e){ if(window.toast) toast('Nothing to print yet'); return; }
+  var host=q('#eodReport');
+  host.innerHTML=eodReportHTML(e);
+  document.body.classList.add('eodprint');
+  var done=function(){ document.body.classList.remove('eodprint'); };
+  try{ window.print(); }catch(err){}
+  setTimeout(done,800);
+}
+
+/* rows for each append-only day sheet, in that sheet's column order */
 function eodSheetRows(e){
   return e.rows.map(function(r){
     return [e.date, e.by, e.shift, r.sec,
             r.from, r.to, r.dt, r.pfrom, r.pto, r.dp,
             r.items, r.earn, e.wx, e.down||'', e.notes];
   });
+}
+function eodPlantRows(e){
+  return (e.plant||[]).map(function(p){
+    return [e.date, e.by, p.kind, p.desc, p.n||0, p.hrs||0, p.sb||'', p.notes||''];
+  });
+}
+function eodSafetyRows(e){
+  var sf=e.safety||{};
+  return [[e.date, e.by, sf.toolbox||'', sf.topic||'', sf.personnel||0,
+           sf.incident||'Nil', sf.detail||'', sf.lost||'']];
+}
+function eodHPRows(e){
+  return (e.hp||[]).map(function(h){
+    return [e.date, e.by, h.ref||'', h.desc||'', h.status||'', h.key||'', h.notes||''];
+  });
+}
+function eodAppends(e){
+  return [
+    {sheet:'Daily Progress', rows:eodSheetRows(e),
+     summary:function(row){ return '+'+m1(row[6])+' m trench, +'+m1(row[9])+' m pipe, '+
+       (row[10]||0)+' item(s)'; }},
+    {sheet:'Daily Plant and Labour', rows:eodPlantRows(e),
+     summary:function(row){ return row[3]+' x'+row[4]+' \u00b7 '+m1(row[5])+' h'; }},
+    {sheet:'Daily Safety', rows:eodSafetyRows(e),
+     summary:function(row){ return 'toolbox '+row[2]+' \u00b7 '+row[4]+' on site \u00b7 '+row[5]; }},
+    {sheet:'Daily Hold Points', rows:eodHPRows(e),
+     summary:function(row){ return row[2]+' '+row[4]; }}
+  ];
 }
 
 function wireEOD(){
@@ -2796,7 +3190,7 @@ function wireEOD(){
       if(window.toast) toast('Saved here. Open the workbook on the editing page to write it in.');
       return;
     }
-    if(writeToWorkbook({dayRows:eodSheetRows(e)})) e.written=true;
+    if(writeToWorkbook({appends:eodAppends(e)})) e.written=true;
     renderEODLog();
   });
   q('#eodClear').addEventListener('click',function(){
@@ -2807,10 +3201,64 @@ function wireEOD(){
       });
     });
     q('#eodNotes').value=''; q('#eodDown').value='';
+    q('#eodIncDetail').value=''; q('#eodInc').value='Nil'; q('#eodLost').value='';
+    q('#eodTbxTopic').value='';
+    var pp=q('#eodPers'); pp.value=''; delete pp.dataset.touched;
+    PLANT=plantCarry(); HP=hpCarry();
     buildEOD();
     if(window.toast) toast('Form cleared');
   });
   q('#eodUndo').addEventListener('click',eodUndo);
+
+  q('#eodPlantAdd').addEventListener('click',function(){
+    PLANT.push({kind:'Labour',desc:'',n:1,hrs:PLANT.length?PLANT[0].hrs:10,sb:0,notes:''});
+    renderPlant();
+    var rows=document.querySelectorAll('#eodPlant tbody tr');
+    var last=rows[rows.length-1];
+    if(last){ var inp=last.querySelectorAll('input')[0]; if(inp) inp.focus(); }
+  });
+  q('#eodPlantClear').addEventListener('click',function(){ PLANT=[]; renderPlant(); });
+  q('#eodHPAdd').addEventListener('click',function(){
+    HP.push({ref:'',desc:'',status:'Raised',key:'',notes:''});
+    renderHP();
+    var rows=document.querySelectorAll('#eodHP tbody tr');
+    var last=rows[rows.length-1];
+    if(last){ var inp=last.querySelector('input'); if(inp) inp.focus(); }
+  });
+  q('#eodPers').addEventListener('input',function(){ this.dataset.touched='1'; });
+  ['#eodTbx','#eodTbxTopic','#eodPers','#eodInc','#eodIncDetail','#eodLost'].forEach(function(sel){
+    q(sel).addEventListener('input',eodSafeNote);
+    q(sel).addEventListener('change',eodSafeNote);
+  });
+  q('#eodPrint').addEventListener('click',eodPrint);
+  q('#eodCopy').addEventListener('click',function(){
+    var e=eodForReport();
+    if(!e){ if(window.toast) toast('Nothing to copy yet'); return; }
+    var txt=eodReportText(e);
+    var ta=document.createElement('textarea');
+    ta.value=txt; ta.style.position='fixed'; ta.style.left='-9999px';
+    document.body.appendChild(ta); ta.select();
+    var ok=false;
+    try{ ok=document.execCommand('copy'); }catch(err){}
+    document.body.removeChild(ta);
+    if(!ok && navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){
+        if(window.toast) toast('Report copied — paste it into an email'); });
+      return;
+    }
+    if(window.toast) toast(ok ? 'Report copied — paste it into an email'
+                              : 'Could not copy — use Print instead');
+  });
+}
+function eodSafeNote(){
+  var inc=q('#eodInc').value, lost=numOf(q('#eodLost'))||0;
+  var n=q('#eodSafeNote');
+  if(inc==='Nil'){
+    n.textContent='A nil day is recorded as nil, so the day is on the record rather than absent from it.';
+  } else {
+    n.innerHTML='<b>'+inc+' recorded.</b> Put what happened in the detail box — it goes onto Daily '+
+      'Safety and into the printed report.'+(lost?' Lost time '+m1(lost)+' h.':'');
+  }
 }
 
 /* ---------- save / load / export ---------- */
@@ -2967,6 +3415,15 @@ function wire(){
    an attribute edit. */
 var SHEET_TRACKER='Cost Tracker - Linear', SHEET_RATES='Rate Library', SHEET_MR='Master Register',
     SHEET_DAY='Daily Progress';
+/* the append-only day sheets, with the type of each column so numbers land as
+   numbers and dates as dates - a text date will not sort and text metres will
+   not add up */
+var DAYSHEETS={
+  'Daily Progress':      ['d','s','s','s','n','n','n','n','n','n','n','n','s','n','s'],
+  'Daily Plant and Labour':['d','s','s','s','n','n','n','s'],
+  'Daily Safety':        ['d','s','s','s','n','s','s','n'],
+  'Daily Hold Points':   ['d','s','s','s','s','s','s']
+};
 var WBIDX=null, WBIDXFOR=null;
 
 function canWrite(){
@@ -3046,24 +3503,25 @@ function buildIndex(){
     idx.rates={trench:tr,pipe:pi,point:pa};
   }
 
-  var gd=sheetGrid(wb,SHEET_DAY);
-  if(gd){
+  idx.day={};
+  Object.keys(DAYSHEETS).forEach(function(nm){
+    var gd=sheetGrid(wb,nm);
+    if(!gd) return;
     var dhr=-1;
     for(var r3=0;r3<gd.length&&dhr<0;r3++){
       var rowv=(gd[r3]||[]).map(function(v){ return String(v==null?'':v).trim(); });
-      if(rowv.indexOf('Date')>=0 && rowv.indexOf('Pipeline Section')>=0) dhr=r3;
+      if(rowv.indexOf('Date')>=0 && rowv.indexOf('Recorded By')>=0) dhr=r3;
     }
-    if(dhr>=0){
-      var hv=(gd[dhr]||[]).map(function(v){ return String(v==null?'':v).trim(); });
-      var dateCol=hv.indexOf('Date');
-      var next=dhr+2;                       /* 1-based row after the header */
-      for(var r4=dhr+1;r4<gd.length;r4++){
-        var v4=(gd[r4]||[])[dateCol];
-        if(v4!=null&&String(v4).trim()!=='') next=r4+2;
-      }
-      idx.day={hdrRow:dhr+1,firstCol:dateCol,nextRow:next};
+    if(dhr<0) return;
+    var hv=(gd[dhr]||[]).map(function(v){ return String(v==null?'':v).trim(); });
+    var dateCol=hv.indexOf('Date');
+    var next=dhr+2;                       /* 1-based row after the header */
+    for(var r4=dhr+1;r4<gd.length;r4++){
+      var v4=(gd[r4]||[])[dateCol];
+      if(v4!=null&&String(v4).trim()!=='') next=r4+2;
     }
-  }
+    idx.day[nm]={hdrRow:dhr+1,firstCol:dateCol,nextRow:next};
+  });
 
   WBIDX=idx; WBIDXFOR=window.WB.bytes;
   return idx;
@@ -3188,18 +3646,21 @@ function writeToWorkbook(opts){
     if(window.toast) toast('This workbook has no "'+SHEET_TRACKER+'" sheet \u2014 open the Rev 5 register');
     return false;
   }
-  var days=opts.dayRows||[];
-  var idxD=buildIndex().day;
-  if(days.length && !idxD){
-    if(window.toast) toast('This workbook has no "'+SHEET_DAY+'" sheet \u2014 open the Rev 5.4 register');
+  var appends=(opts.appends||[]).filter(function(a){ return a.rows && a.rows.length; });
+  var idxD=buildIndex().day||{};
+  var missing=appends.filter(function(a){ return !idxD[a.sheet]; })
+                     .map(function(a){ return a.sheet; });
+  if(missing.length){
+    if(window.toast) toast('This workbook has no "'+missing[0]+'" sheet \u2014 open the Rev 5.5 register');
     return false;
   }
+  var dayRowCount=appends.reduce(function(a,x){ return a+x.rows.length; },0);
   var n=W.tracker.length+W.rates.length+W.mr.length;
-  if(!n && !days.length){
+  if(!n && !dayRowCount){
     if(window.toast) toast('Nothing to write \u2014 the workbook already matches'); return false; }
 
   var msg='Write into '+window.WB.name+'?\n\n'+
-    (days.length ? days.length+' row(s) appended to '+SHEET_DAY+'\n' : '')+
+    appends.map(function(a){ return a.rows.length+' row(s) appended to '+a.sheet+'\n'; }).join('')+
     W.tracker.length+' cell(s) on '+SHEET_TRACKER+'\n'+
     W.rates.length+' cell(s) on '+SHEET_RATES+'\n'+
     W.mr.length+' cell(s) on '+SHEET_MR+' (Complete = Yes)\n\n'+
@@ -3230,30 +3691,30 @@ function writeToWorkbook(opts){
       bytes=out.bytes||out;
       window.WB.logNextRow+=log.length;
     });
-    if(days.length){
-      /* Written as typed cells rather than appended as log rows: the Edit Log
-         append writes everything as text, which would leave the date unsortable
-         and the metres unaddable. */
-      var KIND=['d','s','s','s','n','n','n','n','n','n','n','n','s','n','s'];
+    /* Day rows are written as typed cells, not appended as log rows: the Edit Log
+       append writes everything as text, which would leave dates unsortable and
+       hours unaddable. */
+    appends.forEach(function(a){
+      var ix=idxD[a.sheet], KIND=DAYSHEETS[a.sheet]||[];
       var dayEdits=[], dayLog=[];
-      days.forEach(function(row,i){
-        var rr=idxD.nextRow+i;
+      a.rows.forEach(function(row,i){
+        var rr=ix.nextRow+i;
         row.forEach(function(v,j){
           if(v===''||v==null) return;
           var k=KIND[j]||'s', val=v, kind='s';
           if(k==='d'){ val=window.isoToSerial(v); kind='n'; if(val===null){ val=v; kind='s'; } }
-          else if(k==='n'){ val=Number(v); kind='n'; if(!isFinite(val)) { val=v; kind='s'; } }
-          dayEdits.push({ref:ref(idxD.firstCol+j,rr), value:val, kind:kind});
+          else if(k==='n'){ val=Number(v); kind='n'; if(!isFinite(val)){ val=v; kind='s'; } }
+          dayEdits.push({ref:ref(ix.firstCol+j,rr), value:val, kind:kind});
         });
-        dayLog.push([stamp, window.EDITOR_NAME, row[3]||'', '', 'Daily Progress',
-          '', auDate(row[0])+' \u00b7 +'+m1(row[6])+' m trench, +'+m1(row[9])+
-          ' m pipe, '+(row[10]||0)+' item(s)', SHEET_DAY+'!'+ref(idxD.firstCol,rr)]);
+        dayLog.push([stamp, window.EDITOR_NAME, String(row[3]==null?'':row[3]), '', a.sheet,
+          '', auDate(row[0])+(a.summary?' \u00b7 '+a.summary(row):''),
+          a.sheet+'!'+ref(ix.firstCol,rr)]);
       });
-      var out2=window.applyEdits(bytes,{sheet:SHEET_DAY, logSheet:'Edit Log',
+      var out2=window.applyEdits(bytes,{sheet:a.sheet, logSheet:'Edit Log',
         logStartRow:window.WB.logNextRow, edits:dayEdits, inserts:[], log:dayLog});
       bytes=out2.bytes||out2;
       window.WB.logNextRow+=dayLog.length;
-    }
+    });
   }catch(err){
     console.error(err);
     if(window.toast) toast('Could not write the workbook: '+err.message);
@@ -3275,7 +3736,7 @@ function writeToWorkbook(opts){
   function done(where){
     if(typeof window.refreshEditUI==='function') window.refreshEditUI();
     setWriteState();
-    if(window.toast) toast((days.length? days.length+' day row(s) and ':'')+
+    if(window.toast) toast((dayRowCount? dayRowCount+' day row(s) and ':'')+
       n+' cell'+(n===1?'':'s')+' written \u2014 '+where);
   }
   if(window.WB.handle && window.WB.handle.createWritable){
