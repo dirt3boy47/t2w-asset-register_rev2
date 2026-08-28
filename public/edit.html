@@ -6767,7 +6767,7 @@ window.COSTS={
     seeded+=seedAssetsFrom(idx);
     var got=readDays(idx);
     /* anything recorded in this session that the workbook has not seen yet is kept */
-    var mine=DAYS.filter(function(e){ return !e.fromWB; });
+    var mine=DAYS.filter(function(e){ return !e.fromWB && !e.fromSnap; });
     var seen={}; mine.forEach(function(e){ seen[e.date+'|'+(e.shift||'Day')]=1; });
     var merged=got.filter(function(e){ return !seen[e.date+'|'+(e.shift||'Day')]; }).concat(mine);
     merged.sort(function(a,b){ return a.date<b.date?-1:(a.date>b.date?1:0); });
@@ -6782,6 +6782,59 @@ window.COSTS={
             orphans:DAYSWB.orphans};
   },
   dayStats:function(){ return DAYSWB; },
+  /* ---------- the published snapshot ----------
+     data.json used to carry the register and nothing else, so with no workbook
+     to read, Costs, End of day, Reports and Claims all had nothing to stand on.
+     These put the rest of it in and take it back out again: the metres against
+     every trench section, the rates, the signed-off assets and the day log,
+     with the item keys already on each day so nothing has to be reconstructed. */
+  snapshotState:function(){
+    if(!build()) return null;
+    computeFront();
+    var out={};
+    ['tDone','pDone','paDone','pipeType','tRate','pRate','paRate','tCost','pCost','paCost','plant']
+      .forEach(function(k){ out[k]=ST[k]; });
+    out.paDate=PADATE;
+    return out;
+  },
+  snapshotDays:function(){ return DAYS; },
+  adopt:function(state,days,label){
+    if(built && window.D!==DFOR) rebuildForNewData();
+    if(!build()) return {ok:false,why:'the register is not loaded yet'};
+    if(state){
+      ['tDone','pDone','paDone','pipeType','tRate','pRate','paRate','tCost','pCost','paCost','plant']
+        .forEach(function(k){
+          if(!state[k]||!ST[k]) return;
+          Object.keys(state[k]).forEach(function(x){ ST[k][x]=state[k][x]; });
+        });
+      if(state.paDate){ PADATE={};
+        Object.keys(state.paDate).forEach(function(x){ PADATE[x]=state.paDate[x]; }); }
+    }
+    var n=0;
+    if(days && days.length){
+      var mine=DAYS.filter(function(e){ return !e.fromWB && !e.fromSnap; });
+      var seen={}; mine.forEach(function(e){ seen[e.date+'|'+(e.shift||'Day')]=1; });
+      var got=[];
+      days.forEach(function(e){
+        if(!e || !e.date) return;
+        if(seen[e.date+'|'+(e.shift||'Day')]) return;
+        var c=JSON.parse(JSON.stringify(e));
+        c.fromSnap=true;
+        c.rows=(c.rows||[]).map(function(r){ r.keys=r.keys||[]; return r; });
+        got.push(c);
+      });
+      n=got.length;
+      var merged=got.concat(mine).sort(function(a,b){
+        return a.date<b.date?-1:(a.date>b.date?1:0); });
+      DAYS.length=0; merged.forEach(function(e){ DAYS.push(e); });
+      DAYSWB.days=n; DAYSWB.src=label||'snapshot';
+    }
+    computeFront(); captureBase();
+    try{ render(); }catch(e){ console.error(e); }
+    try{ buildEOD(); renderEODLog(); }catch(e){ console.error(e); }
+    return {ok:true,days:n};
+  },
+
 
   data:function(){
     if(built && window.D!==DFOR){ rebuildForNewData(); return null; }
@@ -8855,11 +8908,70 @@ function fromJson(j){
   window.setData(j);
   if(j.meta && j.meta.generated && typeof window.setDataAsAt==='function')
     window.setDataAsAt(j.meta.generated);
-  STATE={ok:false,url:'',src:'snapshot',days:0,msg:'no workbook found \u2014 showing the snapshot'};
+  var n=0;
+  if((j.state || (j.days&&j.days.length)) && window.COSTS && window.COSTS.adopt){
+    var res=window.COSTS.adopt(j.state, j.days||[], 'data.json');
+    if(res.ok) n=res.days;
+    else console.warn('snapshot state:',res.why);
+  }
+  STATE={ok:false,url:'',src:'snapshot',days:n,
+    msg:n ? ('snapshot \u00b7 '+n+' day'+(n===1?'':'s'))
+          : 'no workbook found \u2014 showing the snapshot'};
   if(typeof window.ready==='function') window.ready();
   banner(); paint(); refreshTabs(); yesterday();
 }
 function file(u){ return String(u||'').split('/').pop(); }
+
+/* ---------- writing the snapshot ----------
+   The page that reads the workbook is the thing that knows how to flatten it,
+   so it writes the snapshot as well. Save this next to the page and every tab
+   keeps working on a day the workbook cannot be reached. */
+function saveSnapshot(){
+  if(!window.D || !window.D.rows || !window.D.rows.length){
+    if(window.toast) toast('Nothing loaded to save'); return;
+  }
+  var st=(window.COSTS&&window.COSTS.snapshotState)?window.COSTS.snapshotState():null;
+  var days=(window.COSTS&&window.COSTS.snapshotDays)?window.COSTS.snapshotDays():[];
+  var D=window.D;
+  var now=new Date();
+  var j={
+    meta:{
+      records:D.rows.length,
+      interval:(D.meta&&D.meta.interval)||700,
+      workbook:file(STATE.url)||(window.WB&&window.WB.name)||'',
+      generated:now.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}),
+      generatedAt:now.toISOString(),
+      days:days.length,
+      carriesState:true
+    },
+    cols:D.cols, rows:D.rows, flags:D.flags||{}, dq:D.dq||[], drawings:D.drawings||[],
+    state:st, days:days
+  };
+  var blob=new Blob([JSON.stringify(j)],{type:'application/json'});
+  var a=document.createElement('a'), u=URL.createObjectURL(blob);
+  a.href=u; a.download='data.json'; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },400);
+  if(window.toast) toast('Snapshot saved \u2014 '+D.rows.length.toLocaleString('en-AU')+
+    ' records and '+days.length+' day'+(days.length===1?'':'s')+
+    '. Commit it beside the page.');
+}
+function snapBtn(){
+  var b=document.querySelector('#btnSnap');
+  if(!b){
+    var hdr=document.querySelector('header'); if(!hdr) return null;
+    b=document.createElement('button');
+    b.id='btnSnap'; b.className='hbtn'; b.textContent='Save snapshot';
+    b.title='Write data.json with the register, the day log and the current position, '+
+      'so the page still works everywhere the workbook is not published';
+    b.addEventListener('click',saveSnapshot);
+    var anchor=document.querySelector('#wbChip');
+    if(anchor && anchor.nextSibling) hdr.insertBefore(b,anchor.nextSibling);
+    else hdr.appendChild(b);
+  }
+  b.style.display=(STATE.src==='workbook'||STATE.src==='open')?'':'none';
+  return b;
+}
+
 function stamp(extra){
   var s=document.querySelector('#hdrMeta');
   if(s && extra) s.textContent=extra;
@@ -8939,6 +9051,7 @@ function chip(){
   return c;
 }
 function paint(){
+  snapBtn();
   var c=chip(); if(!c) return;
   c.textContent=(STATE.ok?'\u25cf ':'\u25cb ')+STATE.msg;
   c.style.opacity=STATE.ok?'1':'.8';
@@ -8956,10 +9069,19 @@ function banner(){
       'folder \u2014 nothing here is a snapshot. Served over the web it can only be read, so to '+
       'change and save, click <b>Open workbook</b> above and pick the same file off your machine.';
   }else if(STATE.src==='snapshot'){
-    w.innerHTML='<b>No workbook found beside this page \u2014 showing the built-in snapshot.</b> '+
-      'The metres, the day log and the rates all live in the workbook, so none of them are here. '+
-      'Publish <i>'+esc(names()[0]||'the workbook')+'</i> into the same folder as this page, or '+
-      'click the button at the top right to point at it by name.';
+    if(STATE.days){
+      w.innerHTML='<b>No workbook found \u2014 running on the published snapshot.</b> '+
+        'It carries the register, the day log ('+STATE.days+' day'+(STATE.days===1?'':'s')+
+        '), the position on every trench section and the rate library, so every tab works. '+
+        'What it cannot do is move: it is only as current as the last time it was saved. '+
+        'Publish <i>'+esc(names()[0]||'the workbook')+'</i> beside this page for live figures.';
+    }else{
+      w.innerHTML='<b>No workbook found beside this page \u2014 showing the built-in snapshot.</b> '+
+        'This one carries the register only, so the metres, the day log and the rates are not in '+
+        'it. Publish <i>'+esc(names()[0]||'the workbook')+'</i> into the same folder as this page, '+
+        'or open the workbook and use <b>Save snapshot</b> to write a data.json that carries the '+
+        'lot.';
+    }
   }
 }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
