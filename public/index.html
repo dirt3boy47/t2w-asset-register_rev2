@@ -1224,13 +1224,18 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
    workbook on every deploy. Serve over http - a page opened from disk cannot
    read a neighbouring file. */
 
-/* The workbook that sits beside this page in the same folder. Everything that
-   moves day to day is read straight out of it on load, so nothing has to be
-   opened by hand. Rename it here if the file is called something else. */
-window.WORKBOOK_URL = 'register.xlsx';
-window.WORKBOOK_URLS = ['register.xlsx','T2W Pipeline Master Asset Register.xlsx'];
+/* The workbook this page is built from. It has to be published into the same
+   folder as this file - a copy sitting outside the folder that gets deployed
+   cannot be fetched. If it is called something else, name it here; a full URL
+   works too. data.json is only a fallback for when the workbook is missing. */
+window.WORKBOOK_URL  = 'T2W_Pipeline_Master_Asset_Register.xlsx';
+window.WORKBOOK_URLS = ['T2W Pipeline Master Asset Register.xlsx',
+                        'T2W_Pipeline_Master_Asset_Register.xlsm',
+                        'register.xlsx'];
 
 window.LOAD_DATA = function(){
+  /* the workbook first, the snapshot only if it cannot be reached */
+  if(window.WBSYNC && window.WBSYNC.boot) return window.WBSYNC.boot();
   fetch('data.json?v='+Date.now(), {cache:'no-store'})
     .then(function(r){ if(!r.ok) throw new Error('data.json returned HTTP '+r.status); return r.json(); })
     .then(function(j){
@@ -3019,7 +3024,10 @@ function buildEOD(){
       '<div class="pabar" id="eodPABar-'+sec+'"></div>'+
       '<div class="tblWrap scroll pawrap" id="eodPAWrap-'+sec+'">'+
         '<table class="wide eodpa" id="eodPA-'+sec+'"><thead></thead><tbody></tbody></table></div>'+
-      '<div class="none" id="eodNone-'+sec+'"></div>';
+      '<div class="none" id="eodNone-'+sec+'"></div>'+
+      '<div class="pabar" id="eodBLBar-'+sec+'"></div>'+
+      '<div class="tblWrap scroll pawrap hide" id="eodBLWrap-'+sec+'">'+
+        '<table class="wide eodpa" id="eodBL-'+sec+'"><thead></thead><tbody></tbody></table></div>';
     host.appendChild(card);
 
     /* chainage and metres fill each other, so either can be typed */
@@ -3070,6 +3078,82 @@ function eodAssetsFor(sec){
   });
 }
 var EODTICK={};
+/* ---------- the catch-up list ----------
+   eodAssetsFor only offers what today's chainage newly covered. Anything the
+   front went past on an earlier day and nobody ticked never appears again, so
+   a backlog of finished work sits there unclaimed. These are that backlog:
+   outstanding assets already behind the front. They start unticked - the
+   trench passing something is not proof it is finished - and whatever is
+   ticked is attached to today, which is the day it was signed off. */
+function eodBacklogFor(sec){
+  if(!EODBUILT) return [];
+  var tf=baseFront(sec), pf=EODPIPE[sec]||0;
+  return PA.filter(function(p){
+    if(p.sec!==sec || ST.paDone[p.key]) return false;
+    var f=(p.drv==='PIPE')?pf:tf;
+    return f>0 && p.ch<=f+1e-9;
+  }).sort(function(a,b){ return a.ch-b.ch; });
+}
+var EODBLOPEN={};
+function eodBLRender(sec){
+  var bar=q('#eodBLBar-'+sec), wrap=q('#eodBLWrap-'+sec);
+  if(!bar||!wrap) return;
+  var list=eodBacklogFor(sec);
+  if(!list.length){ bar.innerHTML=''; wrap.classList.add('hide'); return; }
+
+  var on=list.filter(function(a){ return EODTICK[a.key]; });
+  function val(l){ return l.reduce(function(t,a){
+    var r=rateOf(a); return t+(r==null?0:r*qtyOf(a)); },0); }
+  var open=!!EODBLOPEN[sec];
+  bar.innerHTML='<span class="n"><b>'+list.length+'</b> point asset'+(list.length===1?'':'s')+
+    ' behind the front still outstanding \u00b7 '+money(val(list))+' not claimed'+
+    (on.length?' \u00b7 <b>'+on.length+'</b> ticked for today ('+money(val(on))+')':'')+'</span>';
+  var b0=ce('button','btn sec',open?'Hide the list':'Show the list');
+  b0.addEventListener('click',function(){ EODBLOPEN[sec]=!open; eodRender(sec); });
+  var b1=ce('button','btn sec','Tick all');
+  b1.addEventListener('click',function(){
+    list.forEach(function(a){ EODTICK[a.key]=true; }); EODBLOPEN[sec]=true; eodRender(sec); });
+  var b2=ce('button','btn sec','Untick all');
+  b2.addEventListener('click',function(){
+    list.forEach(function(a){ EODTICK[a.key]=false; }); eodRender(sec); });
+  bar.appendChild(b0); bar.appendChild(b1); bar.appendChild(b2);
+
+  wrap.classList.toggle('hide',!open);
+  if(!open) return;
+
+  var th=q('#eodBL-'+sec+' thead'), tb=q('#eodBL-'+sec+' tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th></th><th>Record</th><th class="num">Chainage m</th>'+
+      '<th class="num">Behind</th><th>Driver</th><th>Asset type</th><th>Type / item</th>'+
+      '<th class="num">Cost</th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  var frag=document.createDocumentFragment();
+  var tf=baseFront(sec), pf=EODPIPE[sec]||0;
+  list.forEach(function(a){
+    var ison=!!EODTICK[a.key], rate=rateOf(a);
+    var front=(a.drv==='PIPE')?pf:tf;
+    var tr=document.createElement('tr'); tr.className=ison?'on':'off';
+    function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
+      if(v&&v.nodeType) c.appendChild(v); else c.innerHTML=v; tr.appendChild(c); }
+    var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=ison;
+    cb.title='Complete '+a.key+' today';
+    cb.addEventListener('change',function(){
+      EODTICK[a.key]=cb.checked; tr.className=cb.checked?'on':'off';
+      eodBLRender(sec); eodTally();
+    });
+    td(cb,'tick-col');
+    td(a.key); td(m1(a.ch),'num'); td(m1(Math.max(front-a.ch,0))+' m','num'); td(a.drv);
+    td(labelOf(a.type));
+    td(a.item ? (a.ud+' \u00b7 '+a.item)
+              : (a.cls || (a.vt?('type '+a.vt):'') || a.name || ''));
+    td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(a)),'num');
+    frag.appendChild(tr);
+  });
+  tb.appendChild(frag);
+}
+
 function eodRender(only){
   if(!EODBUILT) return;
   var secs = only ? [only] : SECS;
@@ -3135,6 +3219,7 @@ function eodRender(only){
     tb.appendChild(frag);
     q('#eodPAWrap-'+sec).classList.toggle('hide',!list.length);
     eodPABar(sec);
+    eodBLRender(sec);
 
     var n=q('#eodNone-'+sec);
     if(!list.length){
@@ -3144,6 +3229,9 @@ function eodRender(only){
           'Trench stops, bulkheads, thrust blocks and crossings follow the trench figure; '+
           'bends and valves follow the pipe figure.'
         : 'No outstanding point assets in the ground covered today.';
+      var bl=eodBacklogFor(sec).length;
+      if(bl) n.textContent += ' There '+(bl===1?'is 1':'are '+bl)+
+        ' behind the front still outstanding \u2014 tick them off below.';
     } else n.textContent='';
     var dt = (t!=null&&t>=from) ? t-from : 0;
     var dp = (p!=null&&p>=pfrom) ? p-pfrom : 0;
@@ -3195,8 +3283,8 @@ function eodDupCheck(){
 
 /* what the form currently claims, without changing anything */
 function eodDraft(){
-  var rows=[], mT=0,mP=0,items=0,earn=0,dcost=0, bad=false;
-  if(!EODBUILT) return {rows:rows,mT:0,mP:0,items:0,earn:0,dcost:0,
+  var rows=[], mT=0,mP=0,items=0,earn=0,dcost=0, bad=false, catchup=0;
+  if(!EODBUILT) return {rows:rows,mT:0,mP:0,items:0,earn:0,dcost:0,catchup:0,
                         plant:0,plantMissing:[],cost:0,profit:0,margin:null,bad:false};
   SECS.forEach(function(sec){
     var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
@@ -3206,7 +3294,10 @@ function eodDraft(){
     if(p!=null && (p<pfrom || p>cap)) bad=true;
     var to = (t!=null && t>=from && t<=ext) ? t : from;
     var pto = (p!=null && p>=pfrom && p<=cap) ? p : pfrom;
-    var picked=eodAssetsFor(sec).filter(function(a){ return EODTICK[a.key]; });
+    var newGround=eodAssetsFor(sec).filter(function(a){ return EODTICK[a.key]; });
+    var caught=eodBacklogFor(sec).filter(function(a){ return EODTICK[a.key]; });
+    var picked=newGround.concat(caught);
+    catchup+=caught.length;
     var e=0, c=0;
     /* the same quantities twice: once at the client rate, once at ours */
     T.forEach(function(x){
@@ -3233,7 +3324,7 @@ function eodDraft(){
   });
   var pl=plantCostOf(PLANT);
   var total=dcost+pl.cost;
-  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,dcost:dcost,
+  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,dcost:dcost,catchup:catchup,
           plant:pl.cost,plantMissing:pl.missing,cost:total,
           profit:earn-total, margin:(earn>0?(earn-total)/earn:null), bad:bad};
 }
@@ -3245,7 +3336,8 @@ function eodTally(){
 
   host.innerHTML=
     '<div><div class="k">Earned today</div><div class="v">'+money(d.earn)+'</div>'+
-      '<div class="s">'+m1(d.mT)+' m trench \u00b7 '+m1(d.mP)+' m pipe \u00b7 '+d.items+' item(s)</div></div>'+
+      '<div class="s">'+m1(d.mT)+' m trench \u00b7 '+m1(d.mP)+' m pipe \u00b7 '+d.items+' item(s)'+
+      (d.catchup?' \u00b7 '+d.catchup+' caught up from behind the front':'')+'</div></div>'+
     '<div><div class="k">Our cost</div><div class="v">'+money(d.dcost)+'</div>'+
       '<div class="s">trench, pipe and items at cost</div></div>'+
     '<div><div class="k">Plant and labour</div><div class="v">'+money(d.plant)+'</div>'+
@@ -5104,18 +5196,25 @@ function seedAssetsFrom(idx){
   }
   if(hr<0) return 0;
   var hv=(g[hr]||[]).map(function(v){ return String(v==null?'':v).trim(); });
-  var kc=hv.indexOf('Record Key'), cc=-1;
+  var kc=hv.indexOf('Record Key'), cc=-1, dc=-1;
   hv.forEach(function(h,i){
-    if(h.toLowerCase().replace(/[^a-z]/g,'')==='complete') cc=i; });
+    var t=h.toLowerCase().replace(/[^a-z]/g,'');
+    if(t==='complete') cc=i;
+    else if(t==='completiondate') dc=i;
+  });
   if(kc<0||cc<0) return 0;
   var want={}; PA.forEach(function(p){ want[p.key]=1; });
   var n=0;
+  PADATE={};
   for(var r2=hr+1;r2<g.length;r2++){
     var row=g[r2]||[];
     var k=String(row[kc]==null?'':row[kc]).trim();
     if(!k||!want[k]) continue;
     var v=String(row[cc]==null?'':row[cc]).trim().toLowerCase();
-    if(v==='yes'||v==='y'||v==='true'||v==='1'){ ST.paDone[k]=true; n++; }
+    if(v==='yes'||v==='y'||v==='true'||v==='1'){
+      ST.paDone[k]=true; n++;
+      if(dc>=0){ var d=wbDate(row[dc]); if(d) PADATE[k]=d; }
+    }
   }
   return n;
 }
@@ -5129,7 +5228,8 @@ function seedAssetsFrom(idx){
    completed with no day covering it is deliberately left unattributed: the
    claims Reconciliation page names it rather than the claim quietly
    swallowing it. */
-var DAYSWB={days:0,itemsSheet:0,itemsMatched:0,orphans:0,src:''};
+var DAYSWB={days:0,itemsSheet:0,itemsMatched:0,orphans:0,byDate:0,src:''};
+var PADATE={};        /* record key -> the date it was signed off */
 
 function wbDate(v){
   if(v==null||v==='') return '';
@@ -5238,6 +5338,24 @@ function attributeAssets(){
   DAYS.forEach(function(e){ (e.rows||[]).forEach(function(r){ r.keys=[]; }); });
   var order=DAYS.slice().sort(function(a,b){ return a.date<b.date?-1:(a.date>b.date?1:0); });
   var done=PA.filter(function(p){ return !!ST.paDone[p.key]; });
+
+  /* The register records the date each asset was signed off, so use it. Guessing
+     from the chainage would put anything caught up from behind the front on the
+     day the trench passed it rather than the day it was actually completed - and
+     that is the difference between one claim period and another. */
+  var byDate={};
+  order.forEach(function(e){ (byDate[e.date]=byDate[e.date]||[]).push(e); });
+  DAYSWB.byDate=0;
+  done.forEach(function(p){
+    var d=PADATE[p.key]; if(!d) return;
+    var list=byDate[d]; if(!list) return;
+    var target=null;
+    list.forEach(function(e){ (e.rows||[]).forEach(function(r){
+      if(!target && r.sec===p.sec) target=r; }); });
+    if(!target) list.forEach(function(e){ if(!target && (e.rows||[]).length) target=e.rows[0]; });
+    if(target){ used[p.key]=1; target.keys.push(p.key); DAYSWB.byDate++; }
+  });
+
   order.forEach(function(e){
     (e.rows||[]).forEach(function(r){
       done.forEach(function(p){
@@ -7266,38 +7384,50 @@ window.CLAIMS={ render:render };
 })();
 </script>
 <script>/* ==========================================================================
-   Keep the page pointed at the workbook.
+   The workbook is the register.
 
-   The register itself arrives as data.json. Everything that moves day to day -
-   the metres on each trench section, the rates, the day log - lives in the
-   workbook, and until now the page only saw it if somebody opened the file by
-   hand. It does not wait to be asked any more: it fetches the workbook that
-   sits beside this page and reads the saved position and the whole day log
-   straight out of it.
+   Everything on this page - the records, the metres against each trench
+   section, the rates, the day log, the signed-off assets - lives in one
+   Excel file in the project folder. This reads that file over the web and
+   builds the page out of it. data.json is kept only as a fallback for when
+   the workbook cannot be reached, and the page says plainly which of the two
+   it is showing rather than letting a stale snapshot pass for the truth.
 
-   If a workbook is opened locally that one wins, because it is the copy being
-   edited and it may hold changes the published one does not.
+   A workbook opened locally still wins: that is the copy being edited.
    ========================================================================== */
 (function(){
 'use strict';
-var LAST=0, BUSY=false, STATE={ok:false,msg:'looking for the workbook\u2026',url:''};
-var TRIED=[];
+var LAST=0, BUSY=false, TRIED=[], JSONDATA=null, ASKED=null;
+var STATE={ok:false,msg:'looking for the workbook\u2026',url:'',days:0,src:''};
 
-function candidates(){
+/* ---------- finding it ---------- */
+function names(){
   var out=[];
-  function add(u){ if(u && out.indexOf(u)<0) out.push(u); }
-  if(typeof window.WORKBOOK_URL==='string') add(window.WORKBOOK_URL);
-  if(Array.isArray(window.WORKBOOK_URLS)) window.WORKBOOK_URLS.forEach(add);
-  var meta=(window.D&&window.D.meta)||{};
-  if(meta.workbook) add(meta.workbook);
-  ['register.xlsx','T2W_Register.xlsx','T2W Pipeline Master Asset Register.xlsx',
-   'T2W_Pipeline_Master_Asset_Register.xlsx','workbook.xlsx','data.xlsx']
-   .forEach(add);
+  function add(n){ n=(n==null?'':String(n)).trim(); if(n && out.indexOf(n)<0) out.push(n); }
+  add(ASKED);
+  add(window.WORKBOOK_URL);
+  (window.WORKBOOK_URLS||[]).forEach(add);
+  /* the snapshot records which workbook it was built from, which is the best
+     guess there is at the file's real name */
+  if(JSONDATA && JSONDATA.meta) add(JSONDATA.meta.workbook);
+  ['T2W_Pipeline_Master_Asset_Register.xlsx',
+   'T2W Pipeline Master Asset Register.xlsx',
+   'T2W_Pipeline_Master_Asset_Register.xlsm',
+   'register.xlsx','T2W_Register.xlsx','workbook.xlsx'].forEach(add);
   return out;
 }
+function candidates(){
+  var dirs=['','../','public/'], out=[];
+  names().forEach(function(n){
+    if(/^https?:\/\//i.test(n) || n.charAt(0)==='/'){ if(out.indexOf(n)<0) out.push(n); return; }
+    dirs.forEach(function(d){ var u=d+n; if(out.indexOf(u)<0) out.push(u); });
+  });
+  return out.slice(0,30);
+}
 function looksLikeXlsx(buf){
+  if(!buf || buf.byteLength<4) return false;
   var b=new Uint8Array(buf,0,4);
-  return b[0]===0x50 && b[1]===0x4b;           /* PK - a zip, which is what xlsx is */
+  return b[0]===0x50 && b[1]===0x4b;                 /* PK: xlsx is a zip */
 }
 function fetchOne(url){
   return fetch(encodeURI(url)+'?v='+Date.now(),{cache:'no-store'})
@@ -7312,47 +7442,102 @@ function findWorkbook(){
   TRIED=[];
   function next(){
     if(i>=list.length) return Promise.reject(new Error('none of the names matched'));
-    var u=list[i++];
-    TRIED.push(u);
+    var u=list[i++]; TRIED.push(u);
     return fetchOne(u).catch(next);
   }
   return next();
 }
+function loadJson(){
+  return fetch('data.json?v='+Date.now(),{cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(j){
+      if(!j||!j.rows||!j.cols) throw new Error('data.json is not in the expected format');
+      JSONDATA=j; return j;
+    })
+    .catch(function(e){ console.warn('data.json:',e.message); return null; });
+}
 
-function ready(){ return !!(window.D && window.D.rows && window.D.rows.length &&
-                            window.COSTS && window.COSTS.hydrate); }
-function localOpen(){ return !!(window.WB && window.WB.bytes); }
+/* ---------- building the page out of it ---------- */
+function fromWorkbook(got){
+  if(typeof XLSX==='undefined') throw new Error('the spreadsheet reader is not loaded');
+  var wb=XLSX.read(got.bytes,{type:'array'});
+  var src=window.rebuild(wb);
+  window.setData(src);
+  var res=(window.COSTS&&window.COSTS.hydrate)
+    ? window.COSTS.hydrate(got.bytes,got.url) : {ok:false,why:'costs not ready'};
+  if(!res.ok) console.warn('workbook hydrate:',res.why);
+  STATE={ok:true,url:got.url,src:'workbook',days:res.days||0,
+    msg:(res.days||0)+' day'+((res.days||0)===1?'':'s')+' \u00b7 '+file(got.url)};
+  stamp(src.rows.length+' records \u00b7 from '+file(got.url));
+  if(typeof window.ready==='function') window.ready();
+  banner(); paint(); refreshTabs(); yesterday();
+  return res;
+}
+function fromJson(j){
+  window.setData(j);
+  if(j.meta && j.meta.generated && typeof window.setDataAsAt==='function')
+    window.setDataAsAt(j.meta.generated);
+  STATE={ok:false,url:'',src:'snapshot',days:0,msg:'no workbook found \u2014 showing the snapshot'};
+  if(typeof window.ready==='function') window.ready();
+  banner(); paint(); refreshTabs(); yesterday();
+}
+function file(u){ return String(u||'').split('/').pop(); }
+function stamp(extra){
+  var s=document.querySelector('#hdrMeta');
+  if(s && extra) s.textContent=extra;
+}
 
+/* ---------- go ---------- */
+function boot(){
+  paint();
+  /* the snapshot is fetched first because its meta names the workbook, and
+     because it is the fallback if the workbook is not published */
+  return loadJson().then(function(j){
+    return findWorkbook().then(function(got){
+      try{ fromWorkbook(got); }
+      catch(err){ console.error(err); if(j) fromJson(j); else fail(err); }
+    }).catch(function(err){
+      console.warn('workbook sync:',err.message,'tried:',TRIED.join(', '));
+      if(j) fromJson(j);
+      else fail(err);
+    });
+  });
+}
+function fail(err){
+  STATE={ok:false,url:'',src:'',days:0,msg:'nothing to load'};
+  paint(); banner();
+  if(typeof window.dataError==='function')
+    window.dataError('No workbook and no snapshot could be read. '+(err?err.message:''));
+}
 function sync(force){
   if(BUSY) return;
-  if(!ready()) return;
-  if(localOpen()){
-    STATE={ok:true,msg:'using the workbook you opened',url:(window.WB.name||'')};
-    paint(); return;
+  if(window.WB && window.WB.bytes){
+    STATE={ok:true,src:'open',url:window.WB.name||'',days:STATE.days,
+      msg:'using the workbook you opened'};
+    paint(); banner(); return;
   }
   if(!force && Date.now()-LAST<45000) return;
   BUSY=true; LAST=Date.now();
   STATE.msg='reading the workbook\u2026'; paint();
   findWorkbook().then(function(got){
-    var res=window.COSTS.hydrate(got.bytes,got.url);
-    if(!res.ok) throw new Error(res.why);
-    STATE={ok:true,url:got.url,days:res.days,
-      msg:res.days+' day'+(res.days===1?'':'s')+' from '+got.url};
-    if(window.toast && force) toast('Read '+res.days+' recorded day'+(res.days===1?'':'s')+
-      ' from '+got.url);
-    refreshTabs(); yesterday();
+    var res=fromWorkbook(got);
+    if(window.toast && force) toast('Read '+(res.days||0)+' recorded day'+
+      ((res.days||0)===1?'':'s')+' from '+file(got.url));
   }).catch(function(err){
-    STATE={ok:false,url:'',msg:'no workbook found beside this page',err:err.message};
-    console.warn('workbook sync:',err.message,'tried:',TRIED.join(', '));
-  }).then(function(){ BUSY=false; paint(); yesterday(); });
+    console.warn('workbook sync:',err.message);
+    STATE={ok:false,url:'',src:STATE.src,days:STATE.days,
+      msg:'no workbook found beside this page'};
+    if(window.toast && force) toast('Could not find the workbook \u2014 '+err.message);
+  }).then(function(){ BUSY=false; paint(); banner(); yesterday(); });
 }
-
 function refreshTabs(){
   try{
     var on=document.querySelector('nav.tabs button.on');
     var t=on?on.dataset.tab:'';
     if(t==='reports' && window.RPT) window.RPT.render();
     if(t==='claims' && window.CLAIMS) window.CLAIMS.render();
+    if(t==='costs' && window.COSTS) window.COSTS.render();
+    if(t==='eod' && window.COSTS) window.COSTS.renderEOD();
   }catch(e){ console.error(e); }
 }
 
@@ -7363,8 +7548,14 @@ function chip(){
   var hdr=document.querySelector('header'); if(!hdr) return null;
   c=document.createElement('button');
   c.id='wbChip'; c.className='hbtn';
-  c.title='Read the workbook that sits beside this page again';
-  c.addEventListener('click',function(){ sync(true); });
+  c.addEventListener('click',function(){
+    if(STATE.ok && STATE.src!=='open'){ sync(true); return; }
+    if(STATE.src==='open'){ if(window.toast) toast('Reading the workbook you opened, not the site copy'); return; }
+    var n=window.prompt('Name of the workbook in the published folder, or a full URL to it:\n\n'+
+      'Tried:\n  '+TRIED.slice(0,10).join('\n  '), ASKED||window.WORKBOOK_URL||'');
+    if(n==null) return;
+    ASKED=n.trim(); sync(true);
+  });
   var anchor=document.querySelector('#btnLoad');
   if(anchor) hdr.insertBefore(c,anchor); else hdr.appendChild(c);
   return c;
@@ -7372,14 +7563,31 @@ function chip(){
 function paint(){
   var c=chip(); if(!c) return;
   c.textContent=(STATE.ok?'\u25cf ':'\u25cb ')+STATE.msg;
-  c.style.opacity=STATE.ok?'1':'.75';
+  c.style.opacity=STATE.ok?'1':'.8';
   c.title=STATE.ok
-    ? 'Read from '+(STATE.url||'the open workbook')+'. Click to read it again.'
-    : 'Tried: '+(TRIED.join(', ')||'nothing yet')+'.\nPut the workbook beside this page, or set '+
-      'window.WORKBOOK_URL at the top of the file. Click to try again.';
+    ? 'Built from '+(STATE.url||'the open workbook')+'. Click to read it again.'
+    : 'Tried:\n  '+(TRIED.join('\n  ')||'nothing yet')+
+      '\n\nClick to type the file name or a full URL.';
 }
+/* the read-only notice should say where the figures actually came from */
+function banner(){
+  var w=document.querySelector('#editWarn'); if(!w) return;
+  if(STATE.src==='workbook'){
+    w.innerHTML='<b>Reading '+esc(file(STATE.url))+'.</b> The records, the metres on every trench '+
+      'section, the rate library and the whole day log are coming from that file in the project '+
+      'folder \u2014 nothing here is a snapshot. Served over the web it can only be read, so to '+
+      'change and save, click <b>Open workbook</b> above and pick the same file off your machine.';
+  }else if(STATE.src==='snapshot'){
+    w.innerHTML='<b>No workbook found beside this page \u2014 showing the built-in snapshot.</b> '+
+      'The metres, the day log and the rates all live in the workbook, so none of them are here. '+
+      'Publish <i>'+esc(names()[0]||'the workbook')+'</i> into the same folder as this page, or '+
+      'click the button at the top right to point at it by name.';
+  }
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
-/* ---------- yesterday, always on screen ---------- */
+/* ---------- the last day recorded, always on screen ---------- */
 function yesterday(){
   var host=document.querySelector('#eodYesterday');
   if(!host || !window.COSTS || !window.COSTS.data) return;
@@ -7387,9 +7595,11 @@ function yesterday(){
   var days=(X.DAYS||[]).slice().sort(function(a,b){
     return a.date<b.date?-1:(a.date>b.date?1:0); });
   if(!days.length){
-    host.innerHTML='<div class="pad"><p class="note" style="margin:0">Nothing recorded yet. '+
-      'The last day will sit here once one is saved, so you never have to open the workbook to '+
-      'see where the job got to.</p></div>';
+    host.innerHTML='<div class="pad"><p class="note" style="margin:0">'+
+      (STATE.src==='workbook'
+        ? 'The workbook has no days recorded yet. The last one will sit here as soon as a day is saved.'
+        : 'No workbook is loaded, so there is no day log to show. '+
+          'The last day recorded will sit here once the workbook is found.')+'</p></div>';
     return;
   }
   var e=days[days.length-1];
@@ -7407,13 +7617,13 @@ function yesterday(){
   var sf=e.safety||{};
   var h='<div class="pad">';
   h+='<div class="ydhead"><b>'+au(e.date)+'</b>'+
-     '<span>'+(e.shift||'Day')+(e.by?' \u00b7 '+e.by:'')+'</span>'+
-     '<span>'+(e.wx||'')+(e.down?' \u00b7 '+m1(e.down)+' h down':'')+'</span>'+
+     '<span>'+esc(e.shift||'Day')+(e.by?' \u00b7 '+esc(e.by):'')+'</span>'+
+     '<span>'+esc(e.wx||'')+(e.down?' \u00b7 '+m1(e.down)+' h down':'')+'</span>'+
      '<span class="grow"></span>'+
      '<span>'+days.length+' day'+(days.length===1?'':'s')+' on record</span></div>';
   h+='<div class="ydgrid">';
   (e.rows||[]).forEach(function(r){
-    h+='<div class="ydsec"><b>'+r.sec+'</b>'+
+    h+='<div class="ydsec"><b>'+esc(r.sec)+'</b>'+
        '<div>Trench <i>'+m1(r.from)+' \u2192 '+m1(r.to)+' m</i> <em>+'+m1(r.dt)+' m</em></div>'+
        '<div>Pipe <i>'+m1(r.pfrom)+' \u2192 '+m1(r.pto)+' m</i> <em>+'+m1(r.dp)+' m</em></div>'+
        '<div>Items <em>'+(r.items||0)+'</em></div></div>';
@@ -7428,35 +7638,25 @@ function yesterday(){
      (mo.profit!=null?'<span>Profit <b>'+money(mo.profit)+'</b></span>':'')+
      (crew?'<span>Crew <b>'+crew+'</b></span>':'')+
      (hrs?'<span>Hours <b>'+m1(hrs)+'</b></span>':'')+
-     (sf.incident&&sf.incident!=='Nil'?'<span class="bad">Incident <b>'+sf.incident+'</b></span>':'')+
+     (sf.incident&&sf.incident!=='Nil'?'<span class="bad">Incident <b>'+esc(sf.incident)+
+       '</b></span>':'')+
      '</div>';
-  if(e.notes) h+='<p class="note" style="margin:10px 0 0"><b>Notes.</b> '+
-    String(e.notes).replace(/[&<>]/g,function(x){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;'}[x]; })+'</p>';
+  if(e.notes) h+='<p class="note" style="margin:10px 0 0"><b>Notes.</b> '+esc(e.notes)+'</p>';
   h+='</div>';
   host.innerHTML=h;
 }
 
-/* ---------- go ---------- */
-function boot(){
+document.addEventListener('DOMContentLoaded',function(){
   paint();
-  var tries=0;
-  var t=setInterval(function(){
-    tries++;
-    if(ready()){ clearInterval(t); sync(true); }
-    else if(tries>120) { clearInterval(t); STATE.msg='waiting on the register'; paint(); }
-  },250);
-  document.addEventListener('visibilitychange',function(){
-    if(!document.hidden) sync(false); });
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) sync(false); });
   window.addEventListener('focus',function(){ sync(false); });
   var eodBtn=document.querySelector('nav.tabs button[data-tab="eod"]');
   if(eodBtn) eodBtn.addEventListener('click',function(){ setTimeout(yesterday,60); });
   setInterval(function(){ yesterday(); },2500);
-}
-document.addEventListener('DOMContentLoaded',boot);
-if(document.readyState!=='loading') boot();
+});
 
-window.WBSYNC={ reload:function(){ sync(true); }, state:function(){ return STATE; } };
+window.WBSYNC={ boot:boot, reload:function(){ sync(true); }, state:function(){ return STATE; },
+                point:function(u){ ASKED=u; sync(true); } };
 })();
 </script>
 </body>
