@@ -447,6 +447,80 @@ tbody tr.picked:hover{background:#d7e8f4}
     margin-right:3%}
 }
 </style>
+<style id="rp-css">
+/* ---------- Reports tab ---------- */
+#tab-reports .rpnav{display:flex;flex-wrap:wrap;gap:6px}
+#tab-reports .rpnav button{border:1px solid #c3ccd7;background:#fff;border-radius:20px;
+  padding:6px 13px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+#tab-reports .rpnav button:hover{border-color:var(--accent);color:var(--accent)}
+#tab-reports .rpnav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+
+#tab-reports .rcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:11px}
+#tab-reports .rcard{border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:#fbfcfe}
+#tab-reports .rcard .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--mid)}
+#tab-reports .rcard .v{font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;
+  margin-top:3px;line-height:1.15;white-space:nowrap}
+#tab-reports .rcard .s{font-size:11.5px;color:var(--mid);margin-top:3px;line-height:1.45}
+#tab-reports .rcard.lead{background:var(--navy);border-color:var(--navy);color:#fff}
+#tab-reports .rcard.lead .l,#tab-reports .rcard.lead .s{color:#a9bdd4}
+#tab-reports .rcard.good .v{color:#1f6b43}
+#tab-reports .rcard.warn .v{color:#8a6508}
+#tab-reports .rcard.bad .v{color:var(--danger)}
+
+#tab-reports .rbar{height:9px;border-radius:5px;background:#e6ebf1;overflow:hidden;margin-top:7px}
+#tab-reports .rbar > i{display:block;height:100%;background:var(--accent)}
+#tab-reports .rbar.g > i{background:#2f8f5b}
+#tab-reports .rbar.w > i{background:var(--warn)}
+#tab-reports .rbar.sm{height:6px;margin-top:4px}
+
+#tab-reports .rgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+#tab-reports .rform{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;align-items:end}
+#tab-reports .rform > div{display:flex;flex-direction:column;min-width:0}
+#tab-reports .rform label{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--mid);margin-bottom:5px}
+#tab-reports .rform input,#tab-reports .rform select{padding:9px 10px;border:1px solid #c3ccd7;
+  border-radius:6px;background:#fff;width:100%;font:inherit;color:inherit}
+#tab-reports .rform input:focus,#tab-reports .rform select:focus{outline:2px solid var(--accent);
+  outline-offset:-1px}
+
+#tab-reports svg.rsvg{width:100%;display:block}
+#tab-reports .rnote{font-size:12px;color:var(--mid);line-height:1.6;max-width:96ch;margin:0 0 12px}
+#tab-reports .rnote b{color:var(--ink)}
+#tab-reports .rnote:last-child{margin-bottom:0}
+#tab-reports .rdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;
+  vertical-align:-1px}
+#tab-reports .rstg{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px}
+#tab-reports .rstg .n{width:118px;color:var(--mid);flex:none}
+#tab-reports .rstg .rbar{flex:1;margin:0}
+#tab-reports .rstg .v{width:150px;text-align:right;font-variant-numeric:tabular-nums;flex:none}
+#tab-reports .rahead{font-variant-numeric:tabular-nums;font-weight:600;color:var(--accent);
+  white-space:nowrap}
+#tab-reports tbody tr{cursor:default}
+#tab-reports tbody tr:hover{background:#f7fafc}
+#tab-reports .rmini{font-size:11.5px;color:var(--mid)}
+#tab-reports .rwarn{background:var(--warn-bg);border:1px solid #e8d9a8;border-radius:7px;
+  padding:10px 13px;font-size:12.5px;color:#7a5a07;margin:0 0 12px}
+#rpPrintHead{display:none}
+#rpPrintHead h2{font-size:15pt;margin-bottom:3px}
+#rpPrintHead .pf{font-size:9.5pt;color:#333}
+@media print{
+  #tab-reports .rpnav,#tab-reports .rform{display:none!important}
+  #rpPrintHead{display:block!important;margin-bottom:12px}
+  #tab-reports .panel > h2{display:block!important;font-size:9pt;color:#000;
+    border-bottom:1px solid #999;padding:4px 0;letter-spacing:.5px}
+  #tab-reports .rcard{border:1px solid #bbb}
+  #tab-reports .rbar{border:1px solid #bbb}
+  #tab-reports .rbar > i{background:#666!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #tab-reports .rcards,#tab-reports .rgrid2{page-break-inside:avoid}
+}
+@media (max-width:820px){
+  #tab-reports .rstg{flex-wrap:wrap}
+  #tab-reports .rstg .n{width:100%}
+  #tab-reports .rstg .v{width:auto;flex:1}
+}
+</style>
 </head>
 <body>
 
@@ -464,6 +538,7 @@ tbody tr.picked:hover{background:#d7e8f4}
   <button data-tab="costs">Costs</button>
   <button data-tab="eod">End of day</button>
   <button data-tab="plr">Plant &amp; labour</button>
+  <button data-tab="reports">Reports</button>
   <button data-tab="drawings">Drawings</button>
   <button data-tab="quality">Data quality</button>
   <button data-tab="about">About</button>
@@ -889,6 +964,45 @@ tbody tr.picked:hover{background:#d7e8f4}
       <p class="note">Rates edited here are written to the <b>Plant and Labour Rates</b> sheet by
         <b>Save to Excel</b> in the bar at the top, with everything else waiting.</p>
     </div>
+  </div>
+</section>
+
+<!-- ============ REPORTS ============ -->
+<section id="tab-reports" style="display:none">
+
+  <div id="rptWarn" class="empty" style="display:none"><b>Waiting for register data</b>
+    Reports are worked out from the same records as Search and the same figures as Costs and End of day.
+    Load the register first.</div>
+
+  <div id="rptBody" style="display:none">
+    <div class="panel">
+      <h2>Reports</h2>
+      <div class="pad">
+        <div class="rpnav" id="rpNav">
+          <button data-rp="dash" class="on">Position</button>
+          <button data-rp="daily">A day</button>
+          <button data-rp="prod">Production</button>
+          <button data-rp="look">Look-ahead</button>
+          <button data-rp="sheets">Sheet progress</button>
+          <button data-rp="qty">Quantities</button>
+          <button data-rp="out">Outstanding</button>
+          <button data-rp="safe">Safety &amp; plant</button>
+        </div>
+        <div class="actions">
+          <button class="btn sec" id="rpPrint">Print this report</button>
+          <button class="btn sec" id="rpXlsx">Report pack (Excel)</button>
+          <button class="btn sec" id="rpCsv">Export this table (CSV)</button>
+          <span class="count" id="rpAsAt"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="rpPrintHead">
+      <h2 id="rpPrintTitle">T2W Pipeline &mdash; report</h2>
+      <div class="pf" id="rpPrintSub"></div>
+    </div>
+
+    <div id="rpOut"></div>
   </div>
 </section>
 
@@ -1853,11 +1967,12 @@ function rebuild(wb){
 /* ---------- ui plumbing ---------- */
 function switchTab(name){
   $$('nav.tabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===name); });
-  ['search','costs','eod','plr','drawings','quality','about'].forEach(function(t){
+  ['search','costs','eod','plr','reports','drawings','quality','about'].forEach(function(t){
     $('#tab-'+t).style.display = (t===name)?'':'none'; });
   if(name==='costs' && window.COSTS) window.COSTS.render();
   if(name==='eod' && window.COSTS) window.COSTS.renderEOD();
   if(name==='plr' && window.COSTS) window.COSTS.renderPLR();
+  if(name==='reports' && window.RPT) window.RPT.render();
   if(name==='search') setTimeout(function(){ renderStrip(
     $('#chFrom').value===''?null:+$('#chFrom').value,
     $('#chTo').value===''?null:+$('#chTo').value); },0);
@@ -1981,17 +2096,43 @@ document.addEventListener('DOMContentLoaded',init);
 (function(){
 'use strict';
 
+/* drv names the front that completes an asset. Earthworks items follow the
+   TRENCH front, as they always have. Bends and valves are pipeline fittings -
+   they go in with the pipe, not with the trench - so they follow the PIPE
+   front. Jerry's call, 27 Aug 2026. */
 var PA_TYPES = [
-  {t:'TRENCH STOP',              unit:'each', rate:1112.50},
-  {t:'BULK HEAD',                unit:'each', rate:20507.00},
-  {t:'THRUST BLOCK',             unit:'each', rate:null},
-  {t:'TRENCHED CREEK CROSSING',  unit:'each', rate:null},
-  {t:'MINOR ROAD CROSSING',      unit:'each', rate:null},
-  {t:'MAJOR ROAD CROSSING',      unit:'each', rate:null},
-  {t:'MAJOR RAIL CROSSING',      unit:'each', rate:null},
-  {t:'CARPARK/SIDE LANE',        unit:'each', rate:null},
-  {t:'TREE REMOVAL',             unit:'$/m2', rate:null}
+  {t:'TRENCH STOP',              unit:'each', rate:1112.50, drv:'TRENCH'},
+  {t:'BULK HEAD',                unit:'each', rate:20507.00, drv:'TRENCH'},
+  {t:'THRUST BLOCK',             unit:'each', rate:null, drv:'TRENCH'},
+  {t:'TRENCHED CREEK CROSSING',  unit:'each', rate:null, drv:'TRENCH'},
+  {t:'MINOR ROAD CROSSING',      unit:'each', rate:null, drv:'TRENCH'},
+  {t:'MAJOR ROAD CROSSING',      unit:'each', rate:null, drv:'TRENCH'},
+  {t:'MAJOR RAIL CROSSING',      unit:'each', rate:null, drv:'TRENCH'},
+  {t:'CARPARK/SIDE LANE',        unit:'each', rate:null, drv:'TRENCH'},
+  {t:'TREE REMOVAL',             unit:'$/m2', rate:null, drv:'TRENCH'},
+  {t:'HOR',      lbl:'Bend - horizontal', unit:'each', rate:null, drv:'PIPE'},
+  {t:'VERT',     lbl:'Bend - vertical',   unit:'each', rate:null, drv:'PIPE'},
+  {t:'COMPOUND', lbl:'Bend - compound',   unit:'each', rate:null, drv:'PIPE'},
+  {t:'AV',       lbl:'Air valve',         unit:'each', rate:null, drv:'PIPE'},
+  {t:'SCV',      lbl:'Scour valve',       unit:'each', rate:null, drv:'PIPE'},
+  {t:'IV',       lbl:'Isolation valve',   unit:'each', rate:null, drv:'PIPE'},
+  {t:'PIG',      lbl:'Pigging station',   unit:'each', rate:null, drv:'PIPE'}
 ];
+var BEND_T={'HOR':1,'VERT':1,'COMPOUND':1}, VALVE_T={'AV':1,'SCV':1,'IV':1,'PIG':1};
+/* The bend rate class, worked out exactly as Rate Library Table 5 defines it:
+   the three standard design angles are DICL and price by angle; every other
+   angle is a mitred MSCL bend and prices by cut count, 1 cut up to 12 deg. */
+function bendAngle(v){
+  var m=String(v==null?'':v).match(/[\d.]+/g);
+  if(!m) return null;
+  return m.reduce(function(a,x){ return a+parseFloat(x); },0);
+}
+function bendClass(v){
+  var a=bendAngle(v);
+  if(a==null) return '';
+  if(a===11.25||a===22.5||a===45) return String(a);
+  return 'Mitred '+(a<=12?1:2)+'-cut';
+}
 var PIPES = [
   {sec:'PHW', type:'DICL', size:'DN600', desc:'DN600 PN35 DICL RRJ'},
   {sec:'PHW', type:'MSCL', size:'OD660', desc:'OD660x6WT Sintalock Type 2 carrier'},
@@ -2007,7 +2148,7 @@ var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{},
            tCost:{}, pCost:{}, paCost:{},          /* what it costs us */
            plant:{} };                             /* $/h by Type|Description */
 
-var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PAMARK={}, RIDX={};
+var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PFRONT={}, PAMARK={}, RIDX={};
 var PALINES=[], PABY={};
 var built=false, poll=null, TSFILT='all', PAFILT='range', PATYPE='';
 var DFOR=null;   /* the dataset the tab was built from */
@@ -2029,6 +2170,14 @@ function unitOf(type){
   for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===type) return PA_TYPES[i].unit;
   return 'each';
 }
+function drvOf(type){
+  for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===type) return PA_TYPES[i].drv||'TRENCH';
+  return 'TRENCH';
+}
+function labelOf(type){
+  for(var i=0;i<PA_TYPES.length;i++) if(PA_TYPES[i].t===type) return PA_TYPES[i].lbl||type;
+  return type;
+}
 function qtyOf(p){ return unitOf(p.type)==='$/m2' ? (p.area||0) : (p.qty||1); }
 
 /* ---------- read the register ---------- */
@@ -2039,7 +2188,8 @@ function harvest(){
   var iReg=C.register,iSec=C.pipeline_section,iS=C.chainage_start_m,iE=C.chainage_end_m,
       iTT=C.trench_type,iAT=C.asset_type,iKey=C.record_key,iLen=C.length_m,
       iArea=C.area_m2,iRate=C.unit_rate,iQty=C.quantity,iFeat=C.feature_name,
-      iUD=C.utility_description,iItem=C.thrust_block_item,iFit=C.fitting_type;
+      iUD=C.utility_description,iItem=C.thrust_block_item,iFit=C.fitting_type,
+      iBend=C.type_of_bend,iMat=C.fitting_material,iVT=C.valve_type;
 
   T=[]; PA=[];
   var paSet={}; PA_TYPES.forEach(function(p){ paSet[p.t]=1; });
@@ -2063,7 +2213,26 @@ function harvest(){
       var item=(iItem!=null&&r[iItem])?String(r[iItem]).trim():'';
       var rkey=item ? (sec+'|'+ud+'|'+item) : at;
       var rlab=item ? (sec+' \u00b7 '+ud+' \u00b7 '+item) : at;
-      PA.push({key:String(r[iKey]),sec:sec,ch:s,type:at,
+      var psec=!!item, cls='', vt='';
+      /* Bends and valves carry their own rate line, on Rate Library Tables 5
+         and 6. The key is built the same way the sheet builds its Lookup Key,
+         so the two match without either side hard-coding a row number. */
+      if(BEND_T[at]){
+        cls=bendClass(iBend!=null?r[iBend]:null);
+        if(cls){
+          rkey=sec+'|'+cls;
+          rlab=sec+' \u00b7 '+labelOf(at)+' \u00b7 '+cls;
+          psec=true;
+        }
+      } else if(VALVE_T[at]){
+        vt=(iVT!=null&&r[iVT]!=null&&r[iVT]!=='')?String(r[iVT]).trim():'';
+        rkey=sec+'|'+at+'|'+vt;
+        rlab=sec+' \u00b7 '+labelOf(at)+(vt?' \u00b7 type '+vt:'');
+        psec=true;
+      }
+      PA.push({key:String(r[iKey]),sec:sec,ch:s,type:at,drv:drvOf(at),
+        cls:cls, vt:vt, psec:psec,
+        mat:(iMat!=null&&r[iMat])?String(r[iMat]):'',
         name:(iFeat!=null&&r[iFeat])?String(r[iFeat]):'',
         ud:ud, item:item, rkey:rkey, rlab:rlab,
         fit:(iFit!=null&&r[iFit])?String(r[iFit]):'',
@@ -2102,7 +2271,7 @@ function harvest(){
   PA.forEach(function(p){
     var g=PABY[p.rkey];
     if(!g){
-      g={rkey:p.rkey,label:p.rlab,type:p.type,sec:p.item?p.sec:'',ud:p.ud,item:p.item,
+      g={rkey:p.rkey,label:p.rlab,type:p.type,sec:p.psec?p.sec:'',ud:p.ud,item:p.item,
          n:0,blocks:0,regRate:null};
       PABY[p.rkey]=g; PALINES.push(g);
     }
@@ -2139,9 +2308,11 @@ function rateOf(p){ var v=ST.paRate[p.rkey]; return v==null?null:v; }
 function tDone(t){ return Math.min(Math.max(ST.tDone[t.key]||0,0),t.len); }
 function pDone(t){ return Math.min(Math.max(ST.pDone[t.key]||0,0),t.len); }
 
-/* the derived variable: front of continuous completed trench */
+/* the derived variables: the front of continuous completed trench, and the
+   front of continuous laid pipe. Same rule for both - a gap left behind holds
+   the front back, so finishing a section out of sequence does not move it. */
 function computeFront(){
-  FRONT={};
+  FRONT={}; PFRONT={};
   SECS.forEach(function(sec){
     var rs=T.filter(function(t){ return t.sec===sec; });
     var ch=0;
@@ -2152,7 +2323,20 @@ function computeFront(){
       break;
     }
     FRONT[sec]=ch;
+    var pch=0;
+    for(var j=0;j<rs.length;j++){
+      var u=rs[j], p=pDone(u);
+      if(p>=u.len-1e-9){ pch=u.e; continue; }
+      pch=u.s+p;
+      break;
+    }
+    PFRONT[sec]=pch;
   });
+}
+/* the front that completes a given point asset */
+function frontOf(p){
+  var f=(p.drv==='PIPE'?PFRONT:FRONT)[p.sec];
+  return f==null?0:f;
 }
 
 /* ---------- strips ---------- */
@@ -2496,7 +2680,7 @@ function render(keep){
       n++; blocks+=qy;
       if(rate!=null){ anyRate=true; rates[rate]=1; bud+=rate*qy; } else allRate=false;
       if(!ST.paDone[x.key]) return;
-      var inR=x.ch<=FRONT[x.sec]+1e-9;
+      var inR=x.ch<=frontOf(x)+1e-9;
       if(inR) nTo++; else nAh++;
       if(rate!=null){
         if(inR) cTo+=rate*qy; else cAh+=rate*qy;
@@ -2704,13 +2888,23 @@ function buildEOD(){
 }
 
 /* the point assets between yesterday's chainage and today's */
+/* Assets newly covered today. Each type is measured against the front that
+   actually completes it: trench stops and thrust blocks against the trench
+   chainage, bends and valves against the pipe chainage. Typing only one of the
+   two therefore lists only the assets that one front has passed. */
 function eodAssetsFor(sec){
   if(!EODBUILT) return [];
-  var el=q('#eodTCh-'+sec); if(!el) return [];
-  var from=baseFront(sec), to=numOf(el);
-  if(to==null || to<=from) return [];
+  var te=q('#eodTCh-'+sec); if(!te) return [];
+  var pe=q('#eodPCh-'+sec);
+  var tFrom=baseFront(sec), tTo=numOf(te);
+  var pFrom=EODPIPE[sec]||0, pTo=pe?numOf(pe):null;
+  var tOn=(tTo!=null&&tTo>tFrom), pOn=(pTo!=null&&pTo>pFrom);
+  if(!tOn && !pOn) return [];
   return PA.filter(function(p){
-    return p.sec===sec && !ST.paDone[p.key] && p.ch>from-1e-9 && p.ch<=to+1e-9;
+    if(p.sec!==sec || ST.paDone[p.key]) return false;
+    if(p.drv==='PIPE')
+      return pOn && p.ch>pFrom-1e-9 && p.ch<=pTo+1e-9;
+    return tOn && p.ch>tFrom-1e-9 && p.ch<=tTo+1e-9;
   });
 }
 var EODTICK={};
@@ -2749,7 +2943,8 @@ function eodRender(only){
     var th=q('#eodPA-'+sec+' thead'), tb=q('#eodPA-'+sec+' tbody');
     if(!th.dataset.built){
       th.innerHTML='<tr><th></th><th>Record</th><th class="num">Chainage m</th>'+
-        '<th>Asset type</th><th>Type / item</th><th class="num">Cost</th></tr>';
+        '<th>Driver</th><th>Asset type</th><th>Type / item</th>'+
+        '<th class="num">Cost</th></tr>';
       th.dataset.built='1';
     }
     tb.innerHTML='';
@@ -2768,8 +2963,10 @@ function eodRender(only){
         eodPABar(sec); eodTally();
       });
       td(cb,'tick-col');
-      td(a.key); td(m1(a.ch),'num'); td(a.type);
-      td(a.item ? (a.ud+' \u00b7 '+a.item) : (a.name||''));
+      td(a.key); td(m1(a.ch),'num'); td(a.drv);
+      td(labelOf(a.type));
+      td(a.item ? (a.ud+' \u00b7 '+a.item)
+                : (a.cls || (a.vt?('type '+a.vt):'') || a.name || ''));
       td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(a)),'num');
       frag.appendChild(tr);
     });
@@ -2779,9 +2976,12 @@ function eodRender(only){
 
     var n=q('#eodNone-'+sec);
     if(!list.length){
-      n.textContent = (t==null||t<=from)
-        ? 'Type a chainage and any point assets in the new ground will be listed here to tick.'
-        : 'No outstanding point assets between '+m1(from)+' m and '+m1(t)+' m.';
+      var moved=(t!=null&&t>from)||(p!=null&&p>pfrom);
+      n.textContent = !moved
+        ? 'Type a chainage and any point assets in the new ground will be listed here to tick. '+
+          'Trench stops, bulkheads, thrust blocks and crossings follow the trench figure; '+
+          'bends and valves follow the pipe figure.'
+        : 'No outstanding point assets in the ground covered today.';
     } else n.textContent='';
     var dt = (t!=null&&t>=from) ? t-from : 0;
     var dp = (p!=null&&p>=pfrom) ? p-pfrom : 0;
@@ -3581,7 +3781,8 @@ function wire(){
   var sel=q('#cstPAType');
   sel.innerHTML='<option value="">All types</option>'+
     PA_TYPES.filter(function(p){ return PA.some(function(x){ return x.type===p.t; }); })
-      .map(function(p){ return '<option value="'+p.t+'">'+p.t+'</option>'; }).join('');
+      .map(function(p){ return '<option value="'+p.t+'">'+
+        (p.lbl?(p.lbl+' ('+p.t+')'):p.t)+'</option>'; }).join('');
   sel.addEventListener('change',function(){ PATYPE=sel.value; renderPAList(); });
   q('#cstPAAll').addEventListener('click',function(){
     var l=window.COSTS._paList||[];
@@ -3677,7 +3878,7 @@ function wire(){
     PA.forEach(function(p){ var rate=rateOf(p);
       pa.push([p.key,p.sec,p.ch,p.type,p.ud||'',p.item||'',p.fit||'',qtyOf(p),
         rate, ST.paDone[p.key]?'Y':'',
-        p.ch<=R.front[p.sec]+1e-9?'Y':'', rate==null?null:rate*qtyOf(p)]); });
+        p.ch<=frontOf(p)+1e-9?'Y':'', rate==null?null:rate*qtyOf(p)]); });
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pa),'Point assets');
 
     XLSX.writeFile(wb,'T2W cost to chainage '+new Date().toISOString().slice(0,10)+'.xlsx');
@@ -3777,6 +3978,9 @@ function buildIndex(){
              at:txt.indexOf('Asset Type'),
              tb:txt.indexOf('Thrust Block Type'),
              item:txt.indexOf('Item'),
+             bc:txt.indexOf('Bend Rate Class'),
+             vc:txt.indexOf('Valve Class'),
+             vt:txt.indexOf('Valve Type'),
              cost:txt.indexOf('Cost Rate'),
              eff:txt.indexOf('Effective From')};
         return;
@@ -3788,6 +3992,10 @@ function buildIndex(){
       var key=null, bag=null, bagC=null;
       if(lay.tb>=0 && lay.item>=0 && lay.sec>=0 && txt[lay.sec] && txt[lay.tb] && txt[lay.item]){
         key=txt[lay.sec]+'|'+txt[lay.tb]+'|'+txt[lay.item]; bag=pa; bagC=paC;   /* Table 4, per block */
+      } else if(lay.bc>=0 && lay.sec>=0 && txt[lay.sec] && txt[lay.bc]){
+        key=txt[lay.sec]+'|'+txt[lay.bc]; bag=pa; bagC=paC;                     /* Table 5, per bend */
+      } else if(lay.vc>=0 && lay.vt>=0 && lay.sec>=0 && txt[lay.sec] && txt[lay.vc]){
+        key=txt[lay.sec]+'|'+txt[lay.vc]+'|'+txt[lay.vt]; bag=pa; bagC=paC;     /* Table 6, per valve */
       } else if(lay.sec>=0 && lay.tt>=0 && txt[lay.sec] && txt[lay.tt]){
         key=txt[lay.sec]+'|'+txt[lay.tt]; bag=tr; bagC=trC;
       } else if(lay.sec>=0 && lay.pt>=0 && txt[lay.sec] && txt[lay.pt]){
@@ -4717,6 +4925,16 @@ function build(){
 }
 window.COSTS={
   _rows:{}, _paList:[], _days:DAYS,
+  data:function(){
+    if(built && window.D!==DFOR){ rebuildForNewData(); return null; }
+    if(!built && !build()) return null;
+    computeFront();
+    return {T:T,PA:PA,SECS:SECS,EXT:EXT,FRONT:FRONT,PFRONT:PFRONT,ST:ST,DAYS:DAYS,
+            PALINES:PALINES,COMBOS:COMBOS,TTS:TTS,
+            tDone:tDone,pDone:pDone,rateOf:rateOf,qtyOf:qtyOf,
+            labelOf:labelOf,unitOf:unitOf,drvOf:drvOf};
+  },
+
   render:function(){
     if(built && window.D!==DFOR){ rebuildForNewData(); return; }
     if(build()){ render(); setWriteState(); }
@@ -4750,6 +4968,1024 @@ document.addEventListener('DOMContentLoaded',function(){
     takeOver();
   },800);
 });
+})();
+</script>
+<script>/* ==========================================================================
+   Reports.
+
+   Nothing here is entered. Every figure is read back out of the same state
+   the Costs tab prices and the End of day page writes: metres of trench and
+   pipe against each trench section, ticks against each point asset, and the
+   day log. If a number here disagrees with the Costs tab, one of them is a
+   bug — they are the same numbers seen from a different end.
+   ========================================================================== */
+(function(){
+'use strict';
+
+var RP='dash';
+var OPT={day:'',pf:'',pt:'',lkSec:'',lk:1000,shSec:''};
+var X=null;
+var TITLES={dash:'Position',daily:'A day',prod:'Production',look:'Look-ahead',
+            sheets:'Sheet progress',qty:'Quantities',out:'Outstanding',safe:'Safety and plant'};
+
+function q(s){ return document.querySelector(s); }
+function qa(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function m0(v){ return Number(v||0).toLocaleString('en-AU',{maximumFractionDigits:0}); }
+function m1(v){ return Number(v||0).toLocaleString('en-AU',
+  {minimumFractionDigits:1,maximumFractionDigits:1}); }
+function mm(v){ return m0(v)+' m'; }
+function kmv(v){ return (Number(v||0)/1000).toLocaleString('en-AU',
+  {minimumFractionDigits:2,maximumFractionDigits:2})+' km'; }
+function money(v){ return v==null ? '\u2014'
+  : (v<0?'-$':'$')+Math.abs(Math.round(v)).toLocaleString('en-AU'); }
+function pc(a,b){ return b>0 ? (a/b*100) : 0; }
+function pcs(a,b){ return pc(a,b).toFixed(1)+'%'; }
+function auDate(s){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||''));
+  return m?(m[3]+'/'+m[2]+'/'+m[1]):String(s||''); }
+function longDate(s){ var d=dOf(s); return isNaN(d)?String(s||''):
+  d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'long',year:'numeric'}); }
+function shortDate(s){ var d=dOf(s); return isNaN(d)?String(s||''):
+  d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }
+function dOf(s){ var p=String(s||'').split('-'); return new Date(+p[0],(+p[1]||1)-1,+p[2]||1); }
+function todayISO(){ var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
+         String(d.getDate()).padStart(2,'0'); }
+function addDays(s,n){ var d=dOf(s); d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
+         String(d.getDate()).padStart(2,'0'); }
+function isWeekday(s){ var w=dOf(s).getDay(); return w!==0&&w!==6; }
+
+/* ---------- intervals ---------- */
+function merge(list){
+  var s=list.filter(function(v){ return v[1]>v[0]+1e-9; })
+            .sort(function(a,b){ return a[0]-b[0]; }), out=[];
+  s.forEach(function(iv){
+    if(!out.length || iv[0]>out[out.length-1][1]+1e-9) out.push([iv[0],iv[1]]);
+    else out[out.length-1][1]=Math.max(out[out.length-1][1],iv[1]);
+  });
+  return out;
+}
+function ivLen(l){ return l.reduce(function(a,b){ return a+(b[1]-b[0]); },0); }
+function ivCut(A,B){
+  var out=[],i=0,j=0;
+  while(i<A.length&&j<B.length){
+    var lo=Math.max(A[i][0],B[j][0]), hi=Math.min(A[i][1],B[j][1]);
+    if(hi>lo) out.push([lo,hi]);
+    if(A[i][1]<B[j][1]) i++; else j++;
+  }
+  return out;
+}
+function ivSub(A,B){
+  var out=[];
+  A.forEach(function(a){
+    var cur=[[a[0],a[1]]];
+    B.forEach(function(b){
+      var nx=[];
+      cur.forEach(function(c){
+        if(b[1]<=c[0]||b[0]>=c[1]){ nx.push(c); return; }
+        if(b[0]>c[0]) nx.push([c[0],b[0]]);
+        if(b[1]<c[1]) nx.push([b[1],c[1]]);
+      });
+      cur=nx;
+    });
+    out=out.concat(cur);
+  });
+  return merge(out);
+}
+function ivHas(A,x){ for(var i=0;i<A.length;i++) if(x>=A[i][0]-1e-9&&x<=A[i][1]+1e-9) return true;
+  return false; }
+
+/* ---------- derived from the shared state ---------- */
+function secsOf(){ return X.SECS.slice(); }
+function designLen(sec){
+  return X.T.reduce(function(a,t){ return a+(t.sec===sec?t.len:0); },0);
+}
+function trenchIv(sec){
+  return merge(X.T.filter(function(t){ return t.sec===sec; })
+    .map(function(t){ return [t.s,t.s+X.tDone(t)]; }));
+}
+function pipeIv(sec){
+  return merge(X.T.filter(function(t){ return t.sec===sec; })
+    .map(function(t){ return [t.s,t.s+X.pDone(t)]; }));
+}
+function trenchDone(sec){ return X.T.reduce(function(a,t){
+  return a+(t.sec===sec?X.tDone(t):0); },0); }
+function pipeDone(sec){ return X.T.reduce(function(a,t){
+  return a+(t.sec===sec?X.pDone(t):0); },0); }
+function paDone(p){ return !!X.ST.paDone[p.key]; }
+function paValue(p){ var r=X.rateOf(p); return r==null?null:r*X.qtyOf(p); }
+function frontFor(p){ return (p.drv==='PIPE'?X.PFRONT:X.FRONT)[p.sec]||0; }
+
+/* the day the recorded trench front first reached a chainage */
+function passedOn(sec,ch,pipe){
+  for(var i=0;i<X.DAYS.length;i++){
+    var e=X.DAYS[i];
+    for(var j=0;j<(e.rows||[]).length;j++){
+      var r=e.rows[j];
+      if(r.sec!==sec) continue;
+      if((pipe?r.pto:r.to)>=ch-1e-9) return e.date;
+    }
+  }
+  return null;
+}
+function dayTotals(){
+  var out=[];
+  X.DAYS.forEach(function(e){
+    var dt=0,dp=0,it=0,earn=0;
+    (e.rows||[]).forEach(function(r){ dt+=r.dt||0; dp+=r.dp||0; it+=r.items||0; earn+=r.earn||0; });
+    out.push({date:e.date,dt:dt,dp:dp,items:it,earn:earn,e:e,
+      cost:(e.money&&e.money.cost)||0,profit:(e.money&&e.money.profit)||0,
+      hours:(e.money&&e.money.hours)||0,down:e.down||0,wx:e.wx||'',shift:e.shift||'',by:e.by||''});
+  });
+  return out;
+}
+function rate(n){
+  var d=dayTotals().filter(function(x){ return x.dt>0; });
+  var use=d.slice(-(n||10));
+  var tot=use.reduce(function(a,x){ return a+x.dt; },0);
+  return {n:use.length,tot:tot,rate:use.length?tot/use.length:0};
+}
+
+/* ---------- html bits ---------- */
+function card(l,v,s,cls){
+  return '<div class="rcard '+(cls||'')+'"><div class="l">'+esc(l)+'</div><div class="v">'+
+    esc(v)+'</div>'+(s?'<div class="s">'+esc(s)+'</div>':'')+'</div>';
+}
+function bar(p,cls){ return '<div class="rbar sm '+(cls||'')+'"><i style="width:'+
+  Math.max(0,Math.min(p,100)).toFixed(1)+'%"></i></div>'; }
+function panel(title,inner,pad){
+  return '<div class="panel"><h2>'+esc(title)+'</h2>'+
+    (pad?'<div class="pad">'+inner+'</div>':inner)+'</div>';
+}
+function table(head,rows,cls){
+  return '<div class="tblWrap"><table class="'+(cls||'wide')+'"><thead><tr>'+
+    head.map(function(h){ return '<th'+(/^~/.test(h)?' class="num"':'')+'>'+
+      esc(h.replace(/^~/,''))+'</th>'; }).join('')+'</tr></thead><tbody>'+
+    (rows.length?rows.join(''):'<tr><td colspan="'+head.length+
+      '" style="text-align:center;color:var(--mid);padding:15px">Nothing to show.</td></tr>')+
+    '</tbody></table></div>';
+}
+function td(v,cls){ return '<td'+(cls?' class="'+cls+'"':'')+'>'+esc(String(v==null?'':v))+'</td>'; }
+function tdh(h,cls){ return '<td'+(cls?' class="'+cls+'"':'')+'>'+h+'</td>'; }
+function tag(txt,colour){ return '<span class="tag" style="background:'+(colour||'#5b6875')+'">'+
+  esc(txt)+'</span>'; }
+function pill(txt,cls){ return '<span class="pill'+(cls?' '+cls:'')+'">'+esc(txt)+'</span>'; }
+
+/* ---------- charts ---------- */
+function bars(rows,opt){
+  opt=opt||{};
+  if(!rows.length) return '<p class="rnote">Nothing recorded in this window.</p>';
+  var W=940,H=opt.h||210,PL=56,PR=16,PT=14,PB=42;
+  var max=Math.max.apply(null,rows.map(function(r){ return Math.max(r.v||0,r.v2||0); }))||1;
+  var iw=W-PL-PR, ih=H-PT-PB, step=iw/rows.length;
+  var bw=Math.max(Math.min(step-4,40),1.5);
+  var two=rows.some(function(r){ return r.v2!=null; });
+  var s='<svg class="rsvg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">';
+  for(var g=0;g<=4;g++){
+    var y=PT+ih-ih*g/4;
+    s+='<line x1="'+PL+'" y1="'+y.toFixed(1)+'" x2="'+(W-PR)+'" y2="'+y.toFixed(1)+'" stroke="#e6ebf1"/>'+
+       '<text x="'+(PL-7)+'" y="'+(y+3.5).toFixed(1)+'" font-size="10" fill="#8a97a5" '+
+       'text-anchor="end">'+m0(max*g/4)+'</text>';
+  }
+  rows.forEach(function(r,i){
+    var x=PL+step*i+(step-bw)/2;
+    if(two){
+      var w2=bw/2-1;
+      s+='<rect x="'+x.toFixed(1)+'" y="'+(PT+ih-ih*(r.v/max)).toFixed(1)+'" width="'+w2.toFixed(1)+
+         '" height="'+(ih*(r.v/max)).toFixed(1)+'" fill="#0b6ea8" rx="1"><title>'+
+         esc(r.l+' trench '+mm(r.v))+'</title></rect>';
+      s+='<rect x="'+(x+w2+2).toFixed(1)+'" y="'+(PT+ih-ih*((r.v2||0)/max)).toFixed(1)+'" width="'+
+         w2.toFixed(1)+'" height="'+(ih*((r.v2||0)/max)).toFixed(1)+'" fill="#2f8f5b" rx="1"><title>'+
+         esc(r.l+' pipe '+mm(r.v2||0))+'</title></rect>';
+    } else {
+      s+='<rect x="'+x.toFixed(1)+'" y="'+(PT+ih-ih*(r.v/max)).toFixed(1)+'" width="'+bw.toFixed(1)+
+         '" height="'+(ih*(r.v/max)).toFixed(1)+'" fill="'+(r.c||'#0b6ea8')+'" rx="1.5"><title>'+
+         esc(r.t||(r.l+' '+m0(r.v)))+'</title></rect>';
+    }
+    var every=Math.ceil(rows.length/26);
+    if(i%every===0){
+      var cx=PL+step*i+step/2;
+      s+='<text x="'+cx.toFixed(1)+'" y="'+(PT+ih+15)+'" font-size="9.5" fill="#7b8794" '+
+         'text-anchor="end" transform="rotate(-40 '+cx.toFixed(1)+' '+(PT+ih+15)+')">'+esc(r.l)+'</text>';
+    }
+  });
+  if(opt.cum){
+    var run=0,pts=[];
+    rows.forEach(function(r,i){ run+=r.v; pts.push([PL+step*i+step/2,run]); });
+    var cmax=run||1;
+    s+='<path d="'+pts.map(function(p,i){ return (i?'L':'M')+p[0].toFixed(1)+' '+
+      (PT+ih-ih*(p[1]/cmax)).toFixed(1); }).join(' ')+
+      '" fill="none" stroke="#a3282d" stroke-width="1.8" stroke-opacity=".85"/>';
+    s+='<text x="'+(W-PR)+'" y="'+(PT+10)+'" font-size="10" fill="#a3282d" text-anchor="end">'+
+       'cumulative '+mm(cmax)+'</text>';
+  }
+  s+='<line x1="'+PL+'" y1="'+(PT+ih)+'" x2="'+(W-PR)+'" y2="'+(PT+ih)+'" stroke="#c3ccd7"/></svg>';
+  return s;
+}
+function corridor(sec){
+  var W=940,H=86,PL=8,PR=8,TOP=24,BH=15,GAP=5;
+  var L=designLen(sec)||1, ext=X.EXT[sec]||L;
+  var tv=trenchIv(sec), pv=pipeIv(sec);
+  var iw=W-PL-PR, Xp=function(v){ return PL+Math.max(0,Math.min(v/ext,1))*iw; };
+  var s='<svg class="rsvg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="height:86px">';
+  s+='<rect x="'+PL+'" y="'+TOP+'" width="'+iw+'" height="'+BH+'" fill="#e6ebf1" rx="2"/>';
+  tv.forEach(function(iv){ s+='<rect x="'+Xp(iv[0]).toFixed(1)+'" y="'+TOP+'" width="'+
+    Math.max(Xp(iv[1])-Xp(iv[0]),1).toFixed(1)+'" height="'+BH+'" fill="#0b6ea8" fill-opacity=".85" rx="1">'+
+    '<title>Trench '+mm(iv[0])+' – '+mm(iv[1])+'</title></rect>'; });
+  s+='<rect x="'+PL+'" y="'+(TOP+BH+GAP)+'" width="'+iw+'" height="'+BH+'" fill="#e6ebf1" rx="2"/>';
+  pv.forEach(function(iv){ s+='<rect x="'+Xp(iv[0]).toFixed(1)+'" y="'+(TOP+BH+GAP)+'" width="'+
+    Math.max(Xp(iv[1])-Xp(iv[0]),1).toFixed(1)+'" height="'+BH+'" fill="#2f8f5b" fill-opacity=".85" rx="1">'+
+    '<title>Pipe '+mm(iv[0])+' – '+mm(iv[1])+'</title></rect>'; });
+  X.PA.filter(function(p){ return p.sec===sec; }).forEach(function(p){
+    s+='<rect x="'+(Xp(p.ch)-.6).toFixed(1)+'" y="'+(TOP-7)+'" width="1.4" height="5" fill="'+
+       (paDone(p)?'#2f8f5b':'#c2731a')+'"><title>'+esc((p.name||X.labelOf(p.type))+' '+mm(p.ch)+
+       (paDone(p)?' — done':' — outstanding'))+'</title></rect>';
+  });
+  var f=X.FRONT[sec]||0;
+  if(f>0) s+='<line x1="'+Xp(f).toFixed(1)+'" y1="'+(TOP-9)+'" x2="'+Xp(f).toFixed(1)+'" y2="'+
+    (TOP+BH*2+GAP+5)+'" stroke="#12263f" stroke-width="1.5"/>';
+  for(var t=0;t<=5;t++){
+    var v=ext*t/5;
+    s+='<text x="'+Xp(v).toFixed(1)+'" y="'+(TOP+BH*2+GAP+18)+'" font-size="9.5" fill="#8a97a5" '+
+       'text-anchor="'+(t===0?'start':(t===5?'end':'middle'))+'">'+m0(v)+'</text>';
+  }
+  s+='<text x="'+PL+'" y="'+(TOP-11)+'" font-size="9.5" fill="#5b6875">trench</text>';
+  s+='<text x="'+(PL+46)+'" y="'+(TOP-11)+'" font-size="9.5" fill="#5b6875">· pipe below</text>';
+  s+='</svg>';
+  return s;
+}
+
+/* ==========================================================================
+   VIEWS
+   ========================================================================== */
+function vDash(){
+  var secs=secsOf(), h='';
+  var L=0,tD=0,pD=0;
+  secs.forEach(function(s){ L+=designLen(s); tD+=trenchDone(s); pD+=pipeDone(s); });
+  var done=X.PA.filter(paDone).length;
+  var r=rate(10);
+  var wd=r.rate>0?Math.ceil((L-tD)/r.rate):null;
+  var fin=null;
+  if(wd!=null&&wd>0){ var d=todayISO(),c=0; while(c<wd&&c<5000){ d=addDays(d,1); if(isWeekday(d)) c++; } fin=d; }
+  var dt=dayTotals();
+  var earn=dt.reduce(function(a,x){ return a+x.earn; },0);
+  var cost=dt.reduce(function(a,x){ return a+x.cost; },0);
+  var prof=dt.reduce(function(a,x){ return a+x.profit; },0);
+
+  h+=panel('Where the job is up to',
+    '<div class="rcards">'+
+    card('Design length',kmv(L),m0(L)+' m of trench across '+secs.length+' section'+(secs.length>1?'s':''))+
+    card('Trench complete',kmv(tD),pcs(tD,L)+' of the corridor','good')+
+    card('Pipe laid',kmv(pD),pcs(pD,L)+' of the corridor','good')+
+    card('Trench remaining',kmv(L-tD),pcs(L-tD,L)+' still to dig',(L-tD)>0?'warn':'good')+
+    card('Production',m0(r.rate)+' m/day','trench, average of the last '+r.n+' worked day'+(r.n===1?'':'s'))+
+    card('Days left',wd==null?'\u2014':m0(wd),wd==null?'no days recorded yet':'at that rate, weekdays only')+
+    card('Forecast finish',fin?auDate(fin):'\u2014',fin?'no allowance for weather or shutdowns':'')+
+    card('Point assets done',m0(done)+' / '+m0(X.PA.length),pcs(done,X.PA.length)+' ticked off')+
+    '</div>'+
+    '<div class="rbar g" style="height:13px;margin-top:14px"><i style="width:'+
+      pc(tD,L).toFixed(2)+'%"></i></div>'+
+    '<p class="rnote" style="margin-top:9px">The bar is trench. Pipe sits '+
+      mm(Math.max(tD-pD,0))+' behind it.</p>', true);
+
+  if(X.DAYS.length){
+    h+=panel('The money, as recorded at end of day',
+      '<div class="rcards">'+
+      card('Earned to date',money(earn),m0(X.DAYS.length)+' day'+(X.DAYS.length===1?'':'s')+' recorded','lead')+
+      card('Cost to date',money(cost),'metres plus plant and labour')+
+      card('Profit',money(prof),earn>0?pcs(prof,earn)+' margin':'',prof<0?'bad':'good')+
+      card('Crew hours',m0(dt.reduce(function(a,x){ return a+x.hours; },0)),'worked plus standby')+
+      card('Downtime',m1(dt.reduce(function(a,x){ return a+x.down; },0))+' h','lost across all days',
+        dt.reduce(function(a,x){ return a+x.down; },0)>0?'warn':'')+
+      '</div>', true);
+  }
+
+  var rows=secs.map(function(s){
+    var L2=designLen(s), t=trenchDone(s), p=pipeDone(s);
+    var last='';
+    X.DAYS.forEach(function(e){ if((e.rows||[]).some(function(r){ return r.sec===s&&(r.dt||r.dp); }))
+      last=e.date; });
+    var pa=X.PA.filter(function(x){ return x.sec===s; });
+    return '<tr>'+td(s,'mono')+td(mm(L2),'num')+td(mm(t),'num')+
+      tdh(pcs(t,L2)+bar(pc(t,L2)),'num')+td(mm(p),'num')+
+      tdh(pcs(p,L2)+bar(pc(p,L2),'g'),'num')+
+      td(mm(X.FRONT[s]||0),'num')+td(mm(X.PFRONT[s]||0),'num')+
+      td(m0(pa.filter(paDone).length)+' / '+m0(pa.length),'num')+
+      td(last?auDate(last):'\u2014')+'</tr>';
+  });
+  h+=panel('By section',table(['Section','~Design','~Trenched','~%','~Pipe laid','~%',
+    '~Trench front','~Pipe front','~Assets done','Last worked'],rows));
+
+  secs.forEach(function(s){
+    if(trenchDone(s)<=0) return;
+    h+=panel(s+' corridor',
+      '<p class="rnote">Blue is trench, green is pipe. Ticks above are point assets &mdash; '+
+      '<span class="rdot" style="background:#2f8f5b"></span>done, '+
+      '<span class="rdot" style="background:#c2731a"></span>outstanding. The vertical line is the '+
+      'front of continuous trench: a gap left behind holds it back.</p>'+corridor(s), true);
+  });
+
+  if(dt.length){
+    var last=dt.slice(-30);
+    h+=panel('Last '+last.length+' days recorded',
+      bars(last.map(function(x){ return {l:shortDate(x.date),v:x.dt,v2:x.dp}; }),{cum:true})+
+      '<p class="rnote" style="margin-top:8px"><span class="rdot" style="background:#0b6ea8"></span>trench '+
+      '<span class="rdot" style="background:#2f8f5b;margin-left:10px"></span>pipe '+
+      '<span class="rdot" style="background:#a3282d;margin-left:10px"></span>cumulative trench</p>', true);
+  }
+  return h;
+}
+
+/* ---------- a day ---------- */
+function vDaily(){
+  var dt=dayTotals();
+  if(!dt.length) return panel('A day','<div class="empty"><b>No days recorded yet</b>'+
+    'Record a day on the End of day page and it will be reportable here.</div>');
+  if(!OPT.day || !dt.some(function(x){ return x.date===OPT.day; })) OPT.day=dt[dt.length-1].date;
+  var idx=-1; dt.forEach(function(x,i){ if(x.date===OPT.day) idx=i; });
+  var day=dt[idx], e=day.e;
+
+  var h=panel('Pick a day','<div class="rform">'+
+    '<div><label>Day</label><select id="rpDay">'+dt.slice().reverse().map(function(x){
+      return '<option value="'+x.date+'"'+(x.date===OPT.day?' selected':'')+'>'+
+        esc(longDate(x.date))+(x.shift&&x.shift!=='Day'?' \u00b7 '+esc(x.shift):'')+'</option>'; }).join('')+
+    '</select></div>'+
+    '<div><label>&nbsp;</label><button class="btn sec" id="rpPrev">\u2039 Previous</button></div>'+
+    '<div><label>&nbsp;</label><button class="btn sec" id="rpNext">Next \u203a</button></div>'+
+    '</div>', true);
+
+  h+=panel(longDate(day.date),
+    '<div class="rcards">'+
+    card('Trench',mm(day.dt),(e.rows||[]).map(function(r){
+      return r.sec+' '+m0(r.from)+'\u2013'+m0(r.to); }).join(' \u00b7 '),'good')+
+    card('Pipe',mm(day.dp),(e.rows||[]).map(function(r){
+      return r.sec+' '+m0(r.pfrom)+'\u2013'+m0(r.pto); }).join(' \u00b7 '))+
+    card('Point assets',m0(day.items),'confirmed on the day')+
+    card('Earned',money(day.earn),'at the schedule of rates','lead')+
+    card('Cost',money(day.cost),'metres plus plant and labour')+
+    card('Profit',money(day.profit),day.earn>0?pcs(day.profit,day.earn)+' margin':'',
+      day.profit<0?'bad':'good')+
+    card('Weather',e.wx||'\u2014',(e.down?m1(e.down)+' h downtime':'no downtime'),
+      e.down?'warn':'')+
+    card('Recorded by',e.by||'\u2014',(e.shift||'')+(e.written?' \u00b7 written to workbook':''))+
+    '</div>'+(e.notes?'<p class="rnote" style="margin-top:12px"><b>Notes.</b> '+esc(e.notes)+'</p>':''),
+    true);
+
+  h+=panel('Progress on the day',table(
+    ['Section','~Trench from','~to','~m','~Pipe from','~to','~m','~Items','~Earned'],
+    (e.rows||[]).map(function(r){
+      return '<tr>'+td(r.sec,'mono')+td(mm(r.from),'num')+td(mm(r.to),'num')+td(m1(r.dt),'num')+
+        td(mm(r.pfrom),'num')+td(mm(r.pto),'num')+td(m1(r.dp),'num')+
+        td(m0(r.items),'num')+td(money(r.earn),'num')+'</tr>'; })));
+
+  /* what the day's trench passed, out of the register */
+  var seen={}, passed=[];
+  (e.rows||[]).forEach(function(r){ (r.keys||[]).forEach(function(k){ seen[k]=1; }); });
+  var C=window.D&&window.D.C, R=window.D&&window.D.rows;
+  if(C&&R){
+    (e.rows||[]).forEach(function(r){
+      if(!(r.to>r.from)) return;
+      R.forEach(function(row){
+        if(row[C.pipeline_section]!==r.sec) return;
+        var ch=row[C.chainage_start_m];
+        if(typeof ch!=='number'||ch<r.from||ch>r.to) return;
+        if(row[C.register]==='Trench Type') return;
+        passed.push({ch:ch,reg:row[C.register],typ:row[C.asset_type],
+          id:row[C.asset_id]||'',key:row[C.record_key],
+          name:row[C.feature_name]||row[C.utility_description]||'',
+          dwg:row[C.drawing_base],op:row[C.operator]});
+      });
+    });
+  }
+  passed.sort(function(a,b){ return a.ch-b.ch; });
+  h+=panel('What the trench passed on this day',
+    '<div class="pad" style="padding-bottom:0"><p class="rnote">Everything the register places inside '+
+    'the chainage dug today. A cross in the last column is something the day did not confirm &mdash; '+
+    'either it genuinely is not done, or it was missed at end of day.</p></div>'+
+    table(['~Chainage','Register','Type','Asset ID','Feature / description','Owner','Sheet','Confirmed'],
+      passed.slice(0,400).map(function(p){
+        var ok=seen[p.key];
+        return '<tr>'+td(mm(p.ch),'num')+
+          tdh(tag(p.reg,(window.REGHEX||{})[p.reg]||'#5b6875'))+td(p.typ||'')+
+          td(p.id,'mono')+td(p.name)+td(p.op||'')+td(p.dwg||'','mono')+
+          tdh(ok?pill('yes','g'):pill('no','w'))+'</tr>'; })));
+
+  if((e.plant||[]).length) h+=panel('Plant and labour',table(
+    ['Type','Description','~No.','~Hours','~Standby','Notes'],
+    e.plant.map(function(p){ return '<tr>'+td(p.kind)+td(p.desc)+td(m0(p.n),'num')+
+      td(m1(p.hrs),'num')+td(m1(p.sb),'num')+td(p.notes||'')+'</tr>'; })));
+
+  var sf=e.safety||{};
+  h+=panel('Safety','<div class="rcards">'+
+    card('Toolbox talk',sf.toolbox==='Yes'?'Held':'Not held',sf.topic||'',
+      sf.toolbox==='Yes'?'good':'bad')+
+    card('Personnel',m0(sf.personnel||0),'on site')+
+    card('Incident',sf.incident||'Nil',sf.detail||'',
+      (sf.incident&&sf.incident!=='Nil')?'bad':'good')+
+    card('Lost time',m1(sf.lost||0)+' h','',sf.lost?'bad':'')+
+    '</div>', true);
+
+  if((e.hp||[]).length) h+=panel('Hold points',table(
+    ['Reference','Description','Asset','Status','Notes'],
+    e.hp.map(function(x){ return '<tr>'+td(x.ref,'mono')+td(x.desc)+td(x.key||'','mono')+
+      tdh(pill(x.status,x.status==='Outstanding'?'w':'g'))+td(x.notes||'')+'</tr>'; })));
+  return h;
+}
+
+/* ---------- production ---------- */
+function vProd(){
+  var dt=dayTotals();
+  if(!dt.length) return panel('Production','<div class="empty"><b>No days recorded yet</b>'+
+    'Production is worked out from the day log on the End of day page.</div>');
+  if(!OPT.pt) OPT.pt=dt[dt.length-1].date;
+  if(!OPT.pf) OPT.pf=dt.length>14?dt[dt.length-14].date:dt[0].date;
+  var f=OPT.pf,t=OPT.pt;
+  var sel=dt.filter(function(x){ return x.date>=f&&x.date<=t; });
+
+  var h=panel('Period','<div class="rform">'+
+    '<div><label>From</label><input type="date" id="rpPF" value="'+f+'"></div>'+
+    '<div><label>To</label><input type="date" id="rpPT" value="'+t+'"></div>'+
+    '<div><label>&nbsp;</label><button class="btn sec" id="rpAll">Whole job</button></div>'+
+    '</div>', true);
+
+  var tot=sel.reduce(function(a,x){ return a+x.dt; },0);
+  var totp=sel.reduce(function(a,x){ return a+x.dp; },0);
+  var earn=sel.reduce(function(a,x){ return a+x.earn; },0);
+  var cost=sel.reduce(function(a,x){ return a+x.cost; },0);
+  var prof=sel.reduce(function(a,x){ return a+x.profit; },0);
+  var down=sel.reduce(function(a,x){ return a+x.down; },0);
+  var worked=sel.filter(function(x){ return x.dt>0; });
+  var best=sel.slice().sort(function(a,b){ return b.dt-a.dt; })[0];
+  var span=Math.round((dOf(t)-dOf(f))/86400000)+1, wds=0;
+  for(var i=0;i<span&&i<4000;i++) if(isWeekday(addDays(f,i))) wds++;
+
+  h+=panel(auDate(f)+' to '+auDate(t),'<div class="rcards">'+
+    card('Trench',kmv(tot),m0(tot)+' m','good')+
+    card('Pipe',kmv(totp),m0(totp)+' m')+
+    card('Days worked',m0(worked.length),'of '+wds+' weekdays in the window',
+      worked.length<wds?'warn':'good')+
+    card('Average',m0(worked.length?tot/worked.length:0)+' m/day','worked days only')+
+    card('Per weekday',m0(wds?tot/wds:0)+' m/day','including days not worked')+
+    card('Best day',best?mm(best.dt):'\u2014',best?auDate(best.date):'')+
+    card('Earned',money(earn),'','lead')+
+    card('Profit',money(prof),earn>0?pcs(prof,earn)+' margin':'',prof<0?'bad':'good')+
+    card('Downtime',m1(down)+' h','across the period',down?'warn':'')+
+    '</div>', true);
+
+  h+=panel('Metres a day',
+    bars(sel.map(function(x){ return {l:shortDate(x.date),v:x.dt,v2:x.dp}; }),{cum:true})+
+    '<p class="rnote" style="margin-top:8px"><span class="rdot" style="background:#0b6ea8"></span>trench '+
+    '<span class="rdot" style="background:#2f8f5b;margin-left:10px"></span>pipe '+
+    '<span class="rdot" style="background:#a3282d;margin-left:10px"></span>cumulative trench</p>', true);
+
+  h+=panel('Profit a day',
+    bars(sel.map(function(x){ return {l:shortDate(x.date),v:Math.max(x.profit,0),
+      c:x.profit<0?'#a3282d':'#2f8f5b',t:auDate(x.date)+' '+money(x.profit)}; }),{}), true);
+
+  /* by weather, by section */
+  var wx={}, bysec={};
+  sel.forEach(function(x){
+    var w=x.wx||'\u2014';
+    var g=wx[w]||(wx[w]={n:0,m:0,down:0}); g.n++; g.m+=x.dt; g.down+=x.down;
+    (x.e.rows||[]).forEach(function(r){
+      var s=bysec[r.sec]||(bysec[r.sec]={t:0,p:0,items:0,earn:0});
+      s.t+=r.dt||0; s.p+=r.dp||0; s.items+=r.items||0; s.earn+=r.earn||0;
+    });
+  });
+  h+='<div class="rgrid2">';
+  h+=panel('By weather',table(['Weather','~Days','~Metres','~Average','~Downtime h'],
+    Object.keys(wx).sort(function(a,b){ return wx[b].m-wx[a].m; }).map(function(k){
+      return '<tr>'+td(k)+td(m0(wx[k].n),'num')+td(m0(wx[k].m),'num')+
+        td(m0(wx[k].m/wx[k].n),'num')+td(m1(wx[k].down),'num')+'</tr>'; })));
+  h+=panel('By section',table(['Section','~Trench','~Pipe','~Items','~Earned'],
+    Object.keys(bysec).sort().map(function(k){
+      return '<tr>'+td(k,'mono')+td(mm(bysec[k].t),'num')+td(mm(bysec[k].p),'num')+
+        td(m0(bysec[k].items),'num')+td(money(bysec[k].earn),'num')+'</tr>'; })));
+  h+='</div>';
+
+  var run=0;
+  h+=panel('Day by day',table(
+    ['Date','Shift','By','~Trench','~Pipe','~Cumulative','~Items','~Earned','~Cost','~Profit',
+     'Weather','~Down h','~Crew h','Incident'],
+    sel.map(function(x){
+      run+=x.dt;
+      var sf=x.e.safety||{};
+      return '<tr>'+td(auDate(x.date))+td(x.shift)+td(x.by)+td(m1(x.dt),'num')+td(m1(x.dp),'num')+
+        td(m0(run),'num')+td(m0(x.items),'num')+td(money(x.earn),'num')+td(money(x.cost),'num')+
+        td(money(x.profit),'num')+td(x.wx)+td(x.down?m1(x.down):'','num')+
+        td(x.hours?m1(x.hours):'','num')+
+        td((sf.incident&&sf.incident!=='Nil')?sf.incident:'')+'</tr>'; })));
+  return h;
+}
+
+/* ---------- look-ahead ---------- */
+function vLook(){
+  var secs=secsOf();
+  if(!OPT.lkSec||secs.indexOf(OPT.lkSec)<0) OPT.lkSec=secs[0];
+  var sec=OPT.lkSec, dist=OPT.lk, front=X.FRONT[sec]||0, hi=front+dist;
+
+  var h=panel('Look ahead from the trench front','<div class="rform">'+
+    '<div><label>Section</label><select id="rpLkSec">'+secs.map(function(s){
+      return '<option'+(s===sec?' selected':'')+'>'+esc(s)+'</option>'; }).join('')+'</select></div>'+
+    '<div><label>Distance</label><select id="rpLkD">'+[250,500,1000,2000,5000].map(function(v){
+      return '<option value="'+v+'"'+(v===dist?' selected':'')+'>'+v+' m</option>'; }).join('')+
+    '</select></div>'+
+    '<div><label>Trench front</label><input value="'+mm(front)+'" readonly></div>'+
+    '<div><label>Pipe front</label><input value="'+mm(X.PFRONT[sec]||0)+'" readonly></div>'+
+    '</div>', true);
+
+  var C=window.D&&window.D.C, R=window.D&&window.D.rows, rows=[];
+  if(C&&R) R.forEach(function(r){
+    if(r[C.pipeline_section]!==sec) return;
+    var a=r[C.chainage_start_m]; if(typeof a!=='number') return;
+    var b=r[C.chainage_end_m];
+    var starts=(a>front&&a<=hi), spans=(typeof b==='number'&&a<=front&&b>front);
+    if(!starts&&!spans) return;
+    rows.push({ch:a,end:b,ahead:Math.max(a-front,0),reg:r[C.register],typ:r[C.asset_type],
+      id:r[C.asset_id]||'',name:r[C.feature_name]||r[C.utility_description]||'',
+      tt:r[C.trench_type],mth:r[C.proposed_crossing_method],op:r[C.operator],
+      dwg:r[C.drawing_base],cmt:r[C.comments]});
+  });
+  rows.sort(function(a,b){ return a.ch-b.ch; });
+
+  var majors=rows.filter(function(r){
+    return /MAJOR|RAIL|CREEK|PROTECTED/.test(String(r.typ||''))||/bor/i.test(String(r.mth||'')); });
+  var svcs=rows.filter(function(r){ return r.reg==='Foreign Service'; });
+
+  /* trench types in the window, so the rock and bedding can be ordered */
+  var win=[[front,hi]], ttq={};
+  X.T.filter(function(t){ return t.sec===sec; }).forEach(function(t){
+    var cut=ivCut([[t.s,t.e]],win), L=ivLen(cut);
+    if(L>0.01) ttq[t.tt]=(ttq[t.tt]||0)+L;
+  });
+  /* value sitting in the window */
+  var paAhead=X.PA.filter(function(p){ return p.sec===sec&&p.ch>front&&p.ch<=hi; });
+  var val=paAhead.reduce(function(a,p){ var v=paValue(p); return a+(v||0); },0);
+
+  h+=panel('Next '+dist+' m on '+sec,'<div class="rcards">'+
+    card('Items ahead',m0(rows.length),mm(front)+' to '+mm(hi))+
+    card('Major crossings',m0(majors.length),majors.length?'access, permits, bore setup':'clear run',
+      majors.length?'warn':'good')+
+    card('Foreign services',m0(svcs.length),svcs.length?'BYDA and potholing':'none recorded',
+      svcs.length?'warn':'good')+
+    card('Point assets',m0(paAhead.length),val?money(val)+' of work':'')+
+    card('Pipe to catch up',mm(Math.max(front-(X.PFRONT[sec]||0),0)),'behind the trench front',
+      (front-(X.PFRONT[sec]||0))>0?'warn':'good')+
+    card('Sheets',m0(Object.keys(rows.reduce(function(a,r){ if(r.dwg)a[r.dwg]=1; return a; },{})).length),
+      'alignment sheets covered')+
+    '</div>', true);
+
+  if(Object.keys(ttq).length) h+=panel('Trench types in the window',
+    '<p class="rnote">What the next '+dist+' m is made of &mdash; the heads-up for bedding, '+
+    'crushed rock and select fill.</p>'+
+    Object.keys(ttq).sort().map(function(k){
+      var tot=0; Object.keys(ttq).forEach(function(z){ tot+=ttq[z]; });
+      return '<div class="rstg"><span class="n">Type '+esc(k)+'</span>'+
+        '<span class="rbar"><i style="width:'+pc(ttq[k],tot).toFixed(1)+'%"></i></span>'+
+        '<span class="v">'+mm(ttq[k])+' \u00b7 '+pcs(ttq[k],tot)+'</span></div>'; }).join(''), true);
+
+  if(majors.length) h+=panel('Watch list',table(
+    ['~Ahead','~Chainage','Type','Feature','Method','Authority','Sheet'],
+    majors.map(function(r){ return '<tr>'+
+      '<td class="num rahead">+'+m0(r.ahead)+' m</td>'+td(mm(r.ch),'num')+
+      tdh(pill(r.typ||'','w'))+td(r.name)+td(r.mth||'')+td(r.op||'')+td(r.dwg||'','mono')+'</tr>'; })));
+
+  h+=panel('Everything ahead, in order',table(
+    ['~Ahead','~Chainage','Register','Type','Asset ID','Feature / description','Trench type','Sheet','Comments'],
+    rows.map(function(r){ return '<tr>'+
+      '<td class="num rahead">+'+m0(r.ahead)+' m</td>'+
+      td(mm(r.ch)+(typeof r.end==='number'?' \u2013 '+mm(r.end):''),'num')+
+      tdh(tag(r.reg,(window.REGHEX||{})[r.reg]||'#5b6875'))+td(r.typ||'')+td(r.id,'mono')+
+      td(r.name)+td(r.tt||'')+td(r.dwg||'','mono')+
+      td(String(r.cmt||'').replace(/\n/g,' '),'detail')+'</tr>'; })));
+  return h;
+}
+
+/* ---------- sheet progress ---------- */
+function vSheets(){
+  var secs=secsOf();
+  if(!OPT.shSec||secs.indexOf(OPT.shSec)<0) OPT.shSec=secs[0];
+  var sec=OPT.shSec;
+  var h=panel('Alignment sheets','<div class="rform">'+
+    '<div><label>Section</label><select id="rpShSec">'+secs.map(function(s){
+      return '<option'+(s===sec?' selected':'')+'>'+esc(s)+'</option>'; }).join('')+'</select></div>'+
+    '</div><p class="rnote" style="margin-top:11px">Each sheet is 700 m. A sheet is only '+
+    '<b>complete</b> when its band is fully trenched, fully piped and every point asset on it is '+
+    'ticked &mdash; which is the state it needs to be in before it goes to as-built.</p>', true);
+
+  var sheets=((window.D&&window.D.drawings)||[]).filter(function(d){ return d[1]===sec; })
+    .sort(function(a,b){ return a[2]-b[2]; });
+  if(!sheets.length) return h+panel(sec,'<div class="empty"><b>No sheets for '+esc(sec)+
+    '</b>This section has no drawing series in the register.</div>');
+
+  var tv=trenchIv(sec), pv=pipeIv(sec);
+  var full=0,part=0,none=0;
+  var rows=sheets.map(function(d){
+    var b0=d[3],b1=d[4],w=b1-b0;
+    var tl=ivLen(ivCut(tv,[[b0,b1]])), pl=ivLen(ivCut(pv,[[b0,b1]]));
+    var pa=X.PA.filter(function(p){ return p.sec===sec&&p.ch>=b0&&p.ch<b1; });
+    var ad=pa.filter(paDone).length;
+    var tp=pc(tl,w), pp=pc(pl,w);
+    var done=(tp>=99.9&&pp>=99.9&&ad===pa.length);
+    if(tp>=99.9) full++; else if(tp>0) part++; else none++;
+    var st=done?pill('complete','g')
+      :(tp>=99.9?pill(pp>=99.9?'assets open':'pipe outstanding','w')
+      :(tp>0?pill('in progress','w'):pill('not started')));
+    return '<tr>'+td(d[0],'mono')+td(m0(b0)+' \u2013 '+m0(b1)+' m','num')+
+      tdh(tp.toFixed(1)+'%'+bar(tp),'num')+
+      tdh(pp.toFixed(1)+'%'+bar(pp,'g'),'num')+
+      td(mm(Math.max(w-tl,0)),'num')+td(m0(d[7]),'num')+
+      td(pa.length?m0(ad)+' / '+m0(pa.length):'\u2014','num')+tdh(st)+'</tr>';
+  });
+
+  h+=panel(sec+' sheet status','<div class="pad"><div class="rcards">'+
+    card('Sheets',m0(sheets.length),'in the run')+
+    card('Fully trenched',m0(full),pcs(full,sheets.length)+' of sheets','good')+
+    card('In progress',m0(part),'partly trenched',part?'warn':'')+
+    card('Not started',m0(none),'nothing dug yet')+
+    '</div></div>'+
+    table(['Sheet','~Band','~Trenched','~Pipe','~Metres left','~Records','~Assets done','Status'],rows));
+  return h;
+}
+
+/* ---------- quantities ---------- */
+function vQty(){
+  var secs=secsOf();
+  var tv={}, pv={};
+  secs.forEach(function(s){ tv[s]=trenchIv(s); pv[s]=pipeIv(s); });
+
+  var tt={};
+  X.T.forEach(function(t){
+    var e=tt[t.tt]||(tt[t.tt]={len:0,tr:0,pi:0,n:0});
+    e.n++; e.len+=t.len; e.tr+=X.tDone(t); e.pi+=X.pDone(t);
+  });
+  var L=0,TR=0,PI=0;
+  Object.keys(tt).forEach(function(k){ L+=tt[k].len; TR+=tt[k].tr; PI+=tt[k].pi; });
+
+  var h=panel('Trench type quantities',
+    '<div class="pad" style="padding-bottom:0"><p class="rnote">Straight off the metres recorded '+
+    'against each trench section, so these are the same quantities the Costs tab prices and the same '+
+    'ones a progress claim should carry. Crushed rock and bedding follow the trench type, not the '+
+    'chainage, which is why this split matters more than the headline metres.</p></div>'+
+    table(['Trench type','~Sections','~Design','~Trenched','~%','~Pipe laid','~Remaining trench'],
+      Object.keys(tt).sort().map(function(k){
+        var e=tt[k];
+        return '<tr>'+td(k,'mono')+td(m0(e.n),'num')+td(mm(e.len),'num')+td(mm(e.tr),'num')+
+          tdh(pcs(e.tr,e.len)+bar(pc(e.tr,e.len)),'num')+td(mm(e.pi),'num')+
+          td(mm(Math.max(e.len-e.tr,0)),'num')+'</tr>'; })
+      .concat(['<tr style="font-weight:600;background:#f4f6f9">'+td('Total')+td('')+td(mm(L),'num')+
+        td(mm(TR),'num')+td(pcs(TR,L),'num')+td(mm(PI),'num')+
+        td(mm(Math.max(L-TR,0)),'num')+'</tr>'])));
+
+  /* point assets by rate line */
+  var lines=X.PALINES.map(function(g){
+    var list=X.PA.filter(function(p){ return p.rkey===g.rkey; });
+    var done=list.filter(paDone);
+    var qty=list.reduce(function(a,p){ return a+X.qtyOf(p); },0);
+    var qd=done.reduce(function(a,p){ return a+X.qtyOf(p); },0);
+    var rate=X.rateOf(list[0]||{rkey:g.rkey});
+    return {g:g,n:list.length,done:done.length,qty:qty,qd:qd,rate:rate,
+      earn:rate==null?null:qd*rate, bud:rate==null?null:qty*rate};
+  });
+  var eT=0,bT=0;
+  lines.forEach(function(l){ if(l.earn!=null) eT+=l.earn; if(l.bud!=null) bT+=l.bud; });
+
+  h+=panel('Point assets',
+    '<div class="pad" style="padding-bottom:0"><p class="rnote">Counted by rate line, the way they '+
+    'are priced. A line with no rate is left out of the money columns rather than valued at nothing.</p></div>'+
+    table(['Rate line','Type','~Total','~Done','~Outstanding','~%','~Rate','~Earned','~Value left'],
+      lines.map(function(l){
+        return '<tr>'+td(l.g.label)+td(X.labelOf(l.g.type))+td(m0(l.n),'num')+td(m0(l.done),'num')+
+          td(m0(l.n-l.done),'num')+tdh(pcs(l.done,l.n)+bar(pc(l.done,l.n),'g'),'num')+
+          td(l.rate==null?'\u2014':money(l.rate),'num')+
+          td(l.earn==null?'\u2014':money(l.earn),'num')+
+          td(l.bud==null?'\u2014':money(l.bud-l.earn),'num')+'</tr>'; })
+      .concat(['<tr style="font-weight:600;background:#f4f6f9">'+td('Total')+td('')+
+        td(m0(X.PA.length),'num')+td(m0(X.PA.filter(paDone).length),'num')+
+        td(m0(X.PA.length-X.PA.filter(paDone).length),'num')+td('')+td('')+
+        td(money(eT),'num')+td(money(bT-eT),'num')+'</tr>'])));
+  return h;
+}
+
+/* ---------- outstanding ---------- */
+function vOut(){
+  var secs=secsOf();
+  var tvv={}, pvv={};
+  secs.forEach(function(s){ tvv[s]=trenchIv(s); pvv[s]=pipeIv(s); });
+
+  var behind=X.PA.filter(function(p){
+    if(paDone(p)) return false;
+    return p.ch<=frontFor(p)+1e-9 && frontFor(p)>0;
+  }).map(function(p){
+    var when=passedOn(p.sec,p.ch,p.drv==='PIPE');
+    return {p:p,when:when,days:when?Math.round((dOf(todayISO())-dOf(when))/86400000):null};
+  }).sort(function(a,b){ return (b.days||0)-(a.days||0)||a.p.ch-b.p.ch; });
+
+  /* trench through but pipe not */
+  var lag=secs.map(function(s){
+    var gap=ivSub(tvv[s],pvv[s]);
+    return {sec:s,len:ivLen(gap),iv:gap};
+  }).filter(function(x){ return x.len>0.5; });
+
+  /* trench sections part done */
+  var part=X.T.filter(function(t){ var d=X.tDone(t); return d>0.001&&d<t.len-0.001; })
+    .map(function(t){ return {t:t,d:X.tDone(t)}; })
+    .sort(function(a,b){ return a.t.sec===b.t.sec?a.t.s-b.t.s:(a.t.sec<b.t.sec?-1:1); });
+
+  /* hold points still open, latest state per reference */
+  var hp={};
+  X.DAYS.forEach(function(e){ (e.hp||[]).forEach(function(x){
+    hp[(x.ref||'')+'|'+(x.desc||'')]={x:x,date:e.date}; }); });
+  var hpOpen=Object.keys(hp).map(function(k){ return hp[k]; })
+    .filter(function(o){ return (o.x.status||'Outstanding')==='Outstanding'; });
+
+  var totLag=lag.reduce(function(a,x){ return a+x.len; },0);
+  var val=behind.reduce(function(a,x){ var v=paValue(x.p); return a+(v||0); },0);
+
+  var h=panel('Outstanding','<div class="rcards">'+
+    card('Assets passed, not ticked',m0(behind.length),
+      val?money(val)+' of work not claimed':'',behind.length?'bad':'good')+
+    card('Oldest',behind.length&&behind[0].days!=null?behind[0].days+' days':'\u2014',
+      behind.length?(behind[0].p.name||X.labelOf(behind[0].p.type))+' at '+mm(behind[0].p.ch):'nothing overdue',
+      behind.length&&behind[0].days>14?'bad':'')+
+    card('Pipe behind trench',mm(totLag),'trench open with no pipe in it',totLag>0?'warn':'good')+
+    card('Part-done sections',m0(part.length),'trench sections started, not finished',
+      part.length?'warn':'good')+
+    card('Hold points open',m0(hpOpen.length),'across every day recorded',hpOpen.length?'warn':'good')+
+    '</div>', true);
+
+  h+=panel('Point assets the front has passed',
+    '<div class="pad" style="padding-bottom:0"><p class="rnote">The trench (or pipe, for anything '+
+    'driven by pipe) has gone past these and nobody has ticked them. Each one is work done and not '+
+    'claimed, or work genuinely skipped &mdash; either way it needs closing.</p></div>'+
+    table(['~Days','~Chainage','Section','Type','Feature','Rate line','~Value','Front passed'],
+      behind.slice(0,500).map(function(x){
+        var v=paValue(x.p);
+        return '<tr>'+
+          tdh(x.days==null?'\u2014':pill(String(x.days),x.days>14?'r':(x.days>7?'w':'')),'num')+
+          td(mm(x.p.ch),'num')+td(x.p.sec,'mono')+td(X.labelOf(x.p.type))+
+          td(x.p.name||x.p.ud||'')+td(x.p.rlab)+td(v==null?'\u2014':money(v),'num')+
+          td(x.when?auDate(x.when):'\u2014')+'</tr>'; })));
+
+  h+=panel('Trench open with no pipe',table(['Section','~Length','Chainages'],
+    lag.map(function(x){ return '<tr>'+td(x.sec,'mono')+td(mm(x.len),'num')+
+      td(x.iv.slice(0,16).map(function(i){ return m0(i[0])+'\u2013'+m0(i[1]); }).join(', ')+
+        (x.iv.length>16?' \u2026':''),'detail mono')+'</tr>'; })));
+
+  h+=panel('Trench sections part done',table(
+    ['Section','~From','~To','Trench type','~Length','~Done','~Left','~%'],
+    part.map(function(x){ return '<tr>'+td(x.t.sec,'mono')+td(mm(x.t.s),'num')+td(mm(x.t.e),'num')+
+      td(x.t.tt,'mono')+td(m1(x.t.len),'num')+td(m1(x.d),'num')+
+      td(m1(x.t.len-x.d),'num')+tdh(pcs(x.d,x.t.len)+bar(pc(x.d,x.t.len)),'num')+'</tr>'; })));
+
+  if(hpOpen.length) h+=panel('Hold points still outstanding',table(
+    ['Reference','Description','Asset','Raised','Notes'],
+    hpOpen.map(function(o){ return '<tr>'+td(o.x.ref,'mono')+td(o.x.desc)+td(o.x.key||'','mono')+
+      td(auDate(o.date))+td(o.x.notes||'')+'</tr>'; })));
+  return h;
+}
+
+/* ---------- safety and plant ---------- */
+function vSafe(){
+  var dt=dayTotals();
+  if(!dt.length) return panel('Safety and plant','<div class="empty"><b>No days recorded yet</b>'+
+    'Safety and plant come from the day log on the End of day page.</div>');
+
+  var tbx=0, inc=[], lost=0, down=0, pers=0, hours=0, sb=0;
+  var byRes={};
+  X.DAYS.forEach(function(e){
+    var sf=e.safety||{};
+    if(sf.toolbox==='Yes') tbx++;
+    if(sf.incident&&sf.incident!=='Nil')
+      inc.push({date:e.date,type:sf.incident,detail:sf.detail||'',lost:sf.lost||0,by:e.by||''});
+    lost+=sf.lost||0; pers+=sf.personnel||0; down+=e.down||0;
+    (e.plant||[]).forEach(function(p){
+      var k=(p.kind||'')+'|'+(p.desc||'');
+      var g=byRes[k]||(byRes[k]={kind:p.kind,desc:p.desc,days:0,n:0,hrs:0,sb:0});
+      g.days++; g.n=Math.max(g.n,p.n||0); g.hrs+=(p.n||0)*(p.hrs||0); g.sb+=(p.n||0)*(p.sb||0);
+      hours+=(p.n||0)*(p.hrs||0); sb+=(p.n||0)*(p.sb||0);
+    });
+  });
+  var n=X.DAYS.length;
+  var totM=dt.reduce(function(a,x){ return a+x.dt; },0);
+
+  var h=panel('Safety','<div class="rcards">'+
+    card('Days recorded',m0(n),auDate(dt[0].date)+' to '+auDate(dt[n-1].date))+
+    card('Toolbox talks',pcs(tbx,n),m0(tbx)+' of '+m0(n)+' days',tbx===n?'good':'bad')+
+    card('Incidents',m0(inc.length),inc.length?'see the register below':'nil recorded',
+      inc.length?'bad':'good')+
+    card('Lost time',m1(lost)+' h','',lost?'bad':'good')+
+    card('Downtime',m1(down)+' h','weather, plant, access',down?'warn':'')+
+    card('Average on site',m0(n?pers/n:0),'personnel a day')+
+    '</div>', true);
+
+  if(inc.length) h+=panel('Incident register',table(['Date','Type','~Lost h','Recorded by','Detail'],
+    inc.slice().reverse().map(function(x){ return '<tr>'+td(auDate(x.date))+
+      tdh(pill(x.type,x.type==='Near miss'?'w':'r'))+td(x.lost?m1(x.lost):'','num')+td(x.by)+
+      td(x.detail,'detail')+'</tr>'; })));
+
+  var res=Object.keys(byRes).map(function(k){ return byRes[k]; })
+    .sort(function(a,b){ return b.hrs-a.hrs; });
+  h+=panel('Plant and labour, all days','<div class="pad" style="padding-bottom:0">'+
+    '<div class="rcards">'+
+    card('Worked hours',m0(hours),'across every resource','lead')+
+    card('Standby hours',m0(sb),sb?pcs(sb,hours+sb)+' of all hours on site':'none',sb?'warn':'good')+
+    card('Metres per crew hour',hours>0?m1(totM/hours):'\u2014','trench metres a worked hour')+
+    card('Resources used',m0(res.length),'distinct plant and labour lines')+
+    '</div></div>'+
+    table(['Type','Description','~Days on','~Peak no.','~Worked h','~Standby h','~Standby %',
+           '~Metres per hour'],
+      res.map(function(r){ return '<tr>'+td(r.kind)+td(r.desc)+td(m0(r.days),'num')+
+        td(m0(r.n),'num')+td(m1(r.hrs),'num')+td(m1(r.sb),'num')+
+        tdh(pcs(r.sb,r.hrs+r.sb)+bar(pc(r.sb,r.hrs+r.sb),'w'),'num')+
+        td(r.hrs>0?m1(totM/r.hrs):'\u2014','num')+'</tr>'; })));
+  return h;
+}
+
+/* ==========================================================================
+   PLUMBING
+   ========================================================================== */
+function render(){
+  X = (window.COSTS && window.COSTS.data) ? window.COSTS.data() : null;
+  var warn=q('#rptWarn'), body=q('#rptBody');
+  if(!warn||!body) return;
+  if(!X || !X.T.length){ warn.style.display=''; body.style.display='none'; return; }
+  warn.style.display='none'; body.style.display='';
+
+  qa('#rpNav button').forEach(function(b){ b.classList.toggle('on',b.dataset.rp===RP); });
+  var f={dash:vDash,daily:vDaily,prod:vProd,look:vLook,sheets:vSheets,
+         qty:vQty,out:vOut,safe:vSafe}[RP]||vDash;
+  var html='';
+  try{ html=f(); }
+  catch(err){ console.error('report failed:',err);
+    html=panel('Report','<div class="empty"><b>That report could not be built</b>'+
+      esc(err.message)+'</div>'); }
+  q('#rpOut').innerHTML=html;
+  labelCells();
+
+  q('#rpPrintTitle').textContent='T2W Pipeline \u2014 '+TITLES[RP];
+  q('#rpPrintSub').textContent=(window.D&&window.D.rows?window.D.rows.length.toLocaleString('en-AU')+
+    ' records \u00b7 ':'')+X.DAYS.length+' day'+(X.DAYS.length===1?'':'s')+' recorded \u00b7 '+
+    new Date().toLocaleString('en-AU');
+  q('#rpAsAt').innerHTML='<b>'+X.DAYS.length+'</b> day'+(X.DAYS.length===1?'':'s')+' recorded';
+  wireView();
+}
+
+/* the stylesheet turns tables into cards on a phone and prints the column name
+   from data-l, so copy the headings down rather than labelling every cell */
+function labelCells(){
+  qa('#rpOut table').forEach(function(t){
+    var hs=Array.prototype.slice.call(t.querySelectorAll('thead th'))
+      .map(function(x){ return x.textContent.trim(); });
+    Array.prototype.slice.call(t.querySelectorAll('tbody tr')).forEach(function(tr){
+      Array.prototype.slice.call(tr.children).forEach(function(cell,i){
+        if(hs[i]) cell.setAttribute('data-l',hs[i]);
+      });
+    });
+  });
+}
+
+function wireView(){
+  var e;
+  if((e=q('#rpDay'))) e.onchange=function(){ OPT.day=this.value; render(); };
+  if((e=q('#rpPrev'))) e.onclick=function(){ step(-1); };
+  if((e=q('#rpNext'))) e.onclick=function(){ step(1); };
+  if((e=q('#rpPF'))) e.onchange=function(){ OPT.pf=this.value; render(); };
+  if((e=q('#rpPT'))) e.onchange=function(){ OPT.pt=this.value; render(); };
+  if((e=q('#rpAll'))) e.onclick=function(){ var d=dayTotals();
+    OPT.pf=d[0].date; OPT.pt=d[d.length-1].date; render(); };
+  if((e=q('#rpLkSec'))) e.onchange=function(){ OPT.lkSec=this.value; render(); };
+  if((e=q('#rpLkD'))) e.onchange=function(){ OPT.lk=+this.value; render(); };
+  if((e=q('#rpShSec'))) e.onchange=function(){ OPT.shSec=this.value; render(); };
+}
+function step(n){
+  var d=dayTotals(), i=-1;
+  d.forEach(function(x,j){ if(x.date===OPT.day) i=j; });
+  var t=i+n;
+  if(t<0||t>=d.length) return;
+  OPT.day=d[t].date; render();
+}
+
+/* ---------- export ---------- */
+function tablesToAoa(){
+  var out=[];
+  qa('#rpOut .panel').forEach(function(p){
+    var t=p.querySelector('table'); if(!t) return;
+    var hd=p.querySelector('h2');
+    if(out.length) out.push([]);
+    out.push([hd?hd.textContent.trim():'']);
+    Array.prototype.slice.call(t.querySelectorAll('tr')).forEach(function(tr){
+      out.push(Array.prototype.slice.call(tr.children).map(function(c){
+        return c.textContent.replace(/\s+/g,' ').trim(); }));
+    });
+  });
+  return out;
+}
+function csv(){
+  var aoa=tablesToAoa();
+  if(!aoa.length){ if(window.toast) toast('No table on this report'); return; }
+  var s=aoa.map(function(r){ return r.map(function(v){
+    v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }).join(','); })
+    .join('\r\n');
+  save(new Blob(['\ufeff'+s],{type:'text/csv;charset=utf-8'}),
+    'T2W_'+RP+'_report.csv');
+  if(window.toast) toast('Report exported');
+}
+function save(blob,name){
+  var a=document.createElement('a'), u=URL.createObjectURL(blob);
+  a.href=u; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },400);
+}
+function pack(){
+  if(typeof XLSX==='undefined'){ if(window.toast) toast('Excel export unavailable'); return; }
+  X=(window.COSTS&&window.COSTS.data)?window.COSTS.data():null;
+  if(!X){ if(window.toast) toast('No register data'); return; }
+  var wb=XLSX.utils.book_new(), secs=secsOf();
+
+  var s1=[['T2W Pipeline \u2014 progress report pack'],[],
+          ['Generated',new Date().toLocaleString('en-AU')],
+          ['Register records',(window.D&&window.D.rows)?window.D.rows.length:0],
+          ['Days recorded',X.DAYS.length],[],
+          ['Section','Design (m)','Trenched (m)','Trenched (%)','Pipe laid (m)','Pipe (%)',
+           'Trench front (m)','Pipe front (m)','Assets total','Assets done']];
+  secs.forEach(function(s){
+    var L=designLen(s), t=trenchDone(s), p=pipeDone(s);
+    var pa=X.PA.filter(function(x){ return x.sec===s; });
+    s1.push([s,L,t,+pc(t,L).toFixed(2),p,+pc(p,L).toFixed(2),X.FRONT[s]||0,X.PFRONT[s]||0,
+      pa.length,pa.filter(paDone).length]);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s1),'Summary');
+
+  var s2=[['Date','Shift','Recorded by','Section','Trench from','Trench to','Trench m',
+           'Pipe from','Pipe to','Pipe m','Items','Earned','Weather','Downtime h','Notes']];
+  X.DAYS.forEach(function(e){ (e.rows||[]).forEach(function(r,i){
+    s2.push([e.date,e.shift,e.by,r.sec,r.from,r.to,r.dt,r.pfrom,r.pto,r.dp,r.items,r.earn,
+      i===0?e.wx:'',i===0?(e.down||0):'',i===0?e.notes:'']); }); });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s2),'Daily production');
+
+  var s3=[['Sheet','Section','Band start (m)','Band end (m)','Trenched (m)','Trenched (%)',
+           'Pipe (m)','Pipe (%)','Records','Assets','Assets done','Status']];
+  ((window.D&&window.D.drawings)||[]).forEach(function(d){
+    if(secs.indexOf(d[1])<0) return;
+    var tl=ivLen(ivCut(trenchIv(d[1]),[[d[3],d[4]]]));
+    var pl=ivLen(ivCut(pipeIv(d[1]),[[d[3],d[4]]]));
+    var w=d[4]-d[3];
+    var pa=X.PA.filter(function(p){ return p.sec===d[1]&&p.ch>=d[3]&&p.ch<d[4]; });
+    var ad=pa.filter(paDone).length;
+    s3.push([d[0],d[1],d[3],d[4],tl,+pc(tl,w).toFixed(2),pl,+pc(pl,w).toFixed(2),d[7],
+      pa.length,ad,(pc(tl,w)>=99.9&&pc(pl,w)>=99.9&&ad===pa.length)?'Complete'
+        :(tl>0?'In progress':'Not started')]);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s3),'Sheet progress');
+
+  var tt={};
+  X.T.forEach(function(t){ var e=tt[t.tt]||(tt[t.tt]={len:0,tr:0,pi:0,n:0});
+    e.n++; e.len+=t.len; e.tr+=X.tDone(t); e.pi+=X.pDone(t); });
+  var s4=[['Trench type','Sections','Design (m)','Trenched (m)','Trenched (%)','Pipe laid (m)',
+           'Remaining (m)']];
+  Object.keys(tt).sort().forEach(function(k){ var e=tt[k];
+    s4.push([k,e.n,e.len,e.tr,+pc(e.tr,e.len).toFixed(2),e.pi,Math.max(e.len-e.tr,0)]); });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s4),'Quantities');
+
+  var s5=[['Asset key','Section','Chainage (m)','Type','Feature','Rate line','Value','Front passed',
+           'Days outstanding']];
+  X.PA.forEach(function(p){
+    if(paDone(p)) return;
+    if(!(p.ch<=frontFor(p)+1e-9&&frontFor(p)>0)) return;
+    var when=passedOn(p.sec,p.ch,p.drv==='PIPE');
+    var v=paValue(p);
+    s5.push([p.key,p.sec,p.ch,X.labelOf(p.type),p.name||p.ud||'',p.rlab,v==null?'':v,when||'',
+      when?Math.round((dOf(todayISO())-dOf(when))/86400000):'']);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s5),'Outstanding');
+
+  var s6=[['Date','Toolbox','Topic','Personnel','Incident','Lost h','Downtime h','Crew hours','Detail']];
+  X.DAYS.forEach(function(e){ var sf=e.safety||{};
+    s6.push([e.date,sf.toolbox||'',sf.topic||'',sf.personnel||0,sf.incident||'Nil',sf.lost||0,
+      e.down||0,(e.money&&e.money.hours)||0,sf.detail||'']); });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s6),'Safety');
+
+  XLSX.writeFile(wb,'T2W_progress_report_pack.xlsx');
+  if(window.toast) toast('Report pack exported');
+}
+
+/* ---------- init ---------- */
+function wire(){
+  qa('#rpNav button').forEach(function(b){
+    b.addEventListener('click',function(){ RP=b.dataset.rp; render();
+      try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(err){} });
+  });
+  var e;
+  if((e=q('#rpPrint'))) e.addEventListener('click',function(){ window.print(); });
+  if((e=q('#rpCsv'))) e.addEventListener('click',csv);
+  if((e=q('#rpXlsx'))) e.addEventListener('click',pack);
+}
+document.addEventListener('DOMContentLoaded',wire);
+if(document.readyState!=='loading') wire();
+
+window.RPT={ render:render };
 })();
 </script>
 </body>
