@@ -1098,6 +1098,7 @@ tbody tr.picked:hover{background:#d7e8f4}
           <button data-rp="qty">Quantities</button>
           <button data-rp="out">Outstanding</button>
           <button data-rp="safe">Safety &amp; plant</button>
+  <button data-rp="done">Completed</button>
         </div>
         <div class="actions">
           <button class="btn sec" id="rpPrint">Print this report</button>
@@ -5529,7 +5530,8 @@ var RP='dash';
 var OPT={day:'',pf:'',pt:'',lkSec:'',lk:1000,shSec:''};
 var X=null;
 var TITLES={dash:'Position',daily:'A day',prod:'Production',look:'Look-ahead',
-            sheets:'Sheet progress',qty:'Quantities',out:'Outstanding',safe:'Safety and plant'};
+            sheets:'Sheet progress',qty:'Quantities',out:'Outstanding',safe:'Safety and plant',
+            done:'Completed in period'};
 
 function q(s){ return document.querySelector(s); }
 function qa(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
@@ -6291,6 +6293,120 @@ function vOut(){
 }
 
 /* ---------- safety and plant ---------- */
+
+/* ---------- completed in period ----------
+   Every completion in a date range, at the finest grain the data actually
+   has. Point assets are genuinely discrete - one row each, by their real
+   completion date. Trench and pipe are not discrete in the register at all -
+   the only record of "when" is a day's chainage span - so each day's span is
+   itemised as its own row instead of being folded into one running total,
+   split by trench type where the trench crosses a type boundary so each row
+   still prices against a single rate. That is as close to "every individual
+   asset, including pipe" as the underlying data can honestly get. */
+function vDone(){
+  var days=X.DAYS.slice().sort(function(a,b){ return a.date<b.date?-1:(a.date>b.date?1:0); });
+  if(!days.length) return panel('Completed in period','<div class="empty"><b>No days recorded yet</b>'+
+    'This report reads completions off the day log, so record a day on the End of day page first.</div>');
+  if(!OPT.doneTo) OPT.doneTo=days[days.length-1].date;
+  if(!OPT.doneFrom) OPT.doneFrom=days.length>14?days[days.length-14].date:days[0].date;
+  var f=OPT.doneFrom, t=OPT.doneTo;
+  var sel=days.filter(function(e){ return e.date>=f && e.date<=t; });
+
+  var h=panel('Period','<div class="rform">'+
+    '<div><label>From</label><input type="date" id="rpDoneF" value="'+f+'"></div>'+
+    '<div><label>To</label><input type="date" id="rpDoneT" value="'+t+'"></div>'+
+    '<div><label>&nbsp;</label><button class="btn sec" id="rpDoneAll">Whole job</button></div>'+
+    '</div><p class="rnote" style="margin-top:11px">Point assets are listed individually by the date '+
+    'they were actually signed off. Trench and pipe have no finer record than the chainage covered on '+
+    'a given day, so each day\u2019s span is its own row rather than one running total \u2014 trench is '+
+    'split again wherever it crosses from one trench type into another, so every row still prices '+
+    'against a single rate.</p>', true);
+
+  var rows=doneRows(sel);
+  var paRows=rows.filter(function(x){ return x.kind==='Point asset'; });
+  var peRows=rows.filter(function(x){ return x.kind==='Pipe'; });
+  var trRows=rows.filter(function(x){ return x.kind==='Trench'; });
+  var totVal=rows.reduce(function(a,x){ return a+(x.val||0); },0);
+  var unrated=rows.filter(function(x){ return x.rate==null; });
+  var unratedQty=unrated.reduce(function(a,x){ return a+x.qty; },0);
+
+  h+=panel(auDate(f)+' to '+auDate(t),'<div class="rcards">'+
+    card('Items completed',m0(paRows.length),'point assets signed off in the period','good')+
+    card('Pipe laid',mm(peRows.reduce(function(a,x){ return a+x.qty; },0)),
+      peRows.length+' dated entr'+(peRows.length===1?'y':'ies'))+
+    card('Trench',mm(trRows.reduce(function(a,x){ return a+x.qty; },0)),
+      trRows.length+' dated entr'+(trRows.length===1?'y':'ies')+' across trench types')+
+    card('Value in the period',money(totVal),
+      unrated.length?unrated.length+' line'+(unrated.length===1?'':'s')+' with no rate excluded':
+        'every line priced','lead')+
+    '</div>'+
+    (unrated.length?'<p class="rnote" style="margin-top:11px"><b>'+unrated.length+' entr'+
+      (unrated.length===1?'y has':'ies have')+' no rate</b> and '+m1(unratedQty)+
+      ' units of completed work behind '+(unrated.length===1?'it':'them')+
+      ' is left out of the total above rather than valued at nothing. Set the rate on the Costs '+
+      'tab and it will price in.</p>':''), true);
+
+  var doneRowsHtml=rows.map(function(x){
+    var kc={'Point asset':'#0b6ea8','Pipe':'#2f8f5b','Trench':'#c2731a'}[x.kind]||'#5b6875';
+    return '<tr>'+td(auDate(x.date))+tdh(tag(x.kind,kc))+td(x.sec,'mono')+
+      td(x.chB==null?m0(x.chA)+' m':m0(x.chA)+'\u2013'+m0(x.chB)+' m','num')+
+      td(x.rec||'','mono')+td(x.type)+td(x.desc)+td(m1(x.qty),'num')+td(x.unit)+
+      td(x.rate==null?'\u2014':money(x.rate),'num')+
+      td(x.rate==null?'not rated':money(x.val),'num')+'</tr>';
+  });
+  if(rows.length) doneRowsHtml.push('<tr style="font-weight:600;background:#f4f6f9">'+
+    td('Total')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+
+    td(money(totVal),'num')+'</tr>');
+  h+=panel('Every completion in the period',table(
+    ['Date','Kind','Section','Chainage','Record','Type','Description','~Quantity','Unit',
+     '~Rate','~Value'],
+    doneRowsHtml));
+  return h;
+}
+/* the flat list vDone() renders, factored out so the Excel pack can reuse the
+   exact same rows rather than recomputing them a second way */
+function doneRows(sel){
+  var PAIDX={}; X.PA.forEach(function(p){ PAIDX[p.key]=p; });
+  var rows=[];
+  sel.forEach(function(e){
+    (e.rows||[]).forEach(function(r){
+      (r.keys||[]).forEach(function(k){
+        var p=PAIDX[k]; if(!p) return;
+        var rate=X.rateOf(p), qty=X.qtyOf(p);
+        rows.push({date:e.date,kind:'Point asset',sec:p.sec,chA:p.ch,chB:null,
+          rec:p.key,type:X.labelOf(p.type),desc:p.name||p.ud||'',
+          unit:X.unitOf(p.type)==='$/m2'?'m\u00b2':'each',
+          qty:qty,rate:rate,val:rate==null?null:rate*qty});
+      });
+      if(r.to>r.from){
+        X.T.forEach(function(ts){
+          if(ts.sec!==r.sec) return;
+          var ov0=Math.max(ts.s,r.from), ov1=Math.min(ts.e,r.to);
+          if(ov1-ov0<=1e-6) return;
+          var k=r.sec+'|'+ts.tt, rate=X.ST.tRate[k], qty=ov1-ov0;
+          rows.push({date:e.date,kind:'Trench',sec:r.sec,chA:ov0,chB:ov1,
+            rec:'',type:'Type '+ts.tt,desc:r.sec+' trench, type '+ts.tt,
+            unit:'m',qty:qty,rate:rate,val:rate==null?null:rate*qty});
+        });
+      }
+      if(r.pto>r.pfrom){
+        var pt=X.ST.pipeType[r.sec]||'', k2=r.sec+'|'+pt, rate=X.ST.pRate[k2], qty=r.pto-r.pfrom;
+        var pdef=null;
+        X.PIPES.forEach(function(pp){ if(!pdef && pp.sec===r.sec && pp.type===pt) pdef=pp; });
+        rows.push({date:e.date,kind:'Pipe',sec:r.sec,chA:r.pfrom,chB:r.pto,
+          rec:'',type:pt||'\u2014',desc:pdef?pdef.desc:(pt||'Pipe'),
+          unit:'m',qty:qty,rate:rate,val:rate==null?null:rate*qty});
+      }
+    });
+  });
+  rows.sort(function(a,b){
+    if(a.date!==b.date) return a.date<b.date?-1:1;
+    if(a.sec!==b.sec) return a.sec<b.sec?-1:1;
+    return a.chA-b.chA;
+  });
+  return rows;
+}
+
 function vSafe(){
   var dt=dayTotals();
   if(!dt.length) return panel('Safety and plant','<div class="empty"><b>No days recorded yet</b>'+
@@ -6359,7 +6475,7 @@ function render(){
 
   qa('#rpNav button').forEach(function(b){ b.classList.toggle('on',b.dataset.rp===RP); });
   var f={dash:vDash,daily:vDaily,prod:vProd,look:vLook,sheets:vSheets,
-         qty:vQty,out:vOut,safe:vSafe}[RP]||vDash;
+         qty:vQty,out:vOut,safe:vSafe,done:vDone}[RP]||vDash;
   var html='';
   try{ html=f(); }
   catch(err){ console.error('report failed:',err);
@@ -6402,6 +6518,11 @@ function wireView(){
   if((e=q('#rpLkSec'))) e.onchange=function(){ OPT.lkSec=this.value; render(); };
   if((e=q('#rpLkD'))) e.onchange=function(){ OPT.lk=+this.value; render(); };
   if((e=q('#rpShSec'))) e.onchange=function(){ OPT.shSec=this.value; render(); };
+  if((e=q('#rpDoneF'))) e.onchange=function(){ OPT.doneFrom=this.value; render(); };
+  if((e=q('#rpDoneT'))) e.onchange=function(){ OPT.doneTo=this.value; render(); };
+  if((e=q('#rpDoneAll'))) e.onclick=function(){ var d=X.DAYS.slice().sort(function(a,b){
+    return a.date<b.date?-1:(a.date>b.date?1:0); });
+    OPT.doneFrom=d[0].date; OPT.doneTo=d[d.length-1].date; render(); };
 }
 function step(n){
   var d=dayTotals(), i=-1;
@@ -6503,6 +6624,16 @@ function pack(){
       when?Math.round((dOf(todayISO())-dOf(when))/86400000):'']);
   });
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s5),'Outstanding');
+
+  var doneSel=X.DAYS.filter(function(e){ return !OPT.doneFrom || !OPT.doneTo ||
+    (e.date>=OPT.doneFrom && e.date<=OPT.doneTo); });
+  var s5b=[['Date','Kind','Section','Chainage from','Chainage to','Record','Type',
+            'Description','Quantity','Unit','Rate','Value']];
+  doneRows(doneSel.length?doneSel:X.DAYS).forEach(function(x){
+    s5b.push([x.date,x.kind,x.sec,x.chA,x.chB==null?'':x.chB,x.rec,x.type,x.desc,
+      x.qty,x.unit,x.rate==null?'':x.rate,x.val==null?'':x.val]);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s5b),'Completed in period');
 
   var s6=[['Date','Toolbox','Topic','Personnel','Incident','Lost h','Downtime h','Crew hours','Detail']];
   X.DAYS.forEach(function(e){ var sf=e.safety||{};
