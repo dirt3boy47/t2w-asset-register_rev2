@@ -8860,23 +8860,58 @@ function looksLikeXlsx(buf){
   var b=new Uint8Array(buf,0,4);
   return b[0]===0x50 && b[1]===0x4b;                 /* PK: xlsx is a zip */
 }
+/* Every fetch here is bounded. Without a timeout, one candidate name that
+   hangs - a slow cold start on the host, a route that never resolves - stalls
+   every name behind it forever, and because sync() sets BUSY before it starts,
+   a stuck fetch means BUSY never clears and nothing ever retries again. That
+   is a dead loader that looks, from the chip, exactly like "still checking".
+   A timeout guarantees this always finishes, one way or another, in bounded
+   time - the fetch actually finding the file is a separate concern from the
+   loader being alive. */
+var FETCH_TIMEOUT_MS=6000, BATCH=4;
 function fetchOne(url){
-  return fetch(encodeURI(url)+'?v='+Date.now(),{cache:'no-store'})
+  var ac=(typeof AbortController!=='undefined')?new AbortController():null;
+  var t=ac?setTimeout(function(){ ac.abort(); },FETCH_TIMEOUT_MS):null;
+  return fetch(encodeURI(url)+'?v='+Date.now(),
+      Object.assign({cache:'no-store'}, ac?{signal:ac.signal}:{}))
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.arrayBuffer(); })
     .then(function(buf){
       if(!looksLikeXlsx(buf)) throw new Error('not a workbook');
       return {bytes:new Uint8Array(buf),url:url};
+    })
+    .catch(function(e){
+      throw new Error(e && e.name==='AbortError'
+        ? 'timed out after '+(FETCH_TIMEOUT_MS/1000)+'s' : (e?e.message:'failed'));
+    })
+    .then(function(v){ if(t) clearTimeout(t); return v; },
+          function(e){ if(t) clearTimeout(t); throw e; });
+}
+/* Candidates are tried in small parallel batches rather than one at a time -
+   both so a bad name can't queue up behind the others, and so discovery is
+   fast even when the list is long. First one that resolves to a real
+   workbook wins; everything else in flight is left to fail quietly. */
+function raceFirst(fns){
+  return new Promise(function(resolve,reject){
+    var left=fns.length, lastErr=null;
+    if(!left){ reject(new Error('nothing to try')); return; }
+    fns.forEach(function(fn){
+      fn().then(resolve, function(e){
+        lastErr=e; left--; if(left===0) reject(lastErr);
+      });
     });
+  });
 }
 function findWorkbook(){
-  var list=candidates(), i=0;
-  TRIED=[];
-  function next(){
-    if(i>=list.length) return Promise.reject(new Error('none of the names matched'));
-    var u=list[i++]; TRIED.push(u);
-    return fetchOne(u).catch(next);
+  var list=candidates();
+  TRIED=list.slice();
+  var batches=[];
+  for(var i=0;i<list.length;i+=BATCH) batches.push(list.slice(i,i+BATCH));
+  function tryBatch(idx){
+    if(idx>=batches.length) return Promise.reject(new Error('none of the names matched'));
+    var fns=batches[idx].map(function(u){ return function(){ return fetchOne(u); }; });
+    return raceFirst(fns).catch(function(){ return tryBatch(idx+1); });
   }
-  return next();
+  return tryBatch(0);
 }
 function loadJson(){
   return fetch('data.json?v='+Date.now(),{cache:'no-store'})
@@ -8999,15 +9034,25 @@ function fail(err){
   if(typeof window.dataError==='function')
     window.dataError('No workbook and no snapshot could be read. '+(err?err.message:''));
 }
+/* If a fetch somehow still doesn't settle - a proxy that holds the
+   connection open without ever completing or erroring, which no client-side
+   timeout can fully rule out - this is the backstop. A page that has been
+   "reading the workbook" for longer than any real read should take is
+   treated as stuck, not busy, and the next check is allowed through. */
+var BUSY_SINCE=0;
 function sync(force){
-  if(BUSY) return;
+  if(BUSY){
+    if(Date.now()-BUSY_SINCE < (FETCH_TIMEOUT_MS*3+5000)) return;
+    console.warn('workbook sync: previous check never finished, retrying anyway');
+    BUSY=false;
+  }
   if(window.WB && window.WB.bytes){
     STATE={ok:true,src:'open',url:window.WB.name||'',days:STATE.days,
       msg:'using the workbook you opened'};
     paint(); banner(); return;
   }
-  if(!force && Date.now()-LAST<45000) return;
-  BUSY=true; LAST=Date.now();
+  if(!force && STATE.ok && Date.now()-LAST<45000) return;
+  BUSY=true; BUSY_SINCE=Date.now(); LAST=Date.now();
   STATE.msg='reading the workbook\u2026'; paint();
   findWorkbook().then(function(got){
     var res=fromWorkbook(got);
@@ -9153,6 +9198,12 @@ document.addEventListener('DOMContentLoaded',function(){
   var eodBtn=document.querySelector('nav.tabs button[data-tab="eod"]');
   if(eodBtn) eodBtn.addEventListener('click',function(){ setTimeout(yesterday,60); });
   setInterval(function(){ yesterday(); },2500);
+  /* keep trying on its own while it has not yet found the workbook, rather
+     than leaving it sitting on a failure until someone happens to switch tabs
+     or click the chip */
+  setInterval(function(){
+    if(!STATE.ok && STATE.src!=='open') sync(false);
+  },15000);
 });
 
 window.WBSYNC={ boot:boot, reload:function(){ sync(true); }, state:function(){ return STATE; },
