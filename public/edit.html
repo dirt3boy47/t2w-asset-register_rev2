@@ -4286,7 +4286,15 @@ function buildEOD(){
       '<div class="none" id="eodNone-'+sec+'"></div>'+
       '<div class="pabar" id="eodBLBar-'+sec+'"></div>'+
       '<div class="tblWrap scroll pawrap hide" id="eodBLWrap-'+sec+'">'+
-        '<table class="wide eodpa" id="eodBL-'+sec+'"><thead></thead><tbody></tbody></table></div>';
+        '<table class="wide eodpa" id="eodBL-'+sec+'"><thead></thead><tbody></tbody></table></div>'+
+      '<div class="pabar" id="eodAHBar-'+sec+'"></div>'+
+      '<div class="tblWrap scroll pawrap hide" id="eodAHWrap-'+sec+'">'+
+        '<div id="eodAHFilter-'+sec+'"></div>'+
+        '<table class="wide eodpa" id="eodAH-'+sec+'"><thead></thead><tbody></tbody></table></div>'+
+      '<div class="pabar" id="eodTPBar-'+sec+'"></div>'+
+      '<div class="tblWrap scroll pawrap hide" id="eodTPWrap-'+sec+'">'+
+        '<div id="eodTPFilter-'+sec+'"></div>'+
+        '<table class="wide eodpa" id="eodTP-'+sec+'"><thead></thead><tbody></tbody></table></div>';
     host.appendChild(card);
 
     /* chainage and metres fill each other, so either can be typed */
@@ -4413,6 +4421,286 @@ function eodBLRender(sec){
   tb.appendChild(frag);
 }
 
+/* ---------- ahead of the front ----------
+   The backlog list above looks behind the front, for work that should
+   already be done. This looks the other way: work the crew has physically
+   finished ahead of where the trench or pipe front officially sits - a
+   thrust bore done early because access allowed it, while the front itself
+   is still a long way back. Found by asset type and an optional chainage
+   limit rather than shown as one long list of everything left in the
+   section, which on a full alignment would run to thousands of rows. */
+function eodAheadAll(sec){
+  if(!EODBUILT) return [];
+  var tf=baseFront(sec), pf=EODPIPE[sec]||0;
+  return PA.filter(function(p){
+    if(p.sec!==sec || ST.paDone[p.key]) return false;
+    var f=(p.drv==='PIPE')?pf:tf;
+    return p.ch>f+1e-9;
+  }).sort(function(a,b){ return a.ch-b.ch; });
+}
+var EODAH={}, EODAHF={};                 /* per-section: open? and {type, to} */
+function eodAheadFiltered(sec){
+  var all=eodAheadAll(sec), f=EODAHF[sec]||{};
+  return all.filter(function(p){
+    if(f.type && labelOf(p.type)!==f.type) return false;
+    if(f.to!=null && p.ch>f.to+1e-9) return false;
+    return true;
+  });
+}
+function eodAhRender(sec){
+  var bar=q('#eodAHBar-'+sec), wrap=q('#eodAHWrap-'+sec);
+  if(!bar||!wrap) return;
+  var all=eodAheadAll(sec);
+  if(!all.length){ bar.innerHTML=''; wrap.classList.add('hide'); return; }
+
+  var f=EODAHF[sec]||(EODAHF[sec]={type:'',to:null});
+  var shown=eodAheadFiltered(sec);
+  var on=all.filter(function(a){ return EODTICK[a.key]; });
+  function val(l){ return l.reduce(function(t,a){
+    var r=rateOf(a); return t+(r==null?0:r*qtyOf(a)); },0); }
+  var open=!!EODAH[sec];
+  bar.innerHTML='<span class="n"><b>'+all.length+'</b> point asset'+(all.length===1?'':'s')+
+    ' still ahead of the front, not yet reached'+
+    (on.length?' \u00b7 <b>'+on.length+'</b> logged as done ahead of schedule ('+money(val(on))+')':'')+
+    '</span>';
+  var b0=ce('button','btn sec',open?'Hide':'Find work done ahead');
+  b0.addEventListener('click',function(){ EODAH[sec]=!open; eodRender(sec); });
+  bar.appendChild(b0);
+  if(on.length){
+    var b3=ce('button','btn sec','Untick all ahead');
+    b3.addEventListener('click',function(){
+      all.forEach(function(a){ EODTICK[a.key]=false; }); eodRender(sec); });
+    bar.appendChild(b3);
+  }
+
+  wrap.classList.toggle('hide',!open);
+  if(!open) return;
+
+  var fh=q('#eodAHFilter-'+sec);
+  var types=[]; all.forEach(function(a){ var l=labelOf(a.type); if(types.indexOf(l)<0) types.push(l); });
+  types.sort();
+  fh.innerHTML='<div class="fgrid">'+
+    '<div class="f"><label>Asset type</label><select id="eodAHType-'+sec+'">'+
+      '<option value="">All types ahead ('+all.length+')</option>'+
+      types.map(function(t){ var n=all.filter(function(a){ return labelOf(a.type)===t; }).length;
+        return '<option value="'+t.replace(/"/g,'&quot;')+'"'+(f.type===t?' selected':'')+'>'+
+          t+' ('+n+')</option>'; }).join('')+
+      '</select></div>'+
+    '<div class="f"><label>Up to chainage (optional)</label>'+
+      '<input type="number" step="0.001" min="0" id="eodAHTo-'+sec+'" placeholder="e.g. 3000"'+
+      (f.to!=null?' value="'+f.to+'"':'')+'></div>'+
+    '<div class="f"><label>&nbsp;</label><button class="btn sec" id="eodAHTickShown-'+sec+
+      '">Tick all shown</button></div>'+
+    '</div>'+
+    (f.type||f.to!=null?'<p class="hint">'+shown.length+' of '+all.length+
+      ' match this filter.</p>':'<p class="hint">Pick a type (or a chainage limit) to keep the list '+
+      'to a manageable size \u2014 the whole alignment ahead of the front can run to thousands of '+
+      'items.</p>');
+  q('#eodAHType-'+sec).addEventListener('change',function(){ f.type=this.value; eodAhRender(sec); });
+  q('#eodAHTo-'+sec).addEventListener('input',function(){
+    var v=numOf(this); f.to=v; eodAhRender(sec); });
+  q('#eodAHTickShown-'+sec).addEventListener('click',function(){
+    shown.forEach(function(a){ EODTICK[a.key]=true; }); eodRender(sec); });
+
+  var th=q('#eodAH-'+sec+' thead'), tb=q('#eodAH-'+sec+' tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th></th><th>Record</th><th class="num">Chainage m</th>'+
+      '<th class="num">Ahead by</th><th>Driver</th><th>Asset type</th><th>Type / item</th>'+
+      '<th class="num">Cost</th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  if(!shown.length){
+    tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--mid);padding:12px">'+
+      'Nothing ahead of the front matches that filter.</td></tr>';
+    return;
+  }
+  var frag=document.createDocumentFragment();
+  var tf=baseFront(sec), pf=EODPIPE[sec]||0;
+  shown.slice(0,300).forEach(function(a){
+    var ison=!!EODTICK[a.key], rate=rateOf(a);
+    var front=(a.drv==='PIPE')?pf:tf;
+    var tr=document.createElement('tr'); tr.className=ison?'on':'off';
+    function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
+      if(v&&v.nodeType) c.appendChild(v); else c.innerHTML=v; tr.appendChild(c); }
+    var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=ison;
+    cb.title='Log '+a.key+' as done ahead of schedule, today';
+    cb.addEventListener('change',function(){
+      EODTICK[a.key]=cb.checked; tr.className=cb.checked?'on':'off';
+      eodAhRender(sec); eodTally();
+    });
+    td(cb,'tick-col');
+    td(a.key); td(m1(a.ch),'num'); td('+'+m1(Math.max(a.ch-front,0))+' m','num'); td(a.drv);
+    td(labelOf(a.type));
+    td(a.item ? (a.ud+' \u00b7 '+a.item)
+              : (a.cls || (a.vt?('type '+a.vt):'') || a.name || ''));
+    td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(a)),'num');
+    frag.appendChild(tr);
+  });
+  tb.appendChild(frag);
+  if(shown.length>300) tb.insertAdjacentHTML('beforeend',
+    '<tr><td colspan="8" style="text-align:center;color:var(--mid);padding:10px">'+
+    'showing the first 300 of '+shown.length+' \u2014 narrow the filter to see the rest</td></tr>');
+}
+
+/* ---------- trench & pipe done ahead of the front ----------
+   The tool above finds discrete point assets ahead of the front. Trench and
+   pipe are not discrete - progress is a metre count per trench-type zone -
+   so this works differently: search a chainage range, and for whichever
+   design zone(s) that range touches, type the metres actually complete in
+   each. Nothing here disturbs the zones between the front and the searched
+   range, and nothing here disturbs the front itself - computeFront() only
+   ever stops at the first zone that is not fully done, so a zone finished
+   out of sequence further along is correctly counted (it prices and reports
+   like any other work) without ever being mistaken for the front having
+   moved. Values only ever grow here, same rule as everywhere else. */
+var EODTP={};                      /* per-section search range: {from, to} */
+var EODTPOPEN={};                  /* per-section: is the tool expanded */
+var EODTPV={};                     /* zone key -> {t:newTDone|null, p:newPDone|null} */
+function eodTPZonesAll(sec){
+  return T.filter(function(t){ return t.sec===sec; }).sort(function(a,b){ return a.s-b.s; });
+}
+function eodTPOutstanding(sec){
+  var tf=baseFront(sec);
+  return eodTPZonesAll(sec).filter(function(t){
+    return t.s>=tf-1e-9 && (tDone(t)<t.len-1e-9 || pDone(t)<t.len-1e-9);
+  });
+}
+function eodTPFiltered(sec){
+  var f=EODTP[sec]||{}, all=eodTPZonesAll(sec), tf=baseFront(sec);
+  if(f.from==null && f.to==null) return [];
+  var lo=f.from!=null?f.from:tf, hi=f.to!=null?f.to:Infinity;
+  return all.filter(function(t){ return t.e>lo-1e-9 && t.s<hi+1e-9; });
+}
+function eodTPStagedCount(sec){
+  var n=0;
+  eodTPZonesAll(sec).forEach(function(t){
+    var v=EODTPV[t.key]; if(!v) return;
+    if((v.t!=null && v.t>tDone(t)) || (v.p!=null && v.p>pDone(t))) n++;
+  });
+  return n;
+}
+function eodTPStagedValue(sec){
+  var v=0;
+  eodTPZonesAll(sec).forEach(function(t){
+    var g=EODTPV[t.key]; if(!g) return;
+    var curT=tDone(t), curP=pDone(t);
+    var dt=(g.t!=null && g.t>curT)?g.t-curT:0, dp=(g.p!=null && g.p>curP)?g.p-curP:0;
+    var tr=ST.tRate[sec+'|'+t.tt], pr=ST.pRate[sec+'|'+ST.pipeType[sec]];
+    v+=(tr!=null?dt*tr:0)+(pr!=null?dp*pr:0);
+  });
+  return v;
+}
+function eodTPRender(sec){
+  var bar=q('#eodTPBar-'+sec), wrap=q('#eodTPWrap-'+sec);
+  if(!bar||!wrap) return;
+  var outstanding=eodTPOutstanding(sec);
+  if(!outstanding.length){ bar.innerHTML=''; wrap.classList.add('hide'); return; }
+
+  var staged=eodTPStagedCount(sec), val=eodTPStagedValue(sec);
+  var open=!!EODTPOPEN[sec];
+  bar.innerHTML='<span class="n"><b>'+outstanding.length+'</b> trench zone'+
+    (outstanding.length===1?'':'s')+' ahead of the front not yet complete'+
+    (staged?' \u00b7 <b>'+staged+'</b> logged ahead of schedule ('+money(val)+')':'')+'</span>';
+  var b0=ce('button','btn sec',open?'Hide':'Log trench / pipe done ahead');
+  b0.addEventListener('click',function(){ EODTPOPEN[sec]=!open; eodRender(sec); });
+  bar.appendChild(b0);
+  if(staged){
+    var b1=ce('button','btn sec','Clear logged values');
+    b1.addEventListener('click',function(){
+      eodTPZonesAll(sec).forEach(function(t){ delete EODTPV[t.key]; }); eodRender(sec); });
+    bar.appendChild(b1);
+  }
+
+  wrap.classList.toggle('hide',!open);
+  if(!open) return;
+
+  var f=EODTP[sec]||(EODTP[sec]={from:null,to:null});
+  var ext=EXT[sec], tf=baseFront(sec);
+  var fh=q('#eodTPFilter-'+sec);
+  fh.innerHTML='<div class="fgrid">'+
+    '<div class="f"><label>From chainage</label>'+
+      '<input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+'" id="eodTPFrom-'+sec+
+      '" placeholder="front is '+m1(tf)+' m"'+(f.from!=null?' value="'+f.from+'"':'')+'></div>'+
+    '<div class="f"><label>To chainage</label>'+
+      '<input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+'" id="eodTPTo-'+sec+
+      '" placeholder="e.g. '+m1(Math.min(tf+2000,ext))+'"'+(f.to!=null?' value="'+f.to+'"':'')+'></div>'+
+    '</div>';
+  q('#eodTPFrom-'+sec).addEventListener('input',function(){
+    f.from=numOf(this); eodRender(sec); });
+  q('#eodTPTo-'+sec).addEventListener('input',function(){
+    f.to=numOf(this); eodRender(sec); });
+
+  var shown=eodTPFiltered(sec);
+  var th=q('#eodTP-'+sec+' thead'), tb=q('#eodTP-'+sec+' tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th>Zone</th><th class="num">Trench type</th>'+
+      '<th class="num">Trench done / len m</th><th>Trench m complete</th>'+
+      '<th class="num">Pipe done / len m</th><th>Pipe m complete</th>'+
+      '<th class="num">Value</th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  if(f.from==null && f.to==null){
+    tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--mid);padding:12px">'+
+      'Enter a chainage range above to find the design zones it covers.</td></tr>';
+    return;
+  }
+  if(!shown.length){
+    tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--mid);padding:12px">'+
+      'No design zones fall in that range.</td></tr>';
+    return;
+  }
+  var frag=document.createDocumentFragment();
+  shown.forEach(function(t){
+    var curT=tDone(t), curP=pDone(t), g=EODTPV[t.key]||{};
+    var tr=document.createElement('tr');
+    tr.className=(g.t!=null&&g.t>curT)||(g.p!=null&&g.p>curP)?'on':'off';
+    function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
+      if(v&&v.nodeType) c.appendChild(v); else c.innerHTML=v; tr.appendChild(c); }
+    td(m1(t.s)+'\u2013'+m1(t.e)+' m','mono');
+    td(t.tt,'num');
+    td(m1(curT)+' / '+m1(t.len),'num');
+    var it=document.createElement('input');
+    it.type='number'; it.step='0.001'; it.min=curT; it.max=t.len;
+    it.placeholder=m1(curT); if(g.t!=null) it.value=g.t;
+    it.addEventListener('input',function(){
+      var v=numOf(it);
+      var e=EODTPV[t.key]||(EODTPV[t.key]={t:null,p:null});
+      e.t=(v!=null && v>curT)?Math.min(v,t.len):null;
+      eodTPBarOnly(sec); eodTally();
+    });
+    td(it);
+    td(m1(curP)+' / '+m1(t.len),'num');
+    var ip=document.createElement('input');
+    ip.type='number'; ip.step='0.001'; ip.min=curP; ip.max=t.len;
+    ip.placeholder=m1(curP); if(g.p!=null) ip.value=g.p;
+    ip.addEventListener('input',function(){
+      var v=numOf(ip);
+      var e=EODTPV[t.key]||(EODTPV[t.key]={t:null,p:null});
+      e.p=(v!=null && v>curP)?Math.min(v,t.len):null;
+      eodTPBarOnly(sec); eodTally();
+    });
+    td(ip);
+    var tRate=ST.tRate[sec+'|'+t.tt], pRate=ST.pRate[sec+'|'+ST.pipeType[sec]];
+    var vEl=ce('span','','\u2014'); vEl.id='eodTPVal-'+t.key;
+    td(vEl,'num');
+    frag.appendChild(tr);
+  });
+  tb.appendChild(frag);
+}
+/* refresh just the summary bar (not the whole zone list, which would drop focus
+   from the input the person is mid-typing in) */
+function eodTPBarOnly(sec){
+  var bar=q('#eodTPBar-'+sec); if(!bar) return;
+  var outstanding=eodTPOutstanding(sec);
+  var staged=eodTPStagedCount(sec), val=eodTPStagedValue(sec);
+  var n=bar.querySelector('.n');
+  if(n) n.innerHTML='<b>'+outstanding.length+'</b> trench zone'+(outstanding.length===1?'':'s')+
+    ' ahead of the front not yet complete'+
+    (staged?' \u00b7 <b>'+staged+'</b> logged ahead of schedule ('+money(val)+')':'');
+}
+
 function eodRender(only){
   if(!EODBUILT) return;
   var secs = only ? [only] : SECS;
@@ -4479,6 +4767,8 @@ function eodRender(only){
     q('#eodPAWrap-'+sec).classList.toggle('hide',!list.length);
     eodPABar(sec);
     eodBLRender(sec);
+    eodAhRender(sec);
+    eodTPRender(sec);
 
     var n=q('#eodNone-'+sec);
     if(!list.length){
@@ -4542,8 +4832,8 @@ function eodDupCheck(){
 
 /* what the form currently claims, without changing anything */
 function eodDraft(){
-  var rows=[], mT=0,mP=0,items=0,earn=0,dcost=0, bad=false, catchup=0;
-  if(!EODBUILT) return {rows:rows,mT:0,mP:0,items:0,earn:0,dcost:0,catchup:0,
+  var rows=[], mT=0,mP=0,items=0,earn=0,dcost=0, bad=false, catchup=0, ahead=0, tpZones=0;
+  if(!EODBUILT) return {rows:rows,mT:0,mP:0,items:0,earn:0,dcost:0,catchup:0,ahead:0,tpZones:0,
                         plant:0,plantMissing:[],cost:0,profit:0,margin:null,bad:false};
   SECS.forEach(function(sec){
     var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
@@ -4555,8 +4845,27 @@ function eodDraft(){
     var pto = (p!=null && p>=pfrom && p<=cap) ? p : pfrom;
     var newGround=eodAssetsFor(sec).filter(function(a){ return EODTICK[a.key]; });
     var caught=eodBacklogFor(sec).filter(function(a){ return EODTICK[a.key]; });
-    var picked=newGround.concat(caught);
-    catchup+=caught.length;
+    var ahd=eodAheadAll(sec).filter(function(a){ return EODTICK[a.key]; });
+    var picked=newGround.concat(caught).concat(ahd);
+    catchup+=caught.length; ahead+=ahd.length;
+    var tpRows=[];
+    eodTPZonesAll(sec).forEach(function(t){
+      var g=EODTPV[t.key]; if(!g) return;
+      var curT=tDone(t), curP=pDone(t);
+      var wantT=(g.t!=null && g.t>curT)?Math.min(g.t,t.len):null;
+      var wantP=(g.p!=null && g.p>curP)?Math.min(g.p,t.len):null;
+      if(wantT==null && wantP==null) return;
+      var zdt=wantT!=null?wantT-curT:0, zdp=wantP!=null?wantP-curP:0;
+      var ztr=ST.tRate[sec+'|'+t.tt], zpr=ST.pRate[sec+'|'+ST.pipeType[sec]];
+      var ztc=ST.tCost[sec+'|'+t.tt], zpc=ST.pCost[sec+'|'+ST.pipeType[sec]];
+      var ze=(ztr!=null?zdt*ztr:0)+(zpr!=null?zdp*zpr:0);
+      var zc=(ztc!=null?zdt*ztc:0)+(zpc!=null?zdp*zpc:0);
+      tpRows.push({sec:sec,from:t.s+curT,to:t.s+(wantT!=null?wantT:curT),
+        pfrom:t.s+curP,pto:t.s+(wantP!=null?wantP:curP),dt:zdt,dp:zdp,
+        items:0,picked:[],earn:ze,cost:zc,kind:'ahead',zoneKey:t.key,
+        wantT:wantT,wantP:wantP});
+      tpZones++;
+    });
     var e=0, c=0;
     /* the same quantities twice: once at the client rate, once at ours */
     T.forEach(function(x){
@@ -4580,11 +4889,15 @@ function eodDraft(){
                  dt:to-from,dp:pto-pfrom,picked:picked,earn:e,cost:c});
       mT+=to-from; mP+=pto-pfrom; items+=picked.length; earn+=e; dcost+=c;
     }
+    tpRows.forEach(function(zr){
+      rows.push(zr);
+      mT+=zr.dt; mP+=zr.dp; earn+=zr.earn; dcost+=zr.cost;
+    });
   });
   var pl=plantCostOf(PLANT);
   var total=dcost+pl.cost;
-  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,dcost:dcost,catchup:catchup,
-          plant:pl.cost,plantMissing:pl.missing,cost:total,
+  return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,dcost:dcost,catchup:catchup,ahead:ahead,
+          tpZones:tpZones,plant:pl.cost,plantMissing:pl.missing,cost:total,
           profit:earn-total, margin:(earn>0?(earn-total)/earn:null), bad:bad};
 }
 
@@ -4596,7 +4909,10 @@ function eodTally(){
   host.innerHTML=
     '<div><div class="k">Earned today</div><div class="v">'+money(d.earn)+'</div>'+
       '<div class="s">'+m1(d.mT)+' m trench \u00b7 '+m1(d.mP)+' m pipe \u00b7 '+d.items+' item(s)'+
-      (d.catchup?' \u00b7 '+d.catchup+' caught up from behind the front':'')+'</div></div>'+
+      (d.catchup?' \u00b7 '+d.catchup+' caught up from behind the front':'')+
+      (d.ahead?' \u00b7 '+d.ahead+' done ahead of schedule':'')+
+      (d.tpZones?' \u00b7 '+d.tpZones+' trench/pipe zone'+(d.tpZones===1?'':'s')+
+        ' done ahead of schedule':'')+'</div></div>'+
     '<div><div class="k">Our cost</div><div class="v">'+money(d.dcost)+'</div>'+
       '<div class="s">trench, pipe and items at cost</div></div>'+
     '<div><div class="k">Plant and labour</div><div class="v">'+money(d.plant)+'</div>'+
@@ -4627,6 +4943,16 @@ function eodApply(){
   if(d.bad||!d.rows.length) return null;
   var snap={tDone:{},pDone:{},paDone:{}};
   d.rows.forEach(function(row){
+    if(row.kind==='ahead'){
+      var zt=null; T.forEach(function(x){ if(x.key===row.zoneKey) zt=x; });
+      if(zt){
+        if(row.wantT!=null && row.wantT>tDone(zt)){
+          snap.tDone[zt.key]=ST.tDone[zt.key]||0; ST.tDone[zt.key]=row.wantT; }
+        if(row.wantP!=null && row.wantP>pDone(zt)){
+          snap.pDone[zt.key]=ST.pDone[zt.key]||0; ST.pDone[zt.key]=row.wantP; }
+      }
+      return;
+    }
     T.forEach(function(t){
       if(t.sec!==row.sec) return;
       var wantT=Math.min(Math.max(row.to-t.s,0),t.len);
@@ -4641,7 +4967,7 @@ function eodApply(){
   var entry=eodEntryFromForm(d);
   entry.snap=snap;
   DAYS.push(entry);
-  EODTICK={};
+  EODTICK={}; EODTPV={};
   ['eodTCh','eodTM','eodPCh','eodPM'].forEach(function(p){
     SECS.forEach(function(s){ var e=q('#'+p+'-'+s); if(e) e.value=''; });
   });
