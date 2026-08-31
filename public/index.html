@@ -1986,10 +1986,20 @@ function loadWorkbook(file){
   var fr=new FileReader();
   fr.onload=function(ev){
     try{
-      var wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+      var bytes=new Uint8Array(ev.target.result);
+      var wb=XLSX.read(bytes,{type:'array'});
       var src=rebuild(wb);
       setData(src);
-      toast('Loaded '+src.rows.length.toLocaleString('en-AU')+' records from '+file.name);
+      /* rebuild(wb) above only reads the asset list back out. The day log, the
+         metres already recorded against each trench section, the rates and
+         the Complete flags all live elsewhere in this same workbook - and
+         until now nothing on this path ever read them, so opening the real
+         file still showed an empty Reports tab. This is the one call that
+         reads all of it, the same one the auto-fetch path already used. */
+      var hy=(window.COSTS&&window.COSTS.hydrate)?window.COSTS.hydrate(bytes,file.name):{ok:false,days:0};
+      toast('Loaded '+src.rows.length.toLocaleString('en-AU')+' records'+
+            (hy.ok&&hy.days?' and '+hy.days+' recorded day'+(hy.days===1?'':'s'):'')+
+            ' from '+file.name);
     }catch(err){
       console.error(err);
       toast('Could not read that file — '+err.message);

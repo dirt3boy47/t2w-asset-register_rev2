@@ -3015,6 +3015,14 @@ function ingestWorkbook(file, handle){
       setData(src);
       indexKeys(wb);
       WB.bytes=bytes; WB.name=file.name; WB.handle=handle||null;
+      /* rebuild(wb) above only reads the asset list back out. The day log, the
+         metres already recorded against each trench section, the rates and
+         the Complete flags all live elsewhere in this same workbook - and
+         until now nothing on this path ever read them, so opening the real
+         file still showed an empty Reports tab. This is the one call that
+         reads all of it, the same one the auto-fetch path already used. */
+      var hy=(window.COSTS&&window.COSTS.hydrate)?window.COSTS.hydrate(bytes,file.name):{ok:false,days:0};
+      SEEDED=bytes;                    /* the older lazy seed on the Costs tab can stand down */
       buildHeaderMap();
       refreshEditUI();
       /* setData already rendered the table, but that happened before WB.bytes was
@@ -3023,8 +3031,9 @@ function ingestWorkbook(file, handle){
       apply();
       ready();
       if(typeof clearSel==='function') clearSel();
-    toast('Loaded '+src.rows.length.toLocaleString('en-AU')+' records — editing enabled'+
-            (WB.handle?'':' (saves will download a copy)'));
+    toast('Loaded '+src.rows.length.toLocaleString('en-AU')+' records'+
+            (hy.ok&&hy.days?' and '+hy.days+' recorded day'+(hy.days===1?'':'s'):'')+
+            ' — editing enabled'+(WB.handle?'':' (saves will download a copy)'));
     }catch(err){
       console.error(err); toast('Could not read that file — '+err.message);
     }
