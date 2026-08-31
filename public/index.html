@@ -521,90 +521,6 @@ tbody tr.picked:hover{background:#d7e8f4}
   #tab-reports .rstg .v{width:auto;flex:1}
 }
 </style>
-<style id="clm-css">
-/* ---------- Claims tab ---------- */
-#tab-claims .cnav{display:flex;flex-wrap:wrap;gap:6px}
-#tab-claims .cnav button{border:1px solid #c3ccd7;background:#fff;border-radius:20px;
-  padding:6px 13px;font-size:12.5px;cursor:pointer;white-space:nowrap}
-#tab-claims .cnav button:hover{border-color:var(--accent);color:var(--accent)}
-#tab-claims .cnav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
-
-#tab-claims .cform{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;align-items:end}
-#tab-claims .cform > div{display:flex;flex-direction:column;min-width:0}
-#tab-claims .cform label{font-size:11px;font-weight:600;text-transform:uppercase;
-  letter-spacing:.5px;color:var(--mid);margin-bottom:5px}
-#tab-claims .cform input,#tab-claims .cform select,#tab-claims .cform textarea{
-  padding:9px 10px;border:1px solid #c3ccd7;border-radius:6px;background:#fff;width:100%;
-  font:inherit;color:inherit}
-#tab-claims .cform input:focus,#tab-claims .cform select:focus{outline:2px solid var(--accent);
-  outline-offset:-1px}
-#tab-claims .cform .wide{grid-column:span 2}
-
-#tab-claims .ccards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px}
-#tab-claims .ccard{border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:#fbfcfe}
-#tab-claims .ccard .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--mid)}
-#tab-claims .ccard .v{font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;
-  margin-top:3px;white-space:nowrap;line-height:1.15}
-#tab-claims .ccard .s{font-size:11.5px;color:var(--mid);margin-top:3px;line-height:1.45}
-#tab-claims .ccard.lead{background:var(--navy);border-color:var(--navy);color:#fff}
-#tab-claims .ccard.lead .l,#tab-claims .ccard.lead .s{color:#a9bdd4}
-#tab-claims .ccard.bad .v{color:var(--danger)}
-#tab-claims .ccard.good .v{color:#1f6b43}
-#tab-claims .ccard.warn .v{color:#8a6508}
-
-/* the certificate face */
-#tab-claims .cert{max-width:820px;font-variant-numeric:tabular-nums}
-#tab-claims .cert .ln{display:grid;grid-template-columns:34px 1fr 150px;gap:10px;
-  padding:8px 0;border-bottom:1px solid #edf0f4;font-size:13.5px;align-items:baseline}
-#tab-claims .cert .ln .k{color:var(--mid);font-size:11.5px;font-weight:600}
-#tab-claims .cert .ln .n{text-align:right;white-space:nowrap}
-#tab-claims .cert .ln .d small{display:block;color:var(--mid);font-size:11.5px;margin-top:2px}
-#tab-claims .cert .ln.sub{background:#f7fafc;font-weight:600;padding-left:6px;padding-right:6px}
-#tab-claims .cert .ln.tot{border-top:2px solid var(--navy);border-bottom:2px solid var(--navy);
-  font-weight:700;font-size:15px;margin-top:4px}
-#tab-claims .cert .ln.neg .n{color:var(--danger)}
-#tab-claims .chead{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-  gap:9px 20px;font-size:12.5px;margin-bottom:14px}
-#tab-claims .chead div span{display:block;font-size:10.5px;text-transform:uppercase;
-  letter-spacing:.5px;color:var(--mid)}
-#tab-claims .chead div b{font-weight:600}
-
-#tab-claims .cnote{font-size:12px;color:var(--mid);line-height:1.6;max-width:96ch;margin:0 0 12px}
-#tab-claims .cnote b{color:var(--ink)}
-#tab-claims .cnote:last-child{margin-bottom:0}
-#tab-claims .cwarn{background:var(--warn-bg);border:1px solid #e8d9a8;border-radius:7px;
-  padding:10px 13px;font-size:12.5px;color:#7a5a07;margin:0 0 12px}
-#tab-claims .cbad{background:#fdf3f2;border:1px solid #e0b6b6;border-radius:7px;
-  padding:10px 13px;font-size:12.5px;color:#8a2b2b;margin:0 0 12px}
-#tab-claims tbody tr{cursor:default}
-#tab-claims tbody tr:hover{background:#f7fafc}
-#tab-claims tbody tr.sel{background:#dceaf4}
-#tab-claims .cbar{height:7px;border-radius:4px;background:#e6ebf1;overflow:hidden;margin-top:4px}
-#tab-claims .cbar > i{display:block;height:100%;background:#2f8f5b}
-#tab-claims .rowdel{color:var(--danger);cursor:pointer;font-weight:700;font-size:15px;line-height:1}
-#tab-claims .sign{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:40px;
-  font-size:12px;color:var(--mid)}
-#tab-claims .sign div{border-top:1px solid #999;padding-top:5px}
-#clmPrintHead{display:none}
-#clmPrintHead h2{font-size:15pt;margin-bottom:3px}
-#clmPrintHead .pf{font-size:9.5pt;color:#333}
-@media print{
-  #tab-claims .cnav,#tab-claims .cform,#tab-claims .rowdel{display:none!important}
-  #clmPrintHead{display:block!important;margin-bottom:12px}
-  #tab-claims .panel > h2{display:block!important;font-size:9pt;color:#000;
-    border-bottom:1px solid #999;padding:4px 0;letter-spacing:.5px}
-  #tab-claims .ccard{border:1px solid #bbb}
-  #tab-claims .cert{max-width:none}
-  #tab-claims .cert .ln.tot{border-color:#000}
-  #tab-claims .ccards,#tab-claims .cert{page-break-inside:avoid}
-  @page{size:A4 portrait;margin:14mm}
-}
-@media (max-width:820px){
-  #tab-claims .cert .ln{grid-template-columns:26px 1fr 110px;font-size:12.5px}
-  #tab-claims .cform .wide{grid-column:span 1}
-}
-</style>
 <style id="yd-css">
 #tab-eod .ydhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:11px}
 #tab-eod .ydhead b{font-size:15px}
@@ -643,7 +559,6 @@ tbody tr.picked:hover{background:#d7e8f4}
   <button data-tab="eod">End of day</button>
   <button data-tab="plr">Plant &amp; labour</button>
   <button data-tab="reports">Reports</button>
-  <button data-tab="claims">Claims</button>
   <button data-tab="drawings">Drawings</button>
   <button data-tab="quality">Data quality</button>
   <button data-tab="about">About</button>
@@ -1115,49 +1030,6 @@ tbody tr.picked:hover{background:#d7e8f4}
     </div>
 
     <div id="rpOut"></div>
-  </div>
-</section>
-
-<!-- ============ CLAIMS ============ -->
-<section id="tab-claims" style="display:none">
-
-  <div id="clmWarn" class="empty" style="display:none"><b>Waiting for register data</b>
-    A claim is built from the same quantities the Costs tab prices and the same day log the End of day
-    page writes. Load the register first.</div>
-
-  <div id="clmBody" style="display:none">
-    <div class="panel">
-      <h2>Progress claims</h2>
-      <div class="pad">
-        <div class="cnav" id="clmNav">
-          <button data-cv="claim" class="on">The claim</button>
-          <button data-cv="detail">Schedule detail</button>
-          <button data-cv="support">Supporting records</button>
-          <button data-cv="register">Claim register</button>
-          <button data-cv="extras">Variations &amp; adjustments</button>
-          <button data-cv="recon">Reconciliation</button>
-          <button data-cv="setup">Contract setup</button>
-        </div>
-        <div class="actions">
-          <span class="count" style="margin-left:0">Claim
-            <select id="clmPick" style="padding:7px 9px;border:1px solid #c3ccd7;border-radius:6px;
-              margin:0 8px;font:inherit"></select></span>
-          <button class="btn sec" id="clmPrint">Print the claim</button>
-          <button class="btn sec" id="clmPack">Claim pack (Excel)</button>
-          <button class="btn sec" id="clmSave">Save claims (CSV)</button>
-          <button class="btn sec" id="clmLoad">Load claims&hellip;</button>
-          <input type="file" id="clmFile" accept=".csv" style="display:none">
-          <span class="count" id="clmDirty"></span>
-        </div>
-      </div>
-    </div>
-
-    <div id="clmPrintHead">
-      <h2 id="clmPrintTitle">T2W Pipeline &mdash; progress claim</h2>
-      <div class="pf" id="clmPrintSub"></div>
-    </div>
-
-    <div id="clmOut"></div>
   </div>
 </section>
 
@@ -2144,13 +2016,12 @@ function rebuild(wb){
 /* ---------- ui plumbing ---------- */
 function switchTab(name){
   $$('nav.tabs button').forEach(function(b){ b.classList.toggle('on', b.dataset.tab===name); });
-  ['search','costs','eod','plr','reports','claims','drawings','quality','about'].forEach(function(t){
+  ['search','costs','eod','plr','reports','drawings','quality','about'].forEach(function(t){
     $('#tab-'+t).style.display = (t===name)?'':'none'; });
   if(name==='costs' && window.COSTS) window.COSTS.render();
   if(name==='eod' && window.COSTS) window.COSTS.renderEOD();
   if(name==='plr' && window.COSTS) window.COSTS.renderPLR();
   if(name==='reports' && window.RPT) window.RPT.render();
-  if(name==='claims' && window.CLAIMS) window.CLAIMS.render();
   if(name==='search') setTimeout(function(){ renderStrip(
     $('#chFrom').value===''?null:+$('#chFrom').value,
     $('#chTo').value===''?null:+$('#chTo').value); },0);
@@ -2324,6 +2195,7 @@ var TINT = ['#dce4ef','#cfdaea','#c2d0e4','#e3d9c8','#d3dfd6','#c6d6cb','#baccc0
 var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{},
            tRate:{}, pRate:{}, paRate:{},          /* charged to the client */
            tCost:{}, pCost:{}, paCost:{},          /* what it costs us */
+           tSrc:{}, pSrc:{}, paSrc:{},             /* Rate Library "Rate Source / Basis" text */
            plant:{} };                             /* $/h by Type|Description */
 
 var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PFRONT={}, PAMARK={}, RIDX={};
@@ -4248,11 +4120,13 @@ function buildIndexFrom(bytes){
              vc:txt.indexOf('Valve Class'),
              vt:txt.indexOf('Valve Type'),
              cost:txt.indexOf('Cost Rate'),
+             src:txt.indexOf('Rate Source / Basis'),
              eff:txt.indexOf('Effective From')};
         return;
       }
       if(!lay || lay.rate<0) return;
-      var rec={row:r+1, rateCol:lay.rate, effCol:lay.eff, cur:rowArr[lay.rate]};
+      var rec={row:r+1, rateCol:lay.rate, effCol:lay.eff, cur:rowArr[lay.rate],
+        src:(lay.src>=0 && rowArr[lay.src]!=null) ? String(rowArr[lay.src]).trim() : ''};
       var crec=lay.cost>=0
         ? {row:r+1, rateCol:lay.cost, effCol:-1, cur:rowArr[lay.cost]} : null;
       var key=null, bag=null, bagC=null;
@@ -4584,6 +4458,12 @@ function applySeed(idx,label){
     take(idx.rates.trenchCost,ST.tCost);
     take(idx.rates.pipeCost,ST.pCost);
     take(idx.rates.pointCost,ST.paCost);
+    var takeSrc=function(map,bag){
+      Object.keys(map).forEach(function(k){ if(map[k].src) bag[k]=map[k].src; });
+    };
+    takeSrc(idx.rates.trench,ST.tSrc);
+    takeSrc(idx.rates.pipe,ST.pSrc);
+    takeSrc(idx.rates.point,ST.paSrc);
     n+=seedPlantRates();
     refreshRateInputs();
   }
@@ -5236,9 +5116,8 @@ function seedAssetsFrom(idx){
    wording. Everything the End of day page records comes back except which
    point assets each day ticked - the sheets carry a count, not the keys - so
    those are re-attributed to the day whose front passed them. Anything
-   completed with no day covering it is deliberately left unattributed: the
-   claims Reconciliation page names it rather than the claim quietly
-   swallowing it. */
+   completed with no day covering it is deliberately left unattributed rather
+   than silently folded into a day that did not actually cover it. */
 var DAYSWB={days:0,itemsSheet:0,itemsMatched:0,orphans:0,byDate:0,src:''};
 var PADATE={};        /* record key -> the date it was signed off */
 
@@ -5417,7 +5296,7 @@ window.COSTS={
   dayStats:function(){ return DAYSWB; },
   /* ---------- the published snapshot ----------
      data.json used to carry the register and nothing else, so with no workbook
-     to read, Costs, End of day, Reports and Claims all had nothing to stand on.
+     to read, Costs, End of day and Reports all had nothing to stand on.
      These put the rest of it in and take it back out again: the metres against
      every trench section, the rates, the signed-off assets and the day log,
      with the item keys already on each day so nothing has to be reconstructed. */
@@ -6348,18 +6227,36 @@ function vDone(){
 
   var doneRowsHtml=rows.map(function(x){
     var kc={'Point asset':'#0b6ea8','Pipe':'#2f8f5b','Trench':'#c2731a'}[x.kind]||'#5b6875';
+    var cval=x.crate==null?null:x.crate*x.qty;
+    var margin=(x.val==null||cval==null)?null:x.val-cval;
     return '<tr>'+td(auDate(x.date))+tdh(tag(x.kind,kc))+td(x.sec,'mono')+
       td(x.chB==null?m0(x.chA)+' m':m0(x.chA)+'\u2013'+m0(x.chB)+' m','num')+
       td(x.rec||'','mono')+td(x.type)+td(x.desc)+td(m1(x.qty),'num')+td(x.unit)+
       td(x.rate==null?'\u2014':money(x.rate),'num')+
-      td(x.rate==null?'not rated':money(x.val),'num')+'</tr>';
+      td(x.rate==null?'not rated':money(x.val),'num')+
+      td(x.cref||'','detail')+
+      td(x.crate==null?'\u2014':money(x.crate),'num')+
+      td(cval==null?'\u2014':money(cval),'num')+
+      td(margin==null?'\u2014':money(margin),'num')+
+      td(margin==null||!x.val?'\u2014':pcs(margin,x.val),'num')+'</tr>';
   });
-  if(rows.length) doneRowsHtml.push('<tr style="font-weight:600;background:#f4f6f9">'+
-    td('Total')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+
-    td(money(totVal),'num')+'</tr>');
-  h+=panel('Every completion in the period',table(
+  if(rows.length){
+    var totCost=rows.reduce(function(a,x){ return a+(x.crate==null?0:x.crate*x.qty); },0);
+    var totMargin=totVal-totCost;
+    doneRowsHtml.push('<tr style="font-weight:600;background:#f4f6f9">'+
+      td('Total')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+td('')+
+      td(money(totVal),'num')+td('')+td('')+td(money(totCost),'num')+
+      td(money(totMargin),'num')+td(totVal?pcs(totMargin,totVal):'\u2014','num')+'</tr>');
+  }
+  h+=panel('Every completion in the period',
+    '<div class="pad" style="padding-bottom:0"><p class="rnote"><b>Cost reference</b> is the Rate '+
+    'Library\u2019s own "Rate Source / Basis" note for that line \u2014 the BOQ item or provisional '+
+    'quantity the client rate was built from. <b>Cost rate</b> and everything right of it is what the '+
+    'work costs us, not what it earns; margin is blank wherever either side is not rated rather than '+
+    'assumed to be zero.</p></div>'+
+    table(
     ['Date','Kind','Section','Chainage','Record','Type','Description','~Quantity','Unit',
-     '~Rate','~Value'],
+     '~Rate','~Value','Cost reference','~Cost rate','~Cost value','~Margin','~Margin %'],
     doneRowsHtml));
   return h;
 }
@@ -6376,7 +6273,8 @@ function doneRows(sel){
         rows.push({date:e.date,kind:'Point asset',sec:p.sec,chA:p.ch,chB:null,
           rec:p.key,type:X.labelOf(p.type),desc:p.name||p.ud||'',
           unit:X.unitOf(p.type)==='$/m2'?'m\u00b2':'each',
-          qty:qty,rate:rate,val:rate==null?null:rate*qty});
+          qty:qty,rate:rate,val:rate==null?null:rate*qty,
+          cref:X.ST.paSrc[p.rkey]||'',crate:X.ST.paCost[p.rkey]});
       });
       if(r.to>r.from){
         X.T.forEach(function(ts){
@@ -6386,7 +6284,8 @@ function doneRows(sel){
           var k=r.sec+'|'+ts.tt, rate=X.ST.tRate[k], qty=ov1-ov0;
           rows.push({date:e.date,kind:'Trench',sec:r.sec,chA:ov0,chB:ov1,
             rec:'',type:'Type '+ts.tt,desc:r.sec+' trench, type '+ts.tt,
-            unit:'m',qty:qty,rate:rate,val:rate==null?null:rate*qty});
+            unit:'m',qty:qty,rate:rate,val:rate==null?null:rate*qty,
+            cref:X.ST.tSrc[k]||'',crate:X.ST.tCost[k]});
         });
       }
       if(r.pto>r.pfrom){
@@ -6395,7 +6294,8 @@ function doneRows(sel){
         X.PIPES.forEach(function(pp){ if(!pdef && pp.sec===r.sec && pp.type===pt) pdef=pp; });
         rows.push({date:e.date,kind:'Pipe',sec:r.sec,chA:r.pfrom,chB:r.pto,
           rec:'',type:pt||'\u2014',desc:pdef?pdef.desc:(pt||'Pipe'),
-          unit:'m',qty:qty,rate:rate,val:rate==null?null:rate*qty});
+          unit:'m',qty:qty,rate:rate,val:rate==null?null:rate*qty,
+          cref:X.ST.pSrc[k2]||'',crate:X.ST.pCost[k2]});
       }
     });
   });
@@ -6628,10 +6528,15 @@ function pack(){
   var doneSel=X.DAYS.filter(function(e){ return !OPT.doneFrom || !OPT.doneTo ||
     (e.date>=OPT.doneFrom && e.date<=OPT.doneTo); });
   var s5b=[['Date','Kind','Section','Chainage from','Chainage to','Record','Type',
-            'Description','Quantity','Unit','Rate','Value']];
+            'Description','Quantity','Unit','Rate','Value','Cost reference','Cost rate',
+            'Cost value','Margin','Margin %']];
   doneRows(doneSel.length?doneSel:X.DAYS).forEach(function(x){
+    var cval=x.crate==null?'':x.crate*x.qty;
+    var margin=(x.val==null||x.crate==null)?'':x.val-x.crate*x.qty;
     s5b.push([x.date,x.kind,x.sec,x.chA,x.chB==null?'':x.chB,x.rec,x.type,x.desc,
-      x.qty,x.unit,x.rate==null?'':x.rate,x.val==null?'':x.val]);
+      x.qty,x.unit,x.rate==null?'':x.rate,x.val==null?'':x.val,x.cref||'',
+      x.crate==null?'':x.crate,cval,margin,
+      (margin===''||!x.val)?'':+((margin/x.val)*100).toFixed(2)]);
   });
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s5b),'Completed in period');
 
@@ -6660,921 +6565,6 @@ document.addEventListener('DOMContentLoaded',wire);
 if(document.readyState!=='loading') wire();
 
 window.RPT={ render:render };
-})();
-</script>
-<script>/* ==========================================================================
-   Progress claims.
-
-   A claim is a date range, and nothing else. Claim 1 runs from the start of
-   the job to its cut-off; every claim after it starts the day after the one
-   before. That makes the periods contiguous by construction, so previously
-   claimed plus this claim always equals the value to date — the arithmetic
-   a claim gets rejected over cannot drift.
-
-   Quantities come out of the day log, not out of the cost position, because
-   a claim has to say when the work was done. Where the two disagree, the
-   Reconciliation page names the difference rather than quietly claiming it.
-   ========================================================================== */
-(function(){
-'use strict';
-
-var CV='claim', PICK=null, DIRTY=false, SRC='';
-var X=null, PAIDX={};
-var SET={ retPct:5, retCapPct:5, gstPct:10, contractSum:null, sumOverride:false,
-          project:'Toowoomba to Warwick Pipeline \u2014 Stage 1',
-          principal:'', contractor:'', contractNo:'', superintendent:'', prefix:'PC-' };
-var CLAIMS=[];   /* [{no,to,issued,status,certified,valueAtIssue,note}] */
-var EXTRAS=[];   /* [{id,no,kind,ref,desc,value}] */
-var ESEQ=1;
-var TITLES={claim:'Payment claim',detail:'Schedule detail',support:'Supporting records',
-            register:'Claim register',extras:'Variations and adjustments',
-            recon:'Reconciliation',setup:'Contract setup'};
-var KINDS=['Variation','Daywork','Materials on site','Adjustment','Provisional sum'];
-
-function q(s){ return document.querySelector(s); }
-function qa(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-function n0(v){ return Number(v||0).toLocaleString('en-AU',{maximumFractionDigits:0}); }
-function n1(v){ return Number(v||0).toLocaleString('en-AU',
-  {minimumFractionDigits:1,maximumFractionDigits:1}); }
-function n2(v){ return Number(v||0).toLocaleString('en-AU',
-  {minimumFractionDigits:2,maximumFractionDigits:2}); }
-function $$$(v){ return v==null ? '\u2014'
-  : (v<0?'-$':'$')+Math.abs(v).toLocaleString('en-AU',
-      {minimumFractionDigits:2,maximumFractionDigits:2}); }
-function $0(v){ return v==null ? '\u2014'
-  : (v<0?'-$':'$')+Math.abs(Math.round(v)).toLocaleString('en-AU'); }
-function pcv(a,b){ return b>0?(a/b*100):0; }
-function pcs(a,b){ return pcv(a,b).toFixed(1)+'%'; }
-function auD(s){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||''));
-  return m?(m[3]+'/'+m[2]+'/'+m[1]):(s?String(s):'\u2014'); }
-function dOf(s){ var p=String(s||'').split('-'); return new Date(+p[0],(+p[1]||1)-1,+p[2]||1); }
-function isoOf(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+
-  String(d.getDate()).padStart(2,'0'); }
-function addDays(s,n){ var d=dOf(s); d.setDate(d.getDate()+n); return isoOf(d); }
-function todayISO(){ return isoOf(new Date()); }
-function longD(s){ var d=dOf(s); return isNaN(d)?'\u2014':
-  d.toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}); }
-
-/* ---------- the shared state ---------- */
-function grab(){
-  X=(window.COSTS&&window.COSTS.data)?window.COSTS.data():null;
-  if(!X) return false;
-  PAIDX={}; X.PA.forEach(function(p){ PAIDX[p.key]=p; });
-  return !!X.T.length;
-}
-function dayDates(){
-  var s={}; X.DAYS.forEach(function(e){ if(e.date) s[e.date]=1; });
-  return Object.keys(s).sort();
-}
-function lastDay(){ var d=dayDates(); return d.length?d[d.length-1]:todayISO(); }
-
-/* ---------- the schedule of rates, as the Costs tab holds it ---------- */
-function contractLines(){
-  var out=[];
-  X.COMBOS.forEach(function(c){
-    var k=c.sec+'|'+c.tt;
-    out.push({kind:'t',grp:'Trench',key:k,desc:c.sec+' \u00b7 trench type '+c.tt,unit:'m',
-      qty:c.len,rate:X.ST.tRate[k],cost:X.ST.tCost[k]});
-  });
-  X.PIPES.forEach(function(p){
-    if(X.SECS.indexOf(p.sec)<0) return;
-    var on=(X.ST.pipeType[p.sec]===p.type), asg=0, k=p.sec+'|'+p.type;
-    if(on) X.T.forEach(function(t){ if(t.sec===p.sec) asg+=t.len; });
-    out.push({kind:'p',grp:'Pipe',key:k,desc:p.sec+' \u00b7 '+p.desc,unit:'m',
-      qty:asg,rate:X.ST.pRate[k],cost:X.ST.pCost[k],off:!on});
-  });
-  X.PALINES.forEach(function(g){
-    out.push({kind:'a',grp:X.labelOf(g.type),key:g.rkey,desc:g.label,
-      unit:X.unitOf(g.type)==='$/m2'?'m\u00b2':'each',
-      qty:g.blocks,rate:X.ST.paRate[g.rkey],cost:X.ST.paCost[g.rkey]});
-  });
-  return out;
-}
-function contractSum(){
-  if(SET.sumOverride && SET.contractSum!=null) return SET.contractSum;
-  var s=0;
-  contractLines().forEach(function(l){ if(l.rate!=null&&!l.off) s+=l.qty*l.rate; });
-  return s;
-}
-
-/* ---------- quantities inside a window of days ---------- */
-function qtyIn(from,to){
-  var out={t:{},p:{},a:{},days:[],tm:0,pm:0,items:0,reach:{}};
-  X.DAYS.forEach(function(e){
-    if(!e.date) return;
-    if(from && e.date<from) return;
-    if(to && e.date>to) return;
-    out.days.push(e);
-    (e.rows||[]).forEach(function(r){
-      if(r.to>r.from){
-        X.T.forEach(function(t){
-          if(t.sec!==r.sec) return;
-          var ov=Math.min(t.e,r.to)-Math.max(t.s,r.from);
-          if(ov>1e-9){ var k=t.sec+'|'+t.tt; out.t[k]=(out.t[k]||0)+ov; out.tm+=ov; }
-        });
-        var rc=out.reach[r.sec]||(out.reach[r.sec]={from:r.from,to:r.to});
-        rc.from=Math.min(rc.from,r.from); rc.to=Math.max(rc.to,r.to);
-      }
-      if(r.pto>r.pfrom){
-        var pt=X.ST.pipeType[r.sec]||'DICL', k2=r.sec+'|'+pt, mm=0;
-        X.T.forEach(function(t){
-          if(t.sec!==r.sec) return;
-          var ov=Math.min(t.e,r.pto)-Math.max(t.s,r.pfrom);
-          if(ov>1e-9) mm+=ov;
-        });
-        if(mm>1e-9){ out.p[k2]=(out.p[k2]||0)+mm; out.pm+=mm; }
-      }
-      (r.keys||[]).forEach(function(k){
-        var p=PAIDX[k]; if(!p) return;
-        var g=out.a[p.rkey]||(out.a[p.rkey]={n:0,qty:0,list:[]});
-        g.n++; g.qty+=X.qtyOf(p); g.list.push({p:p,date:e.date});
-        out.items++;
-      });
-    });
-  });
-  return out;
-}
-function bagOf(o,l){ 
-  if(l.kind==='t') return o.t[l.key]||0;
-  if(l.kind==='p') return o.p[l.key]||0;
-  var g=o.a[l.key]; return g?g.qty:0;
-}
-
-/* ---------- the claim list ---------- */
-function claimList(){
-  var list=CLAIMS.slice().sort(function(a,b){ return a.no-b.no; });
-  var last=list.length?list[list.length-1]:null;
-  var ld=lastDay();
-  if(X.DAYS.length && (!last || ld>last.to)){
-    list.push({no:last?last.no+1:1,to:ld,issued:'',status:'Draft',certified:null,
-      valueAtIssue:null,note:'',draft:true});
-  }
-  return list;
-}
-function periodFrom(list,i){ return i===0 ? '' : addDays(list[i-1].to,1); }
-function currentClaim(){
-  var list=claimList();
-  if(!list.length) return null;
-  var hit=null;
-  list.forEach(function(c){ if(c.no===PICK) hit=c; });
-  if(!hit){ hit=list[list.length-1]; PICK=hit.no; }
-  return hit;
-}
-
-/* ---------- the arithmetic ---------- */
-function calc(no){
-  var list=claimList(), i=-1;
-  list.forEach(function(c,j){ if(c.no===no) i=j; });
-  if(i<0) return null;
-  var c=list[i];
-  var from=periodFrom(list,i), prevTo=i===0?null:list[i-1].to;
-
-  var toDate=qtyIn('',c.to);
-  var prev  = prevTo ? qtyIn('',prevTo) : {t:{},p:{},a:{},days:[],tm:0,pm:0,items:0,reach:{}};
-  var thisP =qtyIn(from,c.to);
-
-  var lines=contractLines().map(function(l){
-    var qT=bagOf(toDate,l), qP=bagOf(prev,l), qC=bagOf(thisP,l);
-    var r=l.rate;
-    return {l:l,qT:qT,qP:qP,qC:qC,
-      vT:r==null?null:qT*r, vP:r==null?null:qP*r, vC:r==null?null:qC*r,
-      bud:r==null?null:l.qty*r};
-  });
-  var wT=0,wP=0,wC=0,bud=0,unrated=0,unratedQty=0;
-  lines.forEach(function(x){
-    if(x.vT==null){ if(x.qT>0){ unrated++; unratedQty+=x.qT; } return; }
-    wT+=x.vT; wP+=x.vP; wC+=x.vC; if(!x.l.off) bud+=x.bud;
-  });
-
-  var eT=0,eP=0,eC=0;
-  EXTRAS.forEach(function(x){
-    var v=Number(x.value)||0;
-    if(x.no<=c.no) eT+=v;
-    if(prevTo!=null && x.no<=c.no-1) eP+=v;
-    if(x.no===c.no) eC+=v;
-  });
-
-  var sum=contractSum();
-  var cap=sum*(SET.retCapPct||0)/100;
-  var retT=Math.min((wT+eT)*(SET.retPct||0)/100, cap);
-  var retP=Math.min((wP+eP)*(SET.retPct||0)/100, cap);
-  var retC=retT-retP;
-
-  var valT=wT+eT, valP=wP+eP, valC=wC+eC;
-  var net=valC-retC;
-  var gst=net*(SET.gstPct||0)/100;
-
-  return {c:c,i:i,from:from,prevTo:prevTo,list:list,
-          toDate:toDate,prev:prev,period:thisP,lines:lines,
-          wT:wT,wP:wP,wC:wC,eT:eT,eP:eP,eC:eC,valT:valT,valP:valP,valC:valC,
-          retT:retT,retP:retP,retC:retC,cap:cap,net:net,gst:gst,total:net+gst,
-          bud:bud,sum:sum,unrated:unrated,unratedQty:unratedQty};
-}
-
-/* ---------- html helpers ---------- */
-function card(l,v,s,cls){ return '<div class="ccard '+(cls||'')+'"><div class="l">'+esc(l)+
-  '</div><div class="v">'+esc(v)+'</div>'+(s?'<div class="s">'+esc(s)+'</div>':'')+'</div>'; }
-function panel(t,inner,pad){ return '<div class="panel"><h2>'+esc(t)+'</h2>'+
-  (pad?'<div class="pad">'+inner+'</div>':inner)+'</div>'; }
-function table(head,rows,foot){
-  return '<div class="tblWrap"><table class="wide"><thead><tr>'+
-    head.map(function(h){ return '<th'+(/^~/.test(h)?' class="num"':'')+'>'+
-      esc(h.replace(/^~/,''))+'</th>'; }).join('')+'</tr></thead><tbody>'+
-    (rows.length?rows.join(''):'<tr><td colspan="'+head.length+
-      '" style="text-align:center;color:var(--mid);padding:15px">Nothing to show.</td></tr>')+
-    '</tbody>'+(foot?'<tfoot>'+foot+'</tfoot>':'')+'</table></div>';
-}
-function td(v,cls){ return '<td'+(cls?' class="'+cls+'"':'')+'>'+esc(String(v==null?'':v))+'</td>'; }
-function tdh(h,cls){ return '<td'+(cls?' class="'+cls+'"':'')+'>'+h+'</td>'; }
-function pill(t,cls){ return '<span class="pill'+(cls?' '+cls:'')+'">'+esc(t)+'</span>'; }
-function ln(k,d,sub,n,cls){
-  return '<div class="ln '+(cls||'')+'"><div class="k">'+esc(k||'')+'</div>'+
-    '<div class="d">'+esc(d)+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>'+
-    '<div class="n">'+esc(n)+'</div></div>';
-}
-function statusPill(c){
-  if(c.draft) return pill('draft \u00b7 open period','w');
-  if(c.status==='Certified') return pill('certified','g');
-  if(c.status==='Issued') return pill('issued');
-  return pill('draft','w');
-}
-
-/* ==========================================================================
-   VIEWS
-   ========================================================================== */
-function vClaim(){
-  var c=currentClaim();
-  if(!c) return panel('Payment claim','<div class="empty"><b>No days recorded yet</b>'+
-    'A claim is a range of days. Record a day on the End of day page and the first claim '+
-    'becomes available.</div>');
-  var R=calc(c.no); if(!R) return '';
-  var h='';
-
-  if(c.draft) h+='<div class="panel"><div class="pad"><div class="cwarn">This is the '+
-    '<b>open period</b> &mdash; everything recorded since the last claim closed, up to '+
-    auD(c.to)+'. It moves as days are recorded. Cut it off on the Claim register when you are '+
-    'ready to issue, and the numbers freeze.</div></div></div>';
-  if(R.unrated) h+='<div class="panel"><div class="pad"><div class="cbad"><b>'+R.unrated+
-    ' rate line'+(R.unrated===1?' has':'s have')+' no rate</b> and '+n0(R.unratedQty)+
-    ' units of completed work sitting against '+(R.unrated===1?'it':'them')+
-    '. That work is left out of this claim entirely rather than valued at nothing. Set the rates on '+
-    'the Costs tab and it will appear.</div></div></div>';
-
-  h+='<div class="panel"><h2>Payment claim '+esc(SET.prefix+String(c.no).padStart(3,'0'))+'</h2><div class="pad">';
-  h+='<div class="chead">'+
-    '<div><span>Project</span><b>'+esc(SET.project||'\u2014')+'</b></div>'+
-    '<div><span>Contract</span><b>'+esc(SET.contractNo||'\u2014')+'</b></div>'+
-    '<div><span>Claimant</span><b>'+esc(SET.contractor||'\u2014')+'</b></div>'+
-    '<div><span>Principal</span><b>'+esc(SET.principal||'\u2014')+'</b></div>'+
-    '<div><span>Claim number</span><b>'+c.no+'</b></div>'+
-    '<div><span>Period</span><b>'+(R.from?auD(R.from):'start of works')+' to '+auD(c.to)+'</b></div>'+
-    '<div><span>Days in the period</span><b>'+R.period.days.length+' recorded</b></div>'+
-    '<div><span>Status</span><b>'+(c.draft?'Draft':(c.status||'Draft'))+
-      (c.issued?' '+auD(c.issued):'')+'</b></div>'+
-    '</div>';
-
-  h+='<div class="cert">';
-  h+=ln('A','Value of work completed to date',
-        'at the schedule of rates \u2014 '+n0(R.toDate.tm)+' m trench, '+n0(R.toDate.pm)+
-        ' m pipe, '+n0(R.toDate.items)+' items',$$$(R.wT));
-  h+=ln('B','Variations and adjustments to date',
-        EXTRAS.filter(function(x){ return x.no<=c.no; }).length+' item'+
-        (EXTRAS.filter(function(x){ return x.no<=c.no; }).length===1?'':'s'),$$$(R.eT));
-  h+=ln('C','Total value of work to date','A + B',$$$(R.valT),'sub');
-  h+=ln('D','Less value certified in previous claims',
-        R.prevTo?('claims 1 to '+(c.no-1)+', to '+auD(R.prevTo)):'no previous claim',
-        R.valP?'-'+$$$(R.valP).replace('$','$'):$$$(0),'neg');
-  h+=ln('E','Value of work this claim','C \u2212 D',$$$(R.valC),'sub');
-  h+=ln('F','Less retention this claim',
-        n1(SET.retPct)+'% of work to date, capped at '+n1(SET.retCapPct)+'% of the contract sum'+
-        (R.retT>=R.cap-0.005?' \u2014 cap reached':''),
-        R.retC?'-'+$$$(R.retC).replace('$','$'):$$$(0),'neg');
-  h+=ln('G','Net amount claimed','E \u2212 F',$$$(R.net),'sub');
-  h+=ln('H','GST at '+n1(SET.gstPct)+'%','',$$$(R.gst));
-  h+=ln('','TOTAL CLAIMED INCLUDING GST','',$$$(R.total),'tot');
-  h+='</div>';
-
-  h+='<div class="ccards" style="margin-top:16px">'+
-    card('Contract sum',$0(R.sum),SET.sumOverride?'entered by hand':'from the rate library','lead')+
-    card('Complete',pcs(R.valT,R.sum),'of the contract sum, by value')+
-    card('This claim',$0(R.valC),(R.from?auD(R.from):'start')+' to '+auD(c.to))+
-    card('Retention held',$0(R.retT),'cap '+$0(R.cap))+
-    card('Trench this claim',n0(R.period.tm)+' m',n0(R.toDate.tm)+' m to date')+
-    card('Pipe this claim',n0(R.period.pm)+' m',n0(R.toDate.pm)+' m to date')+
-    card('Items this claim',n0(R.period.items),n0(R.toDate.items)+' to date')+
-    '</div>';
-
-  h+='<div class="sign"><div>Claimant &mdash; signed and dated</div>'+
-     '<div>Superintendent &mdash; '+esc(SET.superintendent||'signed and dated')+'</div></div>';
-  h+='</div></div>';
-
-  /* what moved, by group */
-  var grp={};
-  R.lines.forEach(function(x){
-    var g=grp[x.l.grp]||(grp[x.l.grp]={qC:0,vC:0,vT:0,bud:0,unit:x.l.unit});
-    g.qC+=x.qC; g.vC+=x.vC||0; g.vT+=x.vT||0; g.bud+=(x.l.off?0:(x.bud||0));
-  });
-  h+=panel('What this claim is made of',table(
-    ['Work','~Quantity this claim','~Value this claim','~Value to date','~Contract','~Complete'],
-    Object.keys(grp).filter(function(k){ return grp[k].bud>0||grp[k].vT>0; }).map(function(k){
-      var g=grp[k];
-      return '<tr>'+td(k)+td(n1(g.qC)+' '+g.unit,'num')+td($$$(g.vC),'num')+
-        td($$$(g.vT),'num')+td($0(g.bud),'num')+
-        tdh(pcs(g.vT,g.bud)+'<div class="cbar"><i style="width:'+
-          Math.min(pcv(g.vT,g.bud),100).toFixed(1)+'%"></i></div>','num')+'</tr>'; }),
-    '<tr><td>Total</td><td class="num">\u2014</td><td class="num">'+$$$(R.wC)+
-    '</td><td class="num">'+$$$(R.wT)+'</td><td class="num">'+$0(R.bud)+
-    '</td><td class="num">'+pcs(R.wT,R.bud)+'</td></tr>'));
-  return h;
-}
-
-/* ---------- schedule detail ---------- */
-function vDetail(){
-  var c=currentClaim(); if(!c) return vClaim();
-  var R=calc(c.no);
-  var rows=R.lines.filter(function(x){ return x.l.qty>0||x.qT>0; }).map(function(x){
-    var l=x.l;
-    return '<tr>'+td(l.grp)+td(l.desc)+td(l.unit)+
-      td(l.rate==null?'no rate':$$$(l.rate),'num')+
-      td(n1(l.qty),'num')+td(n1(x.qP),'num')+td(n1(x.qC),'num')+td(n1(x.qT),'num')+
-      td(x.vP==null?'\u2014':$$$(x.vP),'num')+
-      td(x.vC==null?'\u2014':$$$(x.vC),'num')+
-      td(x.vT==null?'\u2014':$$$(x.vT),'num')+
-      tdh(l.rate==null?pill('excluded','w'):(pcs(x.qT,l.qty)+
-        '<div class="cbar"><i style="width:'+Math.min(pcv(x.qT,l.qty),100).toFixed(1)+
-        '%"></i></div>'),'num')+'</tr>';
-  });
-  var foot='<tr><td colspan="8">Total of rated lines</td>'+
-    '<td class="num">'+$$$(R.wP)+'</td><td class="num">'+$$$(R.wC)+
-    '</td><td class="num">'+$$$(R.wT)+'</td><td class="num">'+pcs(R.wT,R.bud)+'</td></tr>';
-
-  var h=panel('Schedule of rates \u2014 claim '+c.no,
-    '<div class="pad" style="padding-bottom:0"><p class="cnote"><b>Previous</b> is everything up to '+
-    (R.prevTo?auD(R.prevTo):'the start of works')+'. <b>This claim</b> is '+
-    (R.from?auD(R.from):'the start')+' to '+auD(c.to)+'. The two always add to <b>to date</b>, '+
-    'because the periods are built to be contiguous.</p></div>'+
-    table(['Group','Item','Unit','~Rate','~Contract qty','~Qty previous','~Qty this claim',
-           '~Qty to date','~Value previous','~Value this claim','~Value to date','~Complete'],
-      rows,foot));
-
-  if(EXTRAS.length){
-    h+=panel('Variations and adjustments',table(
-      ['Claim','Kind','Reference','Description','~Value','In this claim'],
-      EXTRAS.slice().sort(function(a,b){ return a.no-b.no; }).map(function(x){
-        return '<tr>'+td(x.no,'num')+td(x.kind)+td(x.ref,'mono')+td(x.desc)+
-          td($$$(Number(x.value)||0),'num')+
-          tdh(x.no===c.no?pill('yes','g'):(x.no<c.no?pill('earlier'):pill('later','w')))+'</tr>'; })));
-  }
-  return h;
-}
-
-/* ---------- supporting records ---------- */
-function vSupport(){
-  var c=currentClaim(); if(!c) return vClaim();
-  var R=calc(c.no), P=R.period;
-
-  var h=panel('The period',
-    '<div class="ccards">'+
-    card('Days recorded',n0(P.days.length),(R.from?auD(R.from):'start of works')+' to '+auD(c.to))+
-    card('Trench',n0(P.tm)+' m','')+
-    card('Pipe',n0(P.pm)+' m','')+
-    card('Point assets',n0(P.items),'confirmed in the period')+
-    card('Value this claim',$0(R.valC),'','lead')+
-    '</div>'+
-    (Object.keys(P.reach).length?'<p class="cnote" style="margin-top:12px"><b>Chainage covered.</b> '+
-      esc(Object.keys(P.reach).sort().map(function(s){
-        return s+' '+n0(P.reach[s].from)+' to '+n0(P.reach[s].to)+' m'; }).join(' \u00b7 '))+'</p>':''),
-    true);
-
-  h+=panel('Daily records in the period',table(
-    ['Date','Shift','Recorded by','Section','~Trench from','~to','~m','~Pipe m','~Items',
-     'Weather','~Down h','Notes'],
-    P.days.slice().sort(function(a,b){ return a.date<b.date?-1:1; }).reduce(function(acc,e){
-      (e.rows||[]).forEach(function(r,i){
-        acc.push('<tr>'+td(i===0?auD(e.date):'')+td(i===0?e.shift:'')+td(i===0?e.by:'')+
-          td(r.sec,'mono')+td(n0(r.from),'num')+td(n0(r.to),'num')+td(n1(r.dt),'num')+
-          td(n1(r.dp),'num')+td(n0(r.items),'num')+td(i===0?e.wx:'')+
-          td(i===0?(e.down?n1(e.down):''):'','num')+td(i===0?e.notes:'','detail'));
-      });
-      return acc;
-    },[])));
-
-  var items=[];
-  Object.keys(P.a).forEach(function(rk){
-    P.a[rk].list.forEach(function(o){
-      var rate=X.ST.paRate[rk];
-      items.push({date:o.date,p:o.p,rate:rate,
-        val:rate==null?null:rate*X.qtyOf(o.p)});
-    });
-  });
-  items.sort(function(a,b){ return a.date<b.date?-1:(a.date>b.date?1:a.p.ch-b.p.ch); });
-  h+=panel('Point assets completed in the period',
-    '<div class="pad" style="padding-bottom:0"><p class="cnote">Each one was confirmed on the day '+
-    'shown, on the End of day page. This is the evidence behind the item quantities above.</p></div>'+
-    table(['Date','~Chainage','Section','Type','Feature','Rate line','~Qty','~Rate','~Value'],
-      items.map(function(x){
-        return '<tr>'+td(auD(x.date))+td(n0(x.p.ch)+' m','num')+td(x.p.sec,'mono')+
-          td(X.labelOf(x.p.type))+td(x.p.name||x.p.ud||'')+td(x.p.rlab)+
-          td(n1(X.qtyOf(x.p)),'num')+td(x.rate==null?'\u2014':$$$(x.rate),'num')+
-          td(x.val==null?'\u2014':$$$(x.val),'num')+'</tr>'; }),
-      '<tr><td colspan="8">Total</td><td class="num">'+
-      $$$(items.reduce(function(a,x){ return a+(x.val||0); },0))+'</td></tr>'));
-
-  var sf=[];
-  P.days.forEach(function(e){
-    var s=e.safety||{};
-    if(s.incident&&s.incident!=='Nil')
-      sf.push('<tr>'+td(auD(e.date))+tdh(pill(s.incident,'r'))+td(n1(s.lost||0),'num')+
-        td(s.detail||'','detail')+'</tr>');
-  });
-  if(sf.length) h+=panel('Incidents in the period',
-    table(['Date','Type','~Lost h','Detail'],sf));
-  return h;
-}
-
-/* ---------- claim register ---------- */
-function vRegister(){
-  var list=claimList();
-  var h=panel('Close off a claim',
-    '<p class="cnote">A claim is defined by its cut-off date and nothing else. Closing one at a date '+
-    'starts the next the day after, so no day can be claimed twice and none can be missed. '+
-    'The open period is always shown at the bottom until you close it.</p>'+
-    '<div class="cform">'+
-      '<div><label>Cut-off date</label><input type="date" id="clmCut" value="'+
-        esc(lastDay())+'"></div>'+
-      '<div><label>&nbsp;</label><button class="btn" id="clmAdd">Close the period</button></div>'+
-      '<div><label>&nbsp;</label><button class="btn sec" id="clmDrop">Reopen the last claim</button></div>'+
-    '</div>', true);
-
-  var rows=list.map(function(c,i){
-    var R=calc(c.no);
-    var drift=(c.valueAtIssue!=null && Math.abs(c.valueAtIssue-R.valC)>0.5);
-    var cert=c.certified==null?null:Number(c.certified);
-    return '<tr'+(c.no===PICK?' class="sel"':'')+'>'+
-      td(c.no,'num')+
-      td((periodFrom(list,i)?auD(periodFrom(list,i)):'start')+' \u2013 '+auD(c.to))+
-      td(R.period.days.length,'num')+
-      td(n0(R.period.tm)+' m','num')+
-      td($$$(R.valC),'num')+td($$$(R.retC),'num')+td($$$(R.net),'num')+
-      td($$$(R.total),'num')+
-      tdh(statusPill(c))+
-      td(cert==null?'':$$$(cert),'num')+
-      tdh(cert==null?'':(Math.abs(cert-R.total)<0.5?pill('as claimed','g'):
-        pill($$$(cert-R.total)+' variance','r')),'num')+
-      tdh(drift?pill('recomputed since issue','w'):'')+
-      tdh(c.draft?'<button class="btn sec" data-open="'+c.no+'" style="padding:4px 9px;font-size:11.5px">open</button>'
-        :'<button class="btn sec" data-open="'+c.no+'" style="padding:4px 9px;font-size:11.5px">open</button>')+
-      '</tr>';
-  });
-  h+=panel('Claims',table(['~No.','Period','~Days','~Trench','~Value this claim','~Retention',
-    '~Net','~Total inc GST','Status','~Certified','Variance','','']  ,rows));
-
-  var c=currentClaim();
-  if(c && !c.draft){
-    h+=panel('Claim '+c.no+' \u2014 status',
-      '<div class="cform">'+
-      '<div><label>Status</label><select id="clmStatus">'+
-        ['Draft','Issued','Certified'].map(function(s){
-          return '<option'+(s===(c.status||'Draft')?' selected':'')+'>'+s+'</option>'; }).join('')+
-        '</select></div>'+
-      '<div><label>Issued / certified on</label><input type="date" id="clmIssued" value="'+
-        esc(c.issued||'')+'"></div>'+
-      '<div><label>Amount certified (inc GST)</label><input type="number" step="0.01" id="clmCert" value="'+
-        (c.certified==null?'':esc(String(c.certified)))+'" placeholder="as certified"></div>'+
-      '<div class="wide"><label>Note</label><input type="text" id="clmNote" value="'+
-        esc(c.note||'')+'" placeholder="reference, superintendent comment, anything worth keeping"></div>'+
-      '</div>'+
-      (c.valueAtIssue!=null?'<p class="cnote" style="margin-top:11px">Value recorded when this claim '+
-        'was issued: <b>'+$$$(c.valueAtIssue)+'</b>. If the figure above differs, someone has changed '+
-        'a rate or a day inside a closed period.</p>':''), true);
-  }
-  return h;
-}
-
-/* ---------- variations and adjustments ---------- */
-function vExtras(){
-  var list=claimList();
-  var h=panel('Add a variation, daywork or adjustment',
-    '<p class="cnote">Anything that is not priced by the schedule of rates. It is claimed in whichever '+
-    'claim number you give it, once. A negative value is a deduction &mdash; a back-charge or a credit.</p>'+
-    '<div class="cform">'+
-    '<div><label>Claim</label><select id="exNo">'+list.map(function(c){
-      return '<option value="'+c.no+'"'+(c.no===PICK?' selected':'')+'>'+c.no+'</option>'; }).join('')+
-      '</select></div>'+
-    '<div><label>Kind</label><select id="exKind">'+KINDS.map(function(k){
-      return '<option>'+esc(k)+'</option>'; }).join('')+'</select></div>'+
-    '<div><label>Reference</label><input type="text" id="exRef" placeholder="VO-012"></div>'+
-    '<div class="wide"><label>Description</label><input type="text" id="exDesc" '+
-      'placeholder="what it covers"></div>'+
-    '<div><label>Value (ex GST)</label><input type="number" step="0.01" id="exVal"></div>'+
-    '<div><label>&nbsp;</label><button class="btn" id="exAdd">Add</button></div>'+
-    '</div>', true);
-
-  var tot={};
-  EXTRAS.forEach(function(x){ tot[x.no]=(tot[x.no]||0)+(Number(x.value)||0); });
-  h+=panel('Variations and adjustments',table(
-    ['~Claim','Kind','Reference','Description','~Value',''],
-    EXTRAS.slice().sort(function(a,b){ return a.no-b.no||a.id-b.id; }).map(function(x){
-      return '<tr>'+td(x.no,'num')+td(x.kind)+td(x.ref,'mono')+td(x.desc)+
-        td($$$(Number(x.value)||0),'num')+
-        '<td><span class="rowdel" data-ex="'+x.id+'" title="Remove">&times;</span></td></tr>'; }),
-    '<tr><td colspan="4">Total</td><td class="num">'+
-    $$$(EXTRAS.reduce(function(a,x){ return a+(Number(x.value)||0); },0))+'</td><td></td></tr>'));
-  return h;
-}
-
-/* ---------- reconciliation ---------- */
-function vRecon(){
-  var c=currentClaim(); if(!c) return vClaim();
-  var R=calc(c.no);
-  /* what the cost position says, against what the day log can account for */
-  var stQ={};
-  X.T.forEach(function(t){
-    var k=t.sec+'|'+t.tt; stQ['t|'+k]=(stQ['t|'+k]||0)+X.tDone(t);
-    var pt=X.ST.pipeType[t.sec]||'DICL', k2=t.sec+'|'+pt;
-    stQ['p|'+k2]=(stQ['p|'+k2]||0)+X.pDone(t);
-  });
-  X.PA.forEach(function(p){ if(!X.ST.paDone[p.key]) return;
-    stQ['a|'+p.rkey]=(stQ['a|'+p.rkey]||0)+X.qtyOf(p); });
-
-  var rows=[], dV=0, dQ=0, n=0;
-  R.lines.forEach(function(x){
-    var s=stQ[x.l.kind+'|'+x.l.key]||0, d=s-x.qT;
-    if(Math.abs(d)<0.01 && x.qT===0 && s===0) return;
-    if(Math.abs(d)>0.01){ n++; dQ+=d; if(x.l.rate!=null) dV+=d*x.l.rate; }
-    rows.push('<tr>'+td(x.l.grp)+td(x.l.desc)+td(x.l.unit)+
-      td(n1(s),'num')+td(n1(x.qT),'num')+
-      tdh(Math.abs(d)<0.01?pill('agrees','g'):pill((d>0?'+':'')+n1(d),d>0?'w':'r'),'num')+
-      td(x.l.rate==null?'\u2014':$$$(x.l.rate*d),'num')+'</tr>');
-  });
-
-  var h=panel('Cost position against the day log',
-    '<div class="ccards">'+
-    card('Lines that disagree',n0(n),n?'quantity recorded without a day behind it':'everything reconciles',
-      n?'warn':'good')+
-    card('Quantity difference',n1(dQ),'cost tracker minus day log')+
-    card('Value at stake',$0(dV),n?'not in this claim':'nothing outstanding',dV?'warn':'good')+
-    card('Claimed to date',$0(R.wT),'from the day log','lead')+
-    '</div>'+
-    '<p class="cnote" style="margin-top:12px">The Costs tab can be edited directly &mdash; a metre '+
-    'typed straight onto a trench section moves the cost position without any day carrying it. A claim '+
-    'has to say <b>when</b> work was done, so it is built from the day log only. Anything showing here '+
-    'is real work that is not claimable until a day accounts for it, or a keying error. Either way it '+
-    'is worth resolving before the claim goes out.</p>', true);
-
-  h+=panel('Line by line',table(
-    ['Group','Item','Unit','~Cost tracker','~Day log','~Difference','~Value'],rows));
-  return h;
-}
-
-/* ---------- setup ---------- */
-function vSetup(){
-  var sum=contractSum();
-  var h=panel('Contract',
-    '<div class="cform">'+
-    '<div class="wide"><label>Project</label><input type="text" id="stProj" value="'+
-      esc(SET.project)+'"></div>'+
-    '<div><label>Contract number</label><input type="text" id="stNo" value="'+
-      esc(SET.contractNo)+'"></div>'+
-    '<div><label>Claim prefix</label><input type="text" id="stPre" value="'+esc(SET.prefix)+'"></div>'+
-    '<div class="wide"><label>Claimant</label><input type="text" id="stCtr" value="'+
-      esc(SET.contractor)+'" placeholder="the party claiming"></div>'+
-    '<div class="wide"><label>Principal</label><input type="text" id="stPri" value="'+
-      esc(SET.principal)+'" placeholder="the party paying"></div>'+
-    '<div class="wide"><label>Superintendent</label><input type="text" id="stSup" value="'+
-      esc(SET.superintendent)+'"></div>'+
-    '</div>', true);
-
-  h+=panel('Money',
-    '<div class="cform">'+
-    '<div><label>Retention %</label><input type="number" step="0.1" id="stRet" value="'+
-      esc(String(SET.retPct))+'"></div>'+
-    '<div><label>Retention cap % of contract sum</label><input type="number" step="0.1" id="stCap" value="'+
-      esc(String(SET.retCapPct))+'"></div>'+
-    '<div><label>GST %</label><input type="number" step="0.1" id="stGst" value="'+
-      esc(String(SET.gstPct))+'"></div>'+
-    '<div><label>Contract sum</label><input type="number" step="0.01" id="stSum" value="'+
-      (SET.sumOverride&&SET.contractSum!=null?esc(String(SET.contractSum)):'')+
-      '" placeholder="'+Math.round(sum)+'"></div>'+
-    '<div><label>&nbsp;</label><label style="text-transform:none;font-weight:400;font-size:12.5px">'+
-      '<input type="checkbox" id="stOvr" style="width:auto;margin-right:6px"'+
-      (SET.sumOverride?' checked':'')+'>Use the figure I typed</label></div>'+
-    '</div>'+
-    '<p class="cnote" style="margin-top:12px">Left alone, the contract sum is the rate library priced '+
-    'out against the design quantities &mdash; <b>'+$$$(sum)+'</b>. That is the right number while the '+
-    'schedule of rates is the contract. Type one over it if the executed sum differs, and the retention '+
-    'cap follows what you typed.</p>'+
-    '<p class="cnote">Retention is calculated on the cumulative value and capped, then this claim gets '+
-    'the difference. That is the only way the cap behaves properly across a run of claims.</p>', true);
-
-  h+=panel('Where the numbers come from',
-    '<p class="cnote"><b>Quantities</b> come from the day log. Each day records the chainage trench and '+
-    'pipe reached and which point assets were confirmed; a claim intersects those spans with the trench '+
-    'sections to get metres of each type, and reads the confirmed assets straight off.</p>'+
-    '<p class="cnote"><b>Rates</b> come from the Costs tab &mdash; the same rate library that prices the '+
-    'job. A line with no rate is excluded from the claim and called out on the claim face, rather than '+
-    'quietly valued at nothing.</p>'+
-    '<p class="cnote"><b>Nothing here is stored in the browser.</b> Claims, variations and these '+
-    'settings live in a CSV you save beside the workbook. Save it before you close the page.</p>', true);
-  return h;
-}
-
-/* ==========================================================================
-   PLUMBING
-   ========================================================================== */
-function render(){
-  var warn=q('#clmWarn'), body=q('#clmBody');
-  if(!warn||!body) return;
-  if(!grab()){ warn.style.display=''; body.style.display='none'; return; }
-  warn.style.display='none'; body.style.display='';
-
-  qa('#clmNav button').forEach(function(b){ b.classList.toggle('on',b.dataset.cv===CV); });
-
-  var list=claimList(), sel=q('#clmPick');
-  if(!list.some(function(c){ return c.no===PICK; })) PICK=list.length?list[list.length-1].no:null;
-  sel.innerHTML=list.map(function(c,i){
-    return '<option value="'+c.no+'"'+(c.no===PICK?' selected':'')+'>'+c.no+
-      ' \u00b7 '+(periodFrom(list,i)?auD(periodFrom(list,i)):'start')+'\u2013'+auD(c.to)+
-      (c.draft?' (open)':'')+'</option>'; }).join('');
-
-  var f={claim:vClaim,detail:vDetail,support:vSupport,register:vRegister,
-         extras:vExtras,recon:vRecon,setup:vSetup}[CV]||vClaim;
-  var html='';
-  try{ html=f(); }
-  catch(err){ console.error('claim view failed:',err);
-    html=panel('Claim','<div class="empty"><b>That page could not be built</b>'+
-      esc(err.message)+'</div>'); }
-  q('#clmOut').innerHTML=html;
-  labelCells();
-
-  var c=currentClaim();
-  q('#clmPrintTitle').textContent='T2W Pipeline \u2014 '+TITLES[CV]+
-    (c?'  \u00b7  claim '+SET.prefix+String(c.no).padStart(3,'0'):'');
-  q('#clmPrintSub').textContent=(SET.contractor?SET.contractor+'  \u00b7  ':'')+
-    (SET.contractNo?'contract '+SET.contractNo+'  \u00b7  ':'')+
-    'printed '+new Date().toLocaleString('en-AU');
-  q('#clmDirty').innerHTML=DIRTY?'<span style="color:var(--warn);font-weight:600">unsaved</span>'
-    :(SRC?'<span class="rmini">'+esc(SRC)+'</span>':'');
-  wireView();
-}
-function labelCells(){
-  qa('#clmOut table').forEach(function(t){
-    var hs=Array.prototype.slice.call(t.querySelectorAll('thead th'))
-      .map(function(x){ return x.textContent.trim(); });
-    Array.prototype.slice.call(t.querySelectorAll('tbody tr')).forEach(function(tr){
-      Array.prototype.slice.call(tr.children).forEach(function(cell,i){
-        if(hs[i]) cell.setAttribute('data-l',hs[i]);
-      });
-    });
-  });
-}
-function touch(){ DIRTY=true; }
-
-function wireView(){
-  var e;
-  if((e=q('#clmAdd'))) e.onclick=function(){
-    var to=q('#clmCut').value;
-    if(!to){ if(window.toast) toast('Pick a cut-off date'); return; }
-    var last=CLAIMS.length?CLAIMS[CLAIMS.length-1]:null;
-    if(last && to<=last.to){ if(window.toast) toast('That is on or before claim '+last.no+
-      ', which closed '+auD(last.to)); return; }
-    var no=last?last.no+1:1;
-    var R=calc(no);
-    CLAIMS.push({no:no,to:to,issued:todayISO(),status:'Issued',certified:null,
-      valueAtIssue:R?R.valC:null,note:''});
-    PICK=no; touch();
-    if(window.toast) toast('Claim '+no+' closed at '+auD(to));
-    render();
-  };
-  if((e=q('#clmDrop'))) e.onclick=function(){
-    if(!CLAIMS.length){ if(window.toast) toast('No closed claims'); return; }
-    var c=CLAIMS[CLAIMS.length-1];
-    if(!window.confirm('Reopen claim '+c.no+' ('+auD(c.to)+')?\n\nIts period folds back into the '+
-      'open period.')) return;
-    CLAIMS.pop(); PICK=null; touch(); render();
-  };
-  if((e=q('#clmStatus'))) e.onchange=function(){ var c=currentClaim();
-    if(c&&!c.draft){ c.status=this.value; touch(); render(); } };
-  if((e=q('#clmIssued'))) e.onchange=function(){ var c=currentClaim();
-    if(c&&!c.draft){ c.issued=this.value; touch(); render(); } };
-  if((e=q('#clmCert'))) e.onchange=function(){ var c=currentClaim();
-    if(c&&!c.draft){ var v=parseFloat(this.value); c.certified=isFinite(v)?v:null; touch(); render(); } };
-  if((e=q('#clmNote'))) e.onchange=function(){ var c=currentClaim();
-    if(c&&!c.draft){ c.note=this.value; touch(); } };
-
-  qa('#clmOut [data-open]').forEach(function(b){
-    b.onclick=function(){ PICK=+this.dataset.open; CV='claim'; render(); };
-  });
-
-  if((e=q('#exAdd'))) e.onclick=function(){
-    var v=parseFloat(q('#exVal').value);
-    if(!isFinite(v)){ if(window.toast) toast('Enter a value'); return; }
-    EXTRAS.push({id:ESEQ++,no:+q('#exNo').value,kind:q('#exKind').value,
-      ref:q('#exRef').value.trim(),desc:q('#exDesc').value.trim(),value:v});
-    touch(); render();
-  };
-  qa('#clmOut [data-ex]').forEach(function(x){
-    x.onclick=function(){ var id=+this.dataset.ex;
-      EXTRAS=EXTRAS.filter(function(y){ return y.id!==id; }); touch(); render(); };
-  });
-
-  [['#stProj','project'],['#stNo','contractNo'],['#stPre','prefix'],['#stCtr','contractor'],
-   ['#stPri','principal'],['#stSup','superintendent']].forEach(function(p){
-    var el=q(p[0]); if(el) el.onchange=function(){ SET[p[1]]=this.value; touch(); render(); };
-  });
-  [['#stRet','retPct'],['#stCap','retCapPct'],['#stGst','gstPct']].forEach(function(p){
-    var el=q(p[0]); if(el) el.onchange=function(){ var v=parseFloat(this.value);
-      SET[p[1]]=isFinite(v)?v:0; touch(); render(); };
-  });
-  if((e=q('#stSum'))) e.onchange=function(){ var v=parseFloat(this.value);
-    SET.contractSum=isFinite(v)?v:null; touch(); render(); };
-  if((e=q('#stOvr'))) e.onchange=function(){ SET.sumOverride=this.checked; touch(); render(); };
-}
-
-/* ---------- save and load ---------- */
-var CCOLS=['type','no','date','status','certified','value_at_issue','kind','reference',
-           'description','value','note'];
-function rowsOut(){
-  var out=[CCOLS];
-  Object.keys(SET).forEach(function(k){
-    out.push(['setting','','','','','',k,'','',String(SET[k]==null?'':SET[k]),'']);
-  });
-  CLAIMS.forEach(function(c){
-    out.push(['claim',c.no,c.to,c.status||'',c.certified==null?'':c.certified,
-      c.valueAtIssue==null?'':c.valueAtIssue,'','','','',c.note||'']);
-    if(c.issued) out.push(['issued',c.no,c.issued,'','','','','','','','']);
-  });
-  EXTRAS.forEach(function(x){
-    out.push(['extra',x.no,'','','','',x.kind,x.ref||'',x.desc||'',x.value,'']);
-  });
-  return out;
-}
-function saveCsv(){
-  var s=rowsOut().map(function(r){ return r.map(function(v){
-    v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }).join(','); })
-    .join('\r\n');
-  var b=new Blob(['\ufeff'+s],{type:'text/csv;charset=utf-8'});
-  var a=document.createElement('a'), u=URL.createObjectURL(b);
-  a.href=u; a.download='T2W_claims.csv'; document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },400);
-  DIRTY=false; SRC='T2W_claims.csv'; render();
-  if(window.toast) toast('Claims saved \u2014 keep it with the workbook');
-}
-function parseCsv(text){
-  var rows=[],row=[],cur='',qt=false;
-  text=text.replace(/^\ufeff/,'');
-  for(var i=0;i<text.length;i++){
-    var ch=text[i];
-    if(qt){ if(ch==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else qt=false; } else cur+=ch; }
-    else if(ch==='"') qt=true;
-    else if(ch===','){ row.push(cur); cur=''; }
-    else if(ch==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
-    else if(ch!=='\r') cur+=ch;
-  }
-  if(cur!==''||row.length){ row.push(cur); rows.push(row); }
-  return rows.filter(function(r){ return r.some(function(v){ return String(v).trim()!==''; }); });
-}
-function ingest(aoa,name){
-  var head=aoa[0].map(function(h){ return String(h||'').trim().toLowerCase(); });
-  var I={}; head.forEach(function(h,i){ I[h]=i; });
-  if(I.type==null){ if(window.toast) toast('That file has no "type" column'); return; }
-  var cl=[], ex=[], seq=1, issued={};
-  aoa.slice(1).forEach(function(r){
-    var t=String(r[I.type]||'').trim().toLowerCase();
-    if(t==='setting'){
-      var k=String(r[I.kind]||''), v=String(r[I.value]||'');
-      if(!(k in SET)) return;
-      if(typeof SET[k]==='number' || k==='contractSum'){ var nv=parseFloat(v);
-        SET[k]=isFinite(nv)?nv:null; }
-      else if(typeof SET[k]==='boolean') SET[k]=(v==='true');
-      else SET[k]=v;
-    } else if(t==='claim'){
-      var cert=parseFloat(r[I.certified]), vai=parseFloat(r[I.value_at_issue]);
-      cl.push({no:+r[I.no],to:String(r[I.date]||'').slice(0,10),
-        status:String(r[I.status]||'Issued'),certified:isFinite(cert)?cert:null,
-        valueAtIssue:isFinite(vai)?vai:null,note:String(r[I.note]||''),issued:''});
-    } else if(t==='issued'){
-      issued[+r[I.no]]=String(r[I.date]||'').slice(0,10);
-    } else if(t==='extra'){
-      ex.push({id:seq++,no:+r[I.no],kind:String(r[I.kind]||'Variation'),
-        ref:String(r[I.reference]||''),desc:String(r[I.description]||''),
-        value:parseFloat(r[I.value])||0});
-    }
-  });
-  cl.sort(function(a,b){ return a.no-b.no; });
-  cl.forEach(function(c){ if(issued[c.no]) c.issued=issued[c.no]; });
-  CLAIMS=cl; EXTRAS=ex; ESEQ=seq; PICK=null; DIRTY=false; SRC=name;
-  if(window.toast) toast('Loaded '+cl.length+' claim'+(cl.length===1?'':'s')+' and '+
-    ex.length+' adjustment'+(ex.length===1?'':'s'));
-  render();
-}
-
-/* ---------- excel pack ---------- */
-function pack(){
-  if(typeof XLSX==='undefined'){ if(window.toast) toast('Excel export unavailable'); return; }
-  if(!grab()){ if(window.toast) toast('No register data'); return; }
-  var c=currentClaim(); if(!c){ if(window.toast) toast('No claim to export'); return; }
-  var R=calc(c.no), wb=XLSX.utils.book_new();
-
-  var s1=[['PAYMENT CLAIM '+SET.prefix+String(c.no).padStart(3,'0')],[],
-    ['Project',SET.project],['Contract',SET.contractNo],['Claimant',SET.contractor],
-    ['Principal',SET.principal],['Superintendent',SET.superintendent],[],
-    ['Claim number',c.no],['Period from',R.from||'start of works'],['Period to',c.to],
-    ['Days in the period',R.period.days.length],['Status',c.draft?'Draft (open period)':(c.status||'Draft')],
-    ['Issued',c.issued||''],[],
-    ['A','Value of work completed to date',R.wT],
-    ['B','Variations and adjustments to date',R.eT],
-    ['C','Total value of work to date',R.valT],
-    ['D','Less previously claimed',-R.valP],
-    ['E','Value of work this claim',R.valC],
-    ['F','Less retention this claim',-R.retC],
-    ['G','Net amount claimed',R.net],
-    ['H','GST at '+SET.gstPct+'%',R.gst],
-    ['','TOTAL CLAIMED INCLUDING GST',R.total],[],
-    ['Contract sum',R.sum],['Retention held to date',R.retT],['Retention cap',R.cap],
-    ['Complete by value',+pcv(R.valT,R.sum).toFixed(2)],
-    ['Trench this claim (m)',R.period.tm],['Pipe this claim (m)',R.period.pm],
-    ['Items this claim',R.period.items]];
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s1),'Claim summary');
-
-  var s2=[['Group','Item','Unit','Rate','Contract qty','Qty previous','Qty this claim','Qty to date',
-           'Value previous','Value this claim','Value to date','Complete %']];
-  R.lines.forEach(function(x){
-    if(!(x.l.qty>0||x.qT>0)) return;
-    s2.push([x.l.grp,x.l.desc,x.l.unit,x.l.rate,x.l.qty,x.qP,x.qC,x.qT,
-      x.vP,x.vC,x.vT,x.l.qty>0?+pcv(x.qT,x.l.qty).toFixed(2):'']);
-  });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s2),'Schedule detail');
-
-  var s3=[['Date','Shift','Recorded by','Section','Trench from','Trench to','Trench m',
-           'Pipe from','Pipe to','Pipe m','Items','Weather','Downtime h','Notes']];
-  R.period.days.slice().sort(function(a,b){ return a.date<b.date?-1:1; }).forEach(function(e){
-    (e.rows||[]).forEach(function(r,i){
-      s3.push([i===0?e.date:'',i===0?e.shift:'',i===0?e.by:'',r.sec,r.from,r.to,r.dt,
-        r.pfrom,r.pto,r.dp,r.items,i===0?e.wx:'',i===0?(e.down||0):'',i===0?e.notes:'']);
-    });
-  });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s3),'Daily records');
-
-  var s4=[['Date','Chainage','Section','Type','Feature','Rate line','Qty','Rate','Value']];
-  Object.keys(R.period.a).forEach(function(rk){
-    R.period.a[rk].list.forEach(function(o){
-      var rate=X.ST.paRate[rk];
-      s4.push([o.date,o.p.ch,o.p.sec,X.labelOf(o.p.type),o.p.name||o.p.ud||'',o.p.rlab,
-        X.qtyOf(o.p),rate==null?'':rate,rate==null?'':rate*X.qtyOf(o.p)]);
-    });
-  });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s4),'Items this claim');
-
-  var s5=[['Claim','Kind','Reference','Description','Value']];
-  EXTRAS.slice().sort(function(a,b){ return a.no-b.no; }).forEach(function(x){
-    s5.push([x.no,x.kind,x.ref,x.desc,Number(x.value)||0]); });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s5),'Variations');
-
-  var s6=[['No.','Period from','Period to','Days','Trench m','Value this claim','Retention',
-           'Net','GST','Total inc GST','Status','Issued','Certified','Variance']];
-  R.list.forEach(function(x,i){
-    var Q=calc(x.no);
-    s6.push([x.no,periodFrom(R.list,i)||'start',x.to,Q.period.days.length,Q.period.tm,
-      Q.valC,Q.retC,Q.net,Q.gst,Q.total,x.draft?'Draft (open)':(x.status||'Draft'),
-      x.issued||'',x.certified==null?'':x.certified,
-      x.certified==null?'':(x.certified-Q.total)]);
-  });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s6),'Claim register');
-
-  XLSX.writeFile(wb,'T2W_payment_claim_'+String(c.no).padStart(3,'0')+'.xlsx');
-  if(window.toast) toast('Claim pack exported');
-}
-
-/* ---------- init ---------- */
-function wire(){
-  qa('#clmNav button').forEach(function(b){
-    b.addEventListener('click',function(){ CV=b.dataset.cv; render();
-      try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(err){} });
-  });
-  var e;
-  if((e=q('#clmPick'))) e.addEventListener('change',function(){ PICK=+this.value; render(); });
-  if((e=q('#clmPrint'))) e.addEventListener('click',function(){ window.print(); });
-  if((e=q('#clmPack'))) e.addEventListener('click',pack);
-  if((e=q('#clmSave'))) e.addEventListener('click',saveCsv);
-  if((e=q('#clmLoad'))) e.addEventListener('click',function(){ q('#clmFile').click(); });
-  if((e=q('#clmFile'))) e.addEventListener('change',function(ev){
-    var f=ev.target.files&&ev.target.files[0]; ev.target.value='';
-    if(!f) return;
-    var fr=new FileReader();
-    fr.onload=function(x){ try{ ingest(parseCsv(x.target.result),f.name); }
-      catch(err){ console.error(err); if(window.toast) toast('Could not read that file'); } };
-    fr.readAsText(f);
-  });
-  window.addEventListener('beforeunload',function(ev){
-    if(DIRTY){ ev.preventDefault(); ev.returnValue=''; } });
-}
-document.addEventListener('DOMContentLoaded',wire);
-if(document.readyState!=='loading') wire();
-
-window.CLAIMS={ render:render };
 })();
 </script>
 <script>/* ==========================================================================
@@ -7833,7 +6823,6 @@ function refreshTabs(){
     var on=document.querySelector('nav.tabs button.on');
     var t=on?on.dataset.tab:'';
     if(t==='reports' && window.RPT) window.RPT.render();
-    if(t==='claims' && window.CLAIMS) window.CLAIMS.render();
     if(t==='costs' && window.COSTS) window.COSTS.render();
     if(t==='eod' && window.COSTS) window.COSTS.renderEOD();
   }catch(e){ console.error(e); }
