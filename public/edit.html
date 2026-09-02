@@ -368,6 +368,21 @@ tbody tr.picked:hover{background:#d7e8f4}
 #tab-eod .eodhead input:focus,#tab-eod .eodhead select:focus{outline:2px solid var(--accent);
   outline-offset:-1px;border-color:var(--accent)}
 #tab-eod .seccard{border-top:1px solid var(--line);padding:15px 14px}
+#tab-eod .rpnav{display:flex;flex-wrap:wrap;gap:6px;padding:13px 14px;
+  border-bottom:1px solid var(--line);position:sticky;top:84px;background:#fff;z-index:12}
+#tab-eod .rpnav button{border:1px solid #c3ccd7;background:#fff;border-radius:20px;
+  padding:6px 13px;cursor:pointer;font-size:12.5px;white-space:nowrap}
+#tab-eod .rpnav button:hover{border-color:var(--accent);color:var(--accent)}
+#tab-eod .rpnav button.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+#tab-eod .crewsub{margin:18px 0 9px;padding-top:13px;border-top:1px solid var(--line);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--mid)}
+/* the day log stays on screen while the crews above are filled in */
+#eodLogPanel{position:sticky;bottom:0;z-index:20;max-height:42vh;overflow:auto;
+  box-shadow:0 -3px 14px rgba(18,38,63,.13)}
+#eodLogPanel > h2{position:sticky;top:0;background:#fff;z-index:2}
+@media print{#tab-eod .rpnav{display:none!important}
+  #tab-eod .eodpane{display:block!important}
+  #eodLogPanel{position:static;max-height:none;box-shadow:none}}
 #tab-eod .seccard:first-child{border-top:0}
 #tab-eod .schd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-bottom:4px}
 #tab-eod .schd b{font-size:16px}
@@ -849,28 +864,24 @@ tbody tr.picked:hover{background:#d7e8f4}
           <div><label for="eodDown">Downtime (hrs)</label>
             <input type="number" id="eodDown" min="0" step="0.5" placeholder="0"></div>
         </div>
+        <div class="note" id="eodStartPositions" style="margin-top:12px;line-height:1.9"></div>
         <div class="warnbox hide" id="eodDup"></div>
       </div>
     </div>
 
     <div class="panel">
-      <h2>Progress</h2>
+      <h2>Progress — six crews</h2>
+      <div class="pad" style="padding-bottom:8px">
+        <p class="note" style="margin:0">Each of the six crews (2 sections × special crossings /
+          trenchless / standard) keeps its own trench and pipe front. Progress in either direction stays
+          on the same stretch; a jump past what a normal day could cover is a relocation — it opens a
+          new stretch rather than crediting the ground in between. Work already behind or ahead of each
+          section's overall completed front, from any crew, is caught up below the three crew cards.</p>
+      </div>
       <div id="eodSecs"></div>
     </div>
 
-    <div class="panel">
-      <h2>Plant and labour</h2>
-      <div class="pad" style="padding-bottom:8px">
-        <p class="note" id="eodPlantNote" style="margin-bottom:11px"></p>
-      </div>
-      <div class="tblWrap"><table id="eodPlant" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
-      <div class="pad" style="padding-top:10px">
-        <button class="btn sec" id="eodPlantAdd">Add a row</button>
-        <button class="btn sec" id="eodPlantClear">Clear all rows</button>
-        <button class="btn sec" id="eodPlantRemember">Remember this crew</button>
-        <datalist id="eodPlantList"></datalist>
-      </div>
-    </div>
+    <datalist id="eodPlantList"></datalist>
 
     <div class="panel">
       <h2>Safety</h2>
@@ -930,28 +941,36 @@ tbody tr.picked:hover{background:#d7e8f4}
     </div>
 
     <div class="panel">
+      <h2>How this page works</h2>
+      <div class="pad">
+        <p class="note"><b>Six crews, six fronts.</b> Each crew keeps its own trench and pipe chainage and is
+          filled in on its own tab, along with the plant and labour that worked with it. One Save records the
+          lot as a single day.</p>
+        <p class="note"><b>Yesterday is carried forward.</b> Each crew shows the chainage it had already
+          reached, so the only thing to type is where it got to today. Type the chainage reached or the metres
+          done &mdash; either one fills the other, and either can be negative if the crew worked backwards.</p>
+        <p class="note"><b>Moving a crew is deliberate.</b> A day&rsquo;s entry is always progress on the stretch
+          the crew is already on, however far it went. To put a crew somewhere else on the alignment, use
+          <b>Set opening chainage</b> at the top &mdash; that closes off the stretch it was on and opens a new
+          one, without crediting the ground in between.</p>
+        <p class="note"><b>It writes to the same place as the Costs tab.</b> Saving a day sets the metres on the
+          trench sections it covers and ticks the point assets you confirm, so the cost position and the day log
+          cannot drift apart. Where two crews cover the same ground, each point asset is claimed by one of them
+          only, so nothing is counted twice.</p>
+        <p class="note"><b>Point assets are listed, not assumed.</b> Anything the crew newly covered is offered
+          with a tick, because if the trench went past it, it is probably done &mdash; but it stays your call,
+          and an untick leaves it outstanding.</p>
+        <p class="note"><b>Append only.</b> A saved day is what was reported that day. To correct one, either undo
+          the last day while it is still the last, or record the true position on the next day.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="eodLogPanel">
       <h2>Days recorded</h2>
       <div class="tblWrap"><table id="eodLog" class="wide"><thead></thead><tbody></tbody><tfoot></tfoot></table></div>
       <div class="pad" style="padding-top:10px">
         <span class="count" id="eodLogCount"></span>
         <button class="btn sec" id="eodUndo" style="margin-left:12px">Undo the last day</button>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>How this page works</h2>
-      <div class="pad">
-        <p class="note"><b>Yesterday is carried forward.</b> Each section shows the chainage it had already
-          reached, so the only thing to type is where it got to today. Type the chainage reached or the metres
-          done &mdash; either one fills the other.</p>
-        <p class="note"><b>It writes to the same place as the Costs tab.</b> Saving a day sets the metres on the
-          trench sections it covers and ticks the point assets you confirm, so the cost position and the day log
-          cannot drift apart. Nothing is recorded twice.</p>
-        <p class="note"><b>Point assets are listed, not assumed.</b> Anything sitting between yesterday's
-          chainage and today's is offered with a tick, because if the trench went past it, it is probably done
-          &mdash; but it stays your call, and an untick leaves it outstanding.</p>
-        <p class="note"><b>Append only.</b> A saved day is what was reported that day. To correct one, either undo
-          the last day while it is still the last, or record the true position on the next day.</p>
       </div>
     </div>
 
@@ -1006,6 +1025,7 @@ tbody tr.picked:hover{background:#d7e8f4}
       <div class="pad">
         <div class="rpnav" id="rpNav">
           <button data-rp="dash" class="on">Position</button>
+          <button data-rp="crews">Crew progress</button>
           <button data-rp="daily">A day</button>
           <button data-rp="prod">Production</button>
           <button data-rp="look">Look-ahead</button>
@@ -3574,6 +3594,73 @@ var ST = { tDone:{}, pDone:{}, paDone:{}, pipeType:{},
            tSrc:{}, pSrc:{}, paSrc:{},             /* Rate Library "Rate Source / Basis" text */
            plant:{} };                             /* $/h by Type|Description */
 
+/* ============================================================
+   Crew progress model (six crews: 2 sections x 3 crew types).
+   Each crew keeps its own trench front AND its own pipe front —
+   independent stretches that can move in either direction. A move
+   past the tolerance for that crew type is a relocation: the old
+   stretch is closed off and a new one opens where they typed,
+   rather than the ground in between being counted as done.
+   ============================================================ */
+var CREW_TYPES = ['special_crossing','trenchless','standard'];
+var CREW_LABEL = {special_crossing:'Special crossings', trenchless:'Trenchless crossing', standard:'Standard'};
+var CREW_KEY = 'T2W_CREW_STATE_v2';
+var CREW_TRACKS = ['trench','pipe'];
+
+function crewTrackNew(){ return {active_from:null,current_position:null,segments:[]}; }
+function crewCrewNew(){
+  var o={}; CREW_TRACKS.forEach(function(tr){ o[tr]=crewTrackNew(); }); return o;
+}
+function crewStateNew(){
+  var s={};
+  SECS.forEach(function(sec){
+    s[sec]={};
+    CREW_TYPES.forEach(function(c){ s[sec][c]=crewCrewNew(); });
+  });
+  return s;
+}
+var CREWSTATE=null;
+function crewLoad(){
+  try{
+    var raw=localStorage.getItem(CREW_KEY);
+    CREWSTATE = raw ? JSON.parse(raw) : crewStateNew();
+  }catch(e){ CREWSTATE = crewStateNew(); }
+  SECS.forEach(function(sec){
+    if(!CREWSTATE[sec]) CREWSTATE[sec]={};
+    CREW_TYPES.forEach(function(c){
+      if(!CREWSTATE[sec][c]) CREWSTATE[sec][c]=crewCrewNew();
+      CREW_TRACKS.forEach(function(tr){ if(!CREWSTATE[sec][c][tr]) CREWSTATE[sec][c][tr]=crewTrackNew(); });
+    });
+  });
+}
+function crewSave(){
+  try{ localStorage.setItem(CREW_KEY, JSON.stringify(CREWSTATE)); }catch(e){}
+}
+/* A day's entry is always plain progress on the crew's current stretch, in
+   either direction and for any distance — a 400 m day is a 400 m day, not a
+   jump. Moving a crew to a different part of the alignment is a deliberate
+   act, done through crewSetOpening (the "Set opening chainage" tool), which
+   is where a stretch gets closed off and a new one opened. */
+function crewRecord(sec, crew, track, chainage, dateISO){
+  var cs=CREWSTATE[sec][crew][track];
+  if(cs.current_position==null){
+    cs.active_from=chainage; cs.current_position=chainage;
+    crewSave();
+    return {type:'opened'};
+  }
+  var prev=cs.current_position;
+  cs.current_position=chainage;
+  crewSave();
+  return {type:'progress', from:prev, to:chainage};
+}
+function crewCombos(){
+  var out=[];
+  SECS.forEach(function(sec){ CREW_TYPES.forEach(function(crew){
+    out.push({sec:sec, crew:crew, key:sec+'_'+crew});
+  }); });
+  return out;
+}
+
 var T=[], PA=[], SECS=[], EXT={}, COMBOS=[], TTS=[], FRONT={}, PFRONT={}, PAMARK={}, RIDX={};
 var PALINES=[], PABY={};
 var built=false, poll=null, TSFILT='all', PAFILT='range', PATYPE='';
@@ -4257,33 +4344,112 @@ function captureBase(){
 
 function buildEOD(){
   var host=q('#eodSecs'); host.innerHTML='';
+  crewLoad();
+  var combos=crewCombos();
+  if(!EODTAB || !combos.some(function(c){ return c.key===EODTAB; })) EODTAB=combos[0].key;
+
+  /* the tab strip — one pill per crew, plus the two section catch-up panels */
+  var nav=ce('div','rpnav'); nav.id='eodNav';
+  combos.forEach(function(c){
+    var b=ce('button',null,c.sec+' \u00b7 '+CREW_LABEL[c.crew]);
+    b.dataset.eodtab=c.key;
+    if(c.key===EODTAB) b.className='on';
+    b.addEventListener('click',function(){ EODTAB=c.key; showEODTab(); });
+    nav.appendChild(b);
+  });
   SECS.forEach(function(sec){
-    var ext=EXT[sec];
-    var card=ce('div','seccard');
+    var b=ce('button',null,sec+' \u00b7 catching up');
+    b.dataset.eodtab='sec_'+sec;
+    if(('sec_'+sec)===EODTAB) b.className='on';
+    b.addEventListener('click',function(){ EODTAB='sec_'+sec; showEODTab(); });
+    nav.appendChild(b);
+  });
+  host.appendChild(nav);
+
+  combos.forEach(function(c){
+    var ext=EXT[c.sec];
+    var card=ce('div','seccard eodpane'); card.dataset.pane=c.key;
     card.innerHTML=
-      '<div class="schd"><b>'+sec+'</b>'+
-        '<span class="prev" id="eodPrev-'+sec+'"></span>'+
-        '<span class="today" id="eodToday-'+sec+'"></span></div>'+
+      '<div class="schd"><b>'+c.sec+' \u2014 '+CREW_LABEL[c.crew]+'</b>'+
+        '<span class="prev" id="eodPrev-'+c.key+'"></span>'+
+        '<span class="today" id="eodToday-'+c.key+'"></span></div>'+
       '<div class="pair2">'+
-        '<div class="fld2" id="eodTF-'+sec+'"><div class="cap"><span>Trench</span>'+
-          '<i id="eodTWas-'+sec+'"></i></div>'+
+        '<div class="fld2" id="eodTF-'+c.key+'"><div class="cap"><span>Trench</span>'+
+          '<i id="eodTWas-'+c.key+'"></i></div>'+
           '<div class="two"><input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+
-            '" id="eodTCh-'+sec+'" placeholder="reached ch">'+
+            '" id="eodTCh-'+c.key+'" placeholder="reached ch">'+
             '<span class="sep">or</span>'+
-            '<input type="number" step="0.001" min="0" id="eodTM-'+sec+'" placeholder="m today"></div>'+
-          '<div class="out" id="eodTOut-'+sec+'"></div></div>'+
-        '<div class="fld2" id="eodPF-'+sec+'"><div class="cap"><span>Pipe</span>'+
-          '<i id="eodPWas-'+sec+'"></i></div>'+
+            '<input type="number" step="0.001" id="eodTM-'+c.key+'" placeholder="\u00b1m today"></div>'+
+          '<div class="out" id="eodTOut-'+c.key+'"></div></div>'+
+        '<div class="fld2" id="eodPF-'+c.key+'"><div class="cap"><span>Pipe</span>'+
+          '<i id="eodPWas-'+c.key+'"></i></div>'+
           '<div class="two"><input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+
-            '" id="eodPCh-'+sec+'" placeholder="reached ch">'+
+            '" id="eodPCh-'+c.key+'" placeholder="reached ch">'+
             '<span class="sep">or</span>'+
-            '<input type="number" step="0.001" min="0" id="eodPM-'+sec+'" placeholder="m today"></div>'+
-          '<div class="out" id="eodPOut-'+sec+'"></div></div>'+
+            '<input type="number" step="0.001" id="eodPM-'+c.key+'" placeholder="\u00b1m today"></div>'+
+          '<div class="out" id="eodPOut-'+c.key+'"></div></div>'+
       '</div>'+
-      '<div class="pabar" id="eodPABar-'+sec+'"></div>'+
-      '<div class="tblWrap scroll pawrap" id="eodPAWrap-'+sec+'">'+
-        '<table class="wide eodpa" id="eodPA-'+sec+'"><thead></thead><tbody></tbody></table></div>'+
-      '<div class="none" id="eodNone-'+sec+'"></div>'+
+      '<div class="pabar" id="eodPABar-'+c.key+'"></div>'+
+      '<div class="tblWrap scroll pawrap" id="eodPAWrap-'+c.key+'">'+
+        '<table class="wide eodpa" id="eodPA-'+c.key+'"><thead></thead><tbody></tbody></table></div>'+
+      '<div class="none" id="eodNone-'+c.key+'"></div>'+
+      /* this crew's own plant and labour */
+      '<div class="crewsub">Plant and labour \u2014 '+CREW_LABEL[c.crew]+'</div>'+
+      '<p class="note" id="eodPlantNote-'+c.key+'" style="margin:0 0 10px"></p>'+
+      '<div class="tblWrap"><table id="eodPlant-'+c.key+'" class="wide">'+
+        '<thead></thead><tbody></tbody><tfoot></tfoot></table></div>'+
+      '<div style="padding-top:10px">'+
+        '<button class="btn sec" id="eodPlantAdd-'+c.key+'">Add a row</button> '+
+        '<button class="btn sec" id="eodPlantClear-'+c.key+'">Clear all rows</button> '+
+        '<button class="btn sec" id="eodPlantCopy-'+c.key+'">Copy to every crew</button>'+
+      '</div>';
+    host.appendChild(card);
+
+    function link(chId,mId,baseFn,cb){
+      var ch=q(chId), m=q(mId);
+      ch.addEventListener('input',function(){
+        var v=numOf(ch);
+        m.value = v==null ? '' : +(v-baseFn()).toFixed(3);
+        cb();
+      });
+      m.addEventListener('input',function(){
+        var v=numOf(m);
+        ch.value = v==null ? '' : +(baseFn()+v).toFixed(3);
+        cb();
+      });
+    }
+    link('#eodTCh-'+c.key,'#eodTM-'+c.key,function(){ return CREWBASE[c.key]?CREWBASE[c.key].t:0; },
+      function(){ eodRender(c.key); });
+    link('#eodPCh-'+c.key,'#eodPM-'+c.key,function(){ return CREWBASE[c.key]?CREWBASE[c.key].p:0; },
+      function(){ eodRender(c.key); });
+
+    q('#eodPlantAdd-'+c.key).addEventListener('click',function(){
+      var L=plantOf(c.key);
+      L.push({kind:'Labour',desc:'',n:1,hrs:L.length?L[0].hrs:DEFHOURS,sb:0,notes:''});
+      renderPlant(c.key);
+    });
+    q('#eodPlantClear-'+c.key).addEventListener('click',function(){
+      PLANTS[c.key]=[]; renderPlant(c.key); eodTally();
+    });
+    q('#eodPlantCopy-'+c.key).addEventListener('click',function(){
+      var src=plantOf(c.key);
+      if(!src.length){ if(window.toast) toast('Nothing to copy'); return; }
+      if(!window.confirm('Copy these '+src.length+' row(s) to all six crews, replacing what they have?')) return;
+      crewCombos().forEach(function(o){
+        PLANTS[o.key]=src.map(function(p){
+          return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:p.sb,notes:p.notes}; });
+      });
+      renderAllPlant(); eodTally();
+      if(window.toast) toast('Copied to every crew');
+    });
+  });
+
+  SECS.forEach(function(sec){
+    var shared=ce('div','seccard eodpane'); shared.dataset.pane='sec_'+sec;
+    shared.innerHTML=
+      '<div class="schd"><b>'+sec+' \u2014 catching up</b>'+
+        '<span class="prev">work already behind or ahead of the section\u2019s overall completed front, '+
+        'from any crew</span></div>'+
       '<div class="pabar" id="eodBLBar-'+sec+'"></div>'+
       '<div class="tblWrap scroll pawrap hide" id="eodBLWrap-'+sec+'">'+
         '<table class="wide eodpa" id="eodBL-'+sec+'"><thead></thead><tbody></tbody></table></div>'+
@@ -4295,55 +4461,259 @@ function buildEOD(){
       '<div class="tblWrap scroll pawrap hide" id="eodTPWrap-'+sec+'">'+
         '<div id="eodTPFilter-'+sec+'"></div>'+
         '<table class="wide eodpa" id="eodTP-'+sec+'"><thead></thead><tbody></tbody></table></div>';
-    host.appendChild(card);
-
-    /* chainage and metres fill each other, so either can be typed */
-    function link(chId,mId,base,cb){
-      var ch=q(chId), m=q(mId);
-      ch.addEventListener('input',function(){
-        var v=numOf(ch);
-        m.value = v==null ? '' : +Math.max(v-base(),0).toFixed(3);
-        cb();
-      });
-      m.addEventListener('input',function(){
-        var v=numOf(m);
-        ch.value = v==null ? '' : +(base()+v).toFixed(3);
-        cb();
-      });
-    }
-    link('#eodTCh-'+sec,'#eodTM-'+sec,function(){ return baseFront(sec); },function(){ eodRender(sec); });
-    link('#eodPCh-'+sec,'#eodPM-'+sec,function(){ return EODPIPE[sec]||0; },function(){ eodRender(sec); });
+    host.appendChild(shared);
   });
+
   if(!EODSEED){
     q('#eodDate').value=todayISO();
-    PLANT=plantCarry(); HP=hpCarry();
+    seedPlants(); HP=hpCarry();
     EODSEED=true;
   }
   EODBUILT=true;
-  renderPlant(); renderHP(); eodSafeNote();
+  captureCrewBase();
+  renderAllPlant(); renderHP(); eodSafeNote();
   eodRender();
+  renderStartPositions();
+  showEODTab();
 }
-
-/* the point assets between yesterday's chainage and today's */
-/* Assets newly covered today. Each type is measured against the front that
-   actually completes it: trench stops and thrust blocks against the trench
-   chainage, bends and valves against the pipe chainage. Typing only one of the
-   two therefore lists only the assets that one front has passed. */
-function eodAssetsFor(sec){
-  if(!EODBUILT) return [];
-  var te=q('#eodTCh-'+sec); if(!te) return [];
-  var pe=q('#eodPCh-'+sec);
-  var tFrom=baseFront(sec), tTo=numOf(te);
-  var pFrom=EODPIPE[sec]||0, pTo=pe?numOf(pe):null;
-  var tOn=(tTo!=null&&tTo>tFrom), pOn=(pTo!=null&&pTo>pFrom);
-  if(!tOn && !pOn) return [];
-  return PA.filter(function(p){
-    if(p.sec!==sec || ST.paDone[p.key]) return false;
-    if(p.drv==='PIPE')
-      return pOn && p.ch>pFrom-1e-9 && p.ch<=pTo+1e-9;
-    return tOn && p.ch>tFrom-1e-9 && p.ch<=tTo+1e-9;
+/* which crew tab is showing */
+var EODTAB=null;
+function showEODTab(){
+  qa('#eodNav button').forEach(function(b){
+    b.className = (b.dataset.eodtab===EODTAB) ? 'on' : ''; });
+  qa('#eodSecs .eodpane').forEach(function(p){
+    p.style.display = (p.dataset.pane===EODTAB) ? '' : 'none'; });
+}
+/* ---------- crew fronts: base capture, asset attribution, per-crew render ---------- */
+var CREWBASE={};
+function captureCrewBase(){
+  CREWBASE={};
+  crewCombos().forEach(function(c){
+    var cs=CREWSTATE[c.sec][c.crew];
+    CREWBASE[c.key]={
+      t: cs.trench.current_position!=null ? cs.trench.current_position : 0,
+      p: cs.pipe.current_position!=null ? cs.pipe.current_position : 0
+    };
   });
 }
+/* Set a crew's front directly, without crediting the ground in between.
+   Used for the opening position at the start of a job, and for correcting a
+   front that was typed wrong. Any stretch the crew already had open is closed
+   off into its history first, so nothing already logged is lost. */
+function crewSetOpening(sec, crew, track, chainage, dateISO){
+  var cs=CREWSTATE[sec][crew][track];
+  if(cs.current_position!=null && Math.abs(cs.current_position-cs.active_from)>1e-9){
+    cs.segments.push({from:cs.active_from, to:cs.current_position, date_closed:dateISO||null});
+  }
+  cs.active_from=chainage; cs.current_position=chainage;
+  crewSave();
+}
+function renderStartPositions(){
+  var host=q('#eodStartPositions'); if(!host) return;
+  var open=host.dataset.open==='1';
+
+  if(!open){
+    var lines=SECS.map(function(sec){
+      var bits=crewCombos().filter(function(c){ return c.sec===sec; }).map(function(c){
+        var b=CREWBASE[c.key]||{t:0,p:0};
+        return CREW_LABEL[c.crew]+' trench '+m1(b.t)+' m \u00b7 pipe '+m1(b.p)+' m';
+      });
+      return '<div><b>'+sec+'</b> \u2014 '+bits.join(' &nbsp;|&nbsp; ')+'</div>';
+    });
+    host.innerHTML=lines.join('')+
+      '<div style="margin-top:9px"><button class="btn sec" id="eodOpenToggle">'+
+      'Set opening chainage</button></div>';
+    q('#eodOpenToggle').addEventListener('click',function(){
+      host.dataset.open='1'; renderStartPositions(); });
+    return;
+  }
+
+  var h='<p style="margin:0 0 10px"><b>Opening chainage.</b> Where each crew starts, before any day is '+
+    'recorded. Setting a figure here moves that front straight to it without crediting the ground in '+
+    'between \u2014 it is the starting position, not a day\u2019s work. Use it again to correct a front '+
+    'that was typed wrong. Leave a box empty to keep that front where it is.</p>';
+  SECS.forEach(function(sec){
+    h+='<div class="sub" style="margin:10px 0 6px"><b>'+sec+'</b></div><div class="fgrid">';
+    crewCombos().filter(function(c){ return c.sec===sec; }).forEach(function(c){
+      var b=CREWBASE[c.key]||{t:0,p:0}, ext=EXT[sec]||0;
+      h+='<div class="f"><label>'+CREW_LABEL[c.crew]+'</label>'+
+         '<div class="pair">'+
+           '<input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+'" id="eodOpenT-'+c.key+
+             '" placeholder="trench '+m1(b.t)+'">'+
+           '<span>/</span>'+
+           '<input type="number" step="0.001" min="0" max="'+ext.toFixed(3)+'" id="eodOpenP-'+c.key+
+             '" placeholder="pipe '+m1(b.p)+'">'+
+         '</div><div class="hint">trench m / pipe m</div></div>';
+    });
+    h+='</div>';
+  });
+  h+='<div class="actions"><button class="btn" id="eodOpenApply">Set these opening positions</button>'+
+     '<button class="btn sec" id="eodOpenCancel">Cancel</button></div>';
+  host.innerHTML=h;
+
+  q('#eodOpenCancel').addEventListener('click',function(){
+    host.dataset.open=''; renderStartPositions(); });
+  q('#eodOpenApply').addEventListener('click',function(){
+    var dateVal=q('#eodDate')?q('#eodDate').value:null, n=0, bad=[];
+    crewCombos().forEach(function(c){
+      var ext=EXT[c.sec]||0;
+      var tv=numOf(q('#eodOpenT-'+c.key)), pv=numOf(q('#eodOpenP-'+c.key));
+      if(tv!=null){
+        if(tv<0||tv>ext) bad.push(CREW_LABEL[c.crew]+' trench');
+        else { crewSetOpening(c.sec,c.crew,'trench',tv,dateVal); n++; }
+      }
+      if(pv!=null){
+        if(pv<0||pv>ext) bad.push(CREW_LABEL[c.crew]+' pipe');
+        else { crewSetOpening(c.sec,c.crew,'pipe',pv,dateVal); n++; }
+      }
+    });
+    if(bad.length && window.toast) toast('Outside the section range, ignored: '+bad.join(', '));
+    captureCrewBase();
+    host.dataset.open='';
+    eodRender();
+    renderStartPositions();
+    if(n && window.toast) toast(n+' opening position'+(n===1?'':'s')+' set');
+  });
+}
+/* The ground each crew has newly covered today, as trench and pipe ranges.
+   Only ordinary progress counts — a relocation day opens a new stretch and
+   credits no ground, so it covers no assets. */
+function eodComboRanges(c){
+  var base=CREWBASE[c.key];
+  if(!base) return null;
+  var t=numOf(q('#eodTCh-'+c.key)), p=numOf(q('#eodPCh-'+c.key));
+  var ext=EXT[c.sec];
+  var tReach = (t!=null && t>=0 && t<=ext) ? t : base.t;
+  var tLo=Math.min(base.t,tReach), tHi=Math.max(base.t,tReach);
+  var pReach = (p!=null && p>=tLo-1e-9 && p<=tHi+1e-9) ? p : base.p;
+  var pLo=Math.min(base.p,pReach), pHi=Math.max(base.p,pReach);
+  var tOn = t!=null && Math.abs(tReach-base.t)>1e-9;
+  var pOn = p!=null && Math.abs(pReach-base.p)>1e-9;
+  return {tOn:tOn, pOn:pOn, tLo:tLo, tHi:tHi, pLo:pLo, pHi:pHi,
+          tReach:tReach, pReach:pReach, base:base};
+}
+/* Two crews in the same section can cover overlapping ground on the same day.
+   Without this, the same asset would appear on both cards and be counted twice
+   in the day's value. Each asset is claimed by exactly one crew — the first, in
+   the fixed crew order — so the tick and its cost land in one place only. */
+function eodClaimMap(){
+  var claim={};
+  crewCombos().forEach(function(c){
+    var r=eodComboRanges(c); if(!r || (!r.tOn && !r.pOn)) return;
+    PA.forEach(function(x){
+      if(x.sec!==c.sec || ST.paDone[x.key] || claim[x.key]) return;
+      var hit = (x.drv==='PIPE')
+        ? (r.pOn && x.ch>=r.pLo-1e-9 && x.ch<=r.pHi+1e-9)
+        : (r.tOn && x.ch>=r.tLo-1e-9 && x.ch<=r.tHi+1e-9);
+      if(hit) claim[x.key]=c.key;
+    });
+  });
+  return claim;
+}
+function eodAssetsForCombo(c, claim){
+  if(!EODBUILT) return [];
+  claim = claim || eodClaimMap();
+  return PA.filter(function(x){ return claim[x.key]===c.key; })
+           .sort(function(a,b){ return a.ch-b.ch; });
+}
+function eodPABarCombo(c){
+  var bar=q('#eodPABar-'+c.key); if(!bar) return;
+  var list=eodAssetsForCombo(c);
+  if(!list.length){ bar.innerHTML=''; return; }
+  var on=list.filter(function(a){ return EODTICK[a.key]; }).length;
+  var val=list.reduce(function(t,a){
+    var r=EODTICK[a.key]?rateOf(a):null; return t+(r==null?0:r*qtyOf(a)); },0);
+  bar.innerHTML='<span class="n"><b>'+on+'</b> of <b>'+list.length+'</b> point assets in the new ground '+
+    'complete \u00b7 '+money(val)+'</span>';
+  var b1=ce('button','btn sec','Tick all');
+  b1.addEventListener('click',function(){ list.forEach(function(a){ EODTICK[a.key]=true; }); eodRender(c.key); });
+  var b2=ce('button','btn sec','Untick all');
+  b2.addEventListener('click',function(){ list.forEach(function(a){ EODTICK[a.key]=false; }); eodRender(c.key); });
+  bar.appendChild(b1); bar.appendChild(b2);
+}
+function eodRenderCombo(key){
+  var c=null; crewCombos().forEach(function(x){ if(x.key===key) c=x; }); if(!c) return;
+  var base=CREWBASE[c.key]; if(!base) return;
+  var ext=EXT[c.sec];
+
+  q('#eodPrev-'+c.key).textContent='yesterday: trench '+m1(base.t)+' m \u00b7 pipe '+m1(base.p)+' m';
+  q('#eodTWas-'+c.key).textContent='was '+m1(base.t)+' m';
+  q('#eodPWas-'+c.key).textContent='was '+m1(base.p)+' m';
+
+  var t=numOf(q('#eodTCh-'+c.key)), p=numOf(q('#eodPCh-'+c.key));
+  var tf=q('#eodTF-'+c.key), pf=q('#eodPF-'+c.key);
+  tf.classList.remove('err'); pf.classList.remove('err');
+  var tOut='', pOut='';
+  var tReach=base.t, pReach=base.p;
+  if(t!=null){
+    if(t<0 || t>ext){ tf.classList.add('err'); tOut='outside '+c.sec+'\u2019s range of 0\u2013'+m1(ext)+' m'; }
+    else{
+      tReach=t;
+      var delta=t-base.t;
+      tOut=(delta>=0?'+':'')+m1(delta)+' m of trench';
+    }
+  }
+  var tLo=Math.min(base.t,tReach), tHi=Math.max(base.t,tReach);
+  if(p!=null){
+    if(p<tLo-1e-9 || p>tHi+1e-9){
+      pf.classList.add('err');
+      pOut='must stay within '+m1(tLo)+'\u2013'+m1(tHi)+' m, the ground this crew covered today';
+    } else {
+      pReach=p;
+      var pdelta=p-base.p;
+      pOut=(pdelta>=0?'+':'')+m1(pdelta)+' m of pipe';
+    }
+  }
+  q('#eodTOut-'+c.key).textContent=tOut;
+  q('#eodPOut-'+c.key).textContent=pOut;
+
+  var list=eodAssetsForCombo(c);
+  var th=q('#eodPA-'+c.key+' thead'), tb=q('#eodPA-'+c.key+' tbody');
+  if(!th.dataset.built){
+    th.innerHTML='<tr><th></th><th>Record</th><th class="num">Chainage m</th>'+
+      '<th>Driver</th><th>Asset type</th><th>Type / item</th><th class="num">Cost</th></tr>';
+    th.dataset.built='1';
+  }
+  tb.innerHTML='';
+  var frag=document.createDocumentFragment();
+  list.forEach(function(a){
+    if(EODTICK[a.key]===undefined) EODTICK[a.key]=true;
+    var on=!!EODTICK[a.key], rate=rateOf(a);
+    var tr=document.createElement('tr'); tr.className=on?'on':'off';
+    function td(v,cls){ var cel=document.createElement('td'); if(cls)cel.className=cls;
+      if(v&&v.nodeType) cel.appendChild(v); else cel.innerHTML=v; tr.appendChild(cel); }
+    var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=on;
+    cb.title='Complete '+a.key+' today';
+    cb.addEventListener('change',function(){
+      EODTICK[a.key]=cb.checked; tr.className=cb.checked?'on':'off';
+      eodPABarCombo(c); eodTally();
+    });
+    td(cb,'tick-col');
+    td(a.key); td(m1(a.ch),'num'); td(a.drv);
+    td(labelOf(a.type));
+    td(a.item ? (a.ud+' \u00b7 '+a.item)
+              : (a.cls || (a.vt?('type '+a.vt):'') || a.name || ''));
+    td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(a)),'num');
+    frag.appendChild(tr);
+  });
+  tb.appendChild(frag);
+  q('#eodPAWrap-'+c.key).classList.toggle('hide',!list.length);
+  eodPABarCombo(c);
+
+  var n=q('#eodNone-'+c.key);
+  n.textContent = list.length ? '' :
+    'Type a chainage and any point assets newly covered by this crew will be listed here to tick.';
+  var dt = (t!=null) ? tReach-base.t : 0;
+  var dp = (p!=null) ? pReach-base.p : 0;
+  q('#eodToday-'+c.key).textContent = (dt||dp)
+    ? ('today: '+(dt>=0?'+':'')+m1(dt)+' m trench \u00b7 '+(dp>=0?'+':'')+m1(dp)+' m pipe') : '';
+}
+/* dispatcher: a combo key renders one crew card, a plain section code
+   renders the shared catch-up panel, no argument renders everything */
+function eodRenderSection(sec){
+  eodBLRender(sec); eodAhRender(sec); eodTPRender(sec);
+}
+
 var EODTICK={};
 /* ---------- the catch-up list ----------
    eodAssetsFor only offers what today's chainage newly covered. Anything the
@@ -4703,110 +5073,17 @@ function eodTPBarOnly(sec){
 
 function eodRender(only){
   if(!EODBUILT) return;
-  var secs = only ? [only] : SECS;
-  secs.forEach(function(sec){
-    var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
-    q('#eodPrev-'+sec).textContent='yesterday: trench '+m1(from)+' m \u00b7 pipe '+m1(pfrom)+' m'+
-      (pfrom>from+1e-9 ? '  \u26a0 pipe is recorded ahead of the trench' : '');
-    q('#eodTWas-'+sec).textContent='was '+m1(from)+' m';
-    q('#eodPWas-'+sec).textContent='was '+m1(pfrom)+' m';
-
-    var t=numOf(q('#eodTCh-'+sec)), p=numOf(q('#eodPCh-'+sec));
-    var tf=q('#eodTF-'+sec), pf=q('#eodPF-'+sec);
-    tf.classList.remove('err'); pf.classList.remove('err');
-    var tOut='', pOut='';
-    if(t!=null){
-      if(t<from){ tf.classList.add('err'); tOut='behind yesterday\u2019s '+m1(from)+' m — a day cannot go backwards'; }
-      else if(t>ext){ tf.classList.add('err'); tOut='past the end of '+sec+' at '+m1(ext)+' m'; }
-      else tOut='+'+m1(t-from)+' m of trench';
-    }
-    if(p!=null){
-      var cap = t!=null && t>=from && t<=ext ? t : from;
-      if(p<pfrom){ pf.classList.add('err'); pOut='behind yesterday\u2019s '+m1(pfrom)+' m'; }
-      else if(p>cap){ pf.classList.add('err');
-        pOut='ahead of the trench at '+m1(cap)+' m — pipe cannot outrun its own trench'; }
-      else pOut='+'+m1(p-pfrom)+' m of pipe';
-    }
-    q('#eodTOut-'+sec).textContent=tOut;
-    q('#eodPOut-'+sec).textContent=pOut;
-
-    /* assets newly covered, listed like the Costs tab rather than as pills:
-       31 of them as pills is unreadable, and the record key and cost matter */
-    var list=eodAssetsFor(sec);
-    var th=q('#eodPA-'+sec+' thead'), tb=q('#eodPA-'+sec+' tbody');
-    if(!th.dataset.built){
-      th.innerHTML='<tr><th></th><th>Record</th><th class="num">Chainage m</th>'+
-        '<th>Driver</th><th>Asset type</th><th>Type / item</th>'+
-        '<th class="num">Cost</th></tr>';
-      th.dataset.built='1';
-    }
-    tb.innerHTML='';
-    var frag=document.createDocumentFragment();
-    list.forEach(function(a){
-      if(EODTICK[a.key]===undefined) EODTICK[a.key]=true;   /* the trench went past it */
-      var on=!!EODTICK[a.key], rate=rateOf(a);
-      var tr=document.createElement('tr'); tr.className=on?'on':'off';
-      function td(v,cls){ var c=document.createElement('td'); if(cls)c.className=cls;
-        if(v&&v.nodeType) c.appendChild(v); else c.innerHTML=v; tr.appendChild(c); }
-      var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=on;
-      cb.title='Complete '+a.key+' today';
-      cb.addEventListener('change',function(){
-        EODTICK[a.key]=cb.checked;
-        tr.className=cb.checked?'on':'off';
-        eodPABar(sec); eodTally();
-      });
-      td(cb,'tick-col');
-      td(a.key); td(m1(a.ch),'num'); td(a.drv);
-      td(labelOf(a.type));
-      td(a.item ? (a.ud+' \u00b7 '+a.item)
-                : (a.cls || (a.vt?('type '+a.vt):'') || a.name || ''));
-      td(rate==null?'<span class="unrated">not rated</span>':money(rate*qtyOf(a)),'num');
-      frag.appendChild(tr);
-    });
-    tb.appendChild(frag);
-    q('#eodPAWrap-'+sec).classList.toggle('hide',!list.length);
-    eodPABar(sec);
-    eodBLRender(sec);
-    eodAhRender(sec);
-    eodTPRender(sec);
-
-    var n=q('#eodNone-'+sec);
-    if(!list.length){
-      var moved=(t!=null&&t>from)||(p!=null&&p>pfrom);
-      n.textContent = !moved
-        ? 'Type a chainage and any point assets in the new ground will be listed here to tick. '+
-          'Trench stops, bulkheads, thrust blocks and crossings follow the trench figure; '+
-          'bends and valves follow the pipe figure.'
-        : 'No outstanding point assets in the ground covered today.';
-      var bl=eodBacklogFor(sec).length;
-      if(bl) n.textContent += ' There '+(bl===1?'is 1':'are '+bl)+
-        ' behind the front still outstanding \u2014 tick them off below.';
-    } else n.textContent='';
-    var dt = (t!=null&&t>=from) ? t-from : 0;
-    var dp = (p!=null&&p>=pfrom) ? p-pfrom : 0;
-    q('#eodToday-'+sec).textContent = (dt||dp)
-      ? ('today: +'+m1(dt)+' m trench \u00b7 +'+m1(dp)+' m pipe') : '';
-  });
+  if(only){
+    if(SECS.indexOf(only)>=0) eodRenderSection(only);
+    else eodRenderCombo(only);
+  } else {
+    crewCombos().forEach(function(c){ eodRenderCombo(c.key); });
+    SECS.forEach(function(sec){ eodRenderSection(sec); });
+  }
   eodDupCheck();
   eodTally();
 }
 
-function eodPABar(sec){
-  var bar=q('#eodPABar-'+sec); if(!bar) return;
-  var list=eodAssetsFor(sec);
-  if(!list.length){ bar.innerHTML=''; return; }
-  var on=list.filter(function(a){ return EODTICK[a.key]; }).length;
-  var cost=list.reduce(function(t,a){
-    var r=EODTICK[a.key]?rateOf(a):null; return t+(r==null?0:r*qtyOf(a)); },0);
-  bar.innerHTML='<span class="n"><b>'+on+'</b> of <b>'+list.length+
-    '</b> point assets in the new ground complete \u00b7 '+money(cost)+'</span>';
-  var b1=ce('button','btn sec','Tick all'), b2=ce('button','btn sec','Untick all');
-  b1.addEventListener('click',function(){
-    list.forEach(function(a){ EODTICK[a.key]=true; }); eodRender(sec); });
-  b2.addEventListener('click',function(){
-    list.forEach(function(a){ EODTICK[a.key]=false; }); eodRender(sec); });
-  bar.appendChild(b1); bar.appendChild(b2);
-}
 function eodDupCheck(){
   var de=q('#eodDate'), box=q('#eodDup');
   if(!de||!box) return;
@@ -4835,19 +5112,59 @@ function eodDraft(){
   var rows=[], mT=0,mP=0,items=0,earn=0,dcost=0, bad=false, catchup=0, ahead=0, tpZones=0;
   if(!EODBUILT) return {rows:rows,mT:0,mP:0,items:0,earn:0,dcost:0,catchup:0,ahead:0,tpZones:0,
                         plant:0,plantMissing:[],cost:0,profit:0,margin:null,bad:false};
+
+  var claim=eodClaimMap();
+  crewCombos().forEach(function(c){
+    var base=CREWBASE[c.key]||{t:0,p:0}, ext=EXT[c.sec];
+    var t=numOf(q('#eodTCh-'+c.key)), p=numOf(q('#eodPCh-'+c.key));
+    if(t!=null && (t<0 || t>ext)) bad=true;
+    var r=eodComboRanges(c)||{tOn:false,pOn:false,tLo:base.t,tHi:base.t,pLo:base.p,pHi:base.p,
+                              tReach:base.t,pReach:base.p};
+    if(p!=null && (p<r.tLo-1e-9 || p>r.tHi+1e-9)) bad=true;
+    var tReach=r.tReach, pReach=r.pReach;
+    var tLo=r.tLo, tHi=r.tHi, pLo=r.pLo, pHi=r.pHi;
+    var tOn=r.tOn, pOn=r.pOn;
+
+    var picked=eodAssetsForCombo(c,claim).filter(function(a){ return EODTICK[a.key]; });
+
+    var e=0, cst=0;
+    T.forEach(function(x){
+      if(x.sec!==c.sec) return;
+      var pk=x.sec+'|'+ST.pipeType[x.sec];
+      var tr=ST.tRate[x.sec+'|'+x.tt], pr=ST.pRate[pk];
+      var tc=ST.tCost[x.sec+'|'+x.tt], pc=ST.pCost[pk];
+      var addT= tOn ? Math.max(Math.min(tHi,x.e)-Math.max(tLo,x.s),0) : 0;
+      var addP= pOn ? Math.max(Math.min(pHi,x.e)-Math.max(pLo,x.s),0) : 0;
+      if(tr!=null) e+=addT*tr;
+      if(pr!=null) e+=addP*pr;
+      if(tc!=null) cst+=addT*tc;
+      if(pc!=null) cst+=addP*pc;
+    });
+    picked.forEach(function(a){
+      var r=rateOf(a); if(r!=null) e+=r*qtyOf(a);
+      var cc=ST.paCost[a.rkey]; if(cc!=null) cst+=cc*qtyOf(a);
+    });
+
+    var dt = tOn ? (tReach-base.t) : 0;
+    var dp = pOn ? (pReach-base.p) : 0;
+    var moved = Math.abs(tReach-base.t)>1e-9 || Math.abs(pReach-base.p)>1e-9;
+
+    if(moved || picked.length){
+      rows.push({sec:c.sec+' \u00b7 '+CREW_LABEL[c.crew], sec0:c.sec, crew0:c.crew, comboKey:c.key,
+                 from:base.t, to:tReach, pfrom:base.p, pto:pReach,
+                 dt:dt, dp:dp, picked:picked, earn:e, cost:cst,
+                 kind:'crew', tOn:tOn, pOn:pOn});
+      mT+=dt; mP+=dp; items+=picked.length; earn+=e; dcost+=cst;
+    }
+  });
+
   SECS.forEach(function(sec){
-    var from=baseFront(sec), pfrom=EODPIPE[sec]||0, ext=EXT[sec];
-    var t=numOf(q('#eodTCh-'+sec)), p=numOf(q('#eodPCh-'+sec));
-    if(t!=null && (t<from || t>ext)) bad=true;
-    var cap = t!=null && t>=from && t<=ext ? t : from;
-    if(p!=null && (p<pfrom || p>cap)) bad=true;
-    var to = (t!=null && t>=from && t<=ext) ? t : from;
-    var pto = (p!=null && p>=pfrom && p<=cap) ? p : pfrom;
-    var newGround=eodAssetsFor(sec).filter(function(a){ return EODTICK[a.key]; });
+    var from=baseFront(sec), pfrom=EODPIPE[sec]||0;
     var caught=eodBacklogFor(sec).filter(function(a){ return EODTICK[a.key]; });
     var ahd=eodAheadAll(sec).filter(function(a){ return EODTICK[a.key]; });
-    var picked=newGround.concat(caught).concat(ahd);
+    var picked=caught.concat(ahd);
     catchup+=caught.length; ahead+=ahd.length;
+
     var tpRows=[];
     eodTPZonesAll(sec).forEach(function(t){
       var g=EODTPV[t.key]; if(!g) return;
@@ -4860,41 +5177,31 @@ function eodDraft(){
       var ztc=ST.tCost[sec+'|'+t.tt], zpc=ST.pCost[sec+'|'+ST.pipeType[sec]];
       var ze=(ztr!=null?zdt*ztr:0)+(zpr!=null?zdp*zpr:0);
       var zc=(ztc!=null?zdt*ztc:0)+(zpc!=null?zdp*zpc:0);
-      tpRows.push({sec:sec,from:t.s+curT,to:t.s+(wantT!=null?wantT:curT),
+      tpRows.push({sec:sec+' \u00b7 done ahead',sec0:sec,from:t.s+curT,to:t.s+(wantT!=null?wantT:curT),
         pfrom:t.s+curP,pto:t.s+(wantP!=null?wantP:curP),dt:zdt,dp:zdp,
         items:0,picked:[],earn:ze,cost:zc,kind:'ahead',zoneKey:t.key,
         wantT:wantT,wantP:wantP});
       tpZones++;
     });
-    var e=0, c=0;
-    /* the same quantities twice: once at the client rate, once at ours */
-    T.forEach(function(x){
-      if(x.sec!==sec) return;
-      var pk=x.sec+'|'+ST.pipeType[x.sec];
-      var tr=ST.tRate[x.sec+'|'+x.tt], pr=ST.pRate[pk];
-      var tc=ST.tCost[x.sec+'|'+x.tt], pc=ST.pCost[pk];
-      var addT=Math.max(Math.min(to,x.e)-Math.max(from,x.s),0);
-      var addP=Math.max(Math.min(pto,x.e)-Math.max(pfrom,x.s),0);
-      if(tr!=null) e+=addT*tr;
-      if(pr!=null) e+=addP*pr;
-      if(tc!=null) c+=addT*tc;
-      if(pc!=null) c+=addP*pc;
-    });
+
+    var e=0, cst=0;
     picked.forEach(function(a){
       var r=rateOf(a); if(r!=null) e+=r*qtyOf(a);
-      var cc=ST.paCost[a.rkey]; if(cc!=null) c+=cc*qtyOf(a);
+      var cc=ST.paCost[a.rkey]; if(cc!=null) cst+=cc*qtyOf(a);
     });
-    if(to>from || pto>pfrom || picked.length){
-      rows.push({sec:sec,from:from,to:to,pfrom:pfrom,pto:pto,
-                 dt:to-from,dp:pto-pfrom,picked:picked,earn:e,cost:c});
-      mT+=to-from; mP+=pto-pfrom; items+=picked.length; earn+=e; dcost+=c;
+    items+=picked.length;
+    if(picked.length){
+      rows.push({sec:sec+' \u00b7 catch-up', sec0:sec, from:from,to:from,pfrom:pfrom,pto:pfrom,
+                 dt:0,dp:0,picked:picked,earn:e,cost:cst,kind:'section'});
+      earn+=e; dcost+=cst;
     }
     tpRows.forEach(function(zr){
       rows.push(zr);
       mT+=zr.dt; mP+=zr.dp; earn+=zr.earn; dcost+=zr.cost;
     });
   });
-  var pl=plantCostOf(PLANT);
+
+  var pl=plantCostOf(allPlant());
   var total=dcost+pl.cost;
   return {rows:rows,mT:mT,mP:mP,items:items,earn:earn,dcost:dcost,catchup:catchup,ahead:ahead,
           tpZones:tpZones,plant:pl.cost,plantMissing:pl.missing,cost:total,
@@ -4916,7 +5223,7 @@ function eodTally(){
     '<div><div class="k">Our cost</div><div class="v">'+money(d.dcost)+'</div>'+
       '<div class="s">trench, pipe and items at cost</div></div>'+
     '<div><div class="k">Plant and labour</div><div class="v">'+money(d.plant)+'</div>'+
-      '<div class="s">'+m1(PLANT.reduce(function(a,p){ return a+(p.n||0)*((p.hrs||0)+(p.sb||0)); },0))+
+      '<div class="s">'+m1(allPlant().reduce(function(a,p){ return a+(p.n||0)*((p.hrs||0)+(p.sb||0)); },0))+
       ' hours</div></div>'+
     '<div class="lead"><div class="k">Profit today</div>'+
       '<div class="v" style="color:'+(d.profit<0?'#ffb3ab':'#b7f0c8')+'">'+money(d.profit)+'</div>'+
@@ -4942,6 +5249,9 @@ function eodApply(){
   var d=eodDraft();
   if(d.bad||!d.rows.length) return null;
   var snap={tDone:{},pDone:{},paDone:{}};
+  var crewSnapshot=JSON.parse(JSON.stringify(CREWSTATE));
+  var dateVal=q('#eodDate').value;
+
   d.rows.forEach(function(row){
     if(row.kind==='ahead'){
       var zt=null; T.forEach(function(x){ if(x.key===row.zoneKey) zt=x; });
@@ -4951,33 +5261,56 @@ function eodApply(){
         if(row.wantP!=null && row.wantP>pDone(zt)){
           snap.pDone[zt.key]=ST.pDone[zt.key]||0; ST.pDone[zt.key]=row.wantP; }
       }
+      row.picked.forEach(function(a){
+        if(snap.paDone[a.key]===undefined) snap.paDone[a.key]=!!ST.paDone[a.key];
+        ST.paDone[a.key]=true;
+      });
       return;
     }
-    T.forEach(function(t){
-      if(t.sec!==row.sec) return;
-      var wantT=Math.min(Math.max(row.to-t.s,0),t.len);
-      var wantP=Math.min(Math.max(row.pto-t.s,0),t.len);
-      if(wantT>tDone(t)){ snap.tDone[t.key]=ST.tDone[t.key]||0; ST.tDone[t.key]=wantT; }
-      if(wantP>pDone(t)){ snap.pDone[t.key]=ST.pDone[t.key]||0; ST.pDone[t.key]=wantP; }
-    });
+    if(row.kind==='crew'){
+      var lo=Math.min(row.from,row.to), hi=Math.max(row.from,row.to);
+      var plo=Math.min(row.pfrom,row.pto), phi=Math.max(row.pfrom,row.pto);
+      if(row.tOn){
+        T.forEach(function(t){
+          if(t.sec!==row.sec0) return;
+          var add=Math.max(Math.min(hi,t.e)-Math.max(lo,t.s),0);
+          if(add>1e-9){
+            if(snap.tDone[t.key]===undefined) snap.tDone[t.key]=ST.tDone[t.key]||0;
+            ST.tDone[t.key]=Math.min(t.len,(ST.tDone[t.key]||0)+add);
+          }
+        });
+      }
+      if(row.pOn){
+        T.forEach(function(t){
+          if(t.sec!==row.sec0) return;
+          var add=Math.max(Math.min(phi,t.e)-Math.max(plo,t.s),0);
+          if(add>1e-9){
+            if(snap.pDone[t.key]===undefined) snap.pDone[t.key]=ST.pDone[t.key]||0;
+            ST.pDone[t.key]=Math.min(t.len,(ST.pDone[t.key]||0)+add);
+          }
+        });
+      }
+      crewRecord(row.sec0,row.crew0,'trench',row.to,dateVal);
+      crewRecord(row.sec0,row.crew0,'pipe',row.pto,dateVal);
+    }
     row.picked.forEach(function(a){
-      snap.paDone[a.key]=!!ST.paDone[a.key]; ST.paDone[a.key]=true;
+      if(snap.paDone[a.key]===undefined) snap.paDone[a.key]=!!ST.paDone[a.key];
+      ST.paDone[a.key]=true;
     });
   });
+
   var entry=eodEntryFromForm(d);
   entry.snap=snap;
+  entry.snap.crew=crewSnapshot;
   DAYS.push(entry);
   EODTICK={}; EODTPV={};
-  ['eodTCh','eodTM','eodPCh','eodPM'].forEach(function(p){
-    SECS.forEach(function(s){ var e=q('#'+p+'-'+s); if(e) e.value=''; });
-  });
   q('#eodNotes').value='';
   q('#eodDown').value='';
   q('#eodIncDetail').value=''; q('#eodInc').value='Nil'; q('#eodLost').value='';
   q('#eodTbxTopic').value='';
   var pers=q('#eodPers'); pers.value=''; delete pers.dataset.touched;
-  PLANT=plantCarry(); HP=hpCarry();
-  renderPlant(); renderHP();
+  seedPlants(); HP=hpCarry();
+  renderAllPlant(); renderHP();
   captureBase();
   render();          /* the Costs tab moves with it */
   buildEOD();
@@ -4997,10 +5330,11 @@ function eodEntryFromForm(d){
           }),
           money:{earn:d.earn,dcost:d.dcost,plant:d.plant,cost:d.cost,
                  profit:d.profit,margin:d.margin,
-                 hours:PLANT.reduce(function(a,p){ return a+(p.n||0)*((p.hrs||0)+(p.sb||0)); },0)},
-          plant:PLANT.filter(function(p){ return p.desc||p.hrs; })
+                 hours:allPlant().reduce(function(a,p){ return a+(p.n||0)*((p.hrs||0)+(p.sb||0)); },0)},
+          plant:allPlant().filter(function(p){ return p.desc||p.hrs; })
                      .map(function(p){ return {kind:p.kind,desc:p.desc,n:p.n||0,
-                        hrs:p.hrs||0,sb:p.sb||0,notes:p.notes||''}; }),
+                        hrs:p.hrs||0,sb:p.sb||0,notes:p.notes||'',
+                        crew:p.crew,crewLabel:p.crewLabel}; }),
           safety:{toolbox:q('#eodTbx').value, topic:(q('#eodTbxTopic').value||'').trim(),
                   personnel:numOf(q('#eodPers'))||0, incident:q('#eodInc').value,
                   detail:(q('#eodIncDetail').value||'').trim(), lost:numOf(q('#eodLost'))||0},
@@ -5012,7 +5346,7 @@ function eodEntryFromForm(d){
 function renderEODLog(){
   var th=q('#eodLog thead'), tb=q('#eodLog tbody');
   if(!th.dataset.built){
-    th.innerHTML='<tr><th>Date</th><th>Sec</th><th>Shift</th><th>By</th>'+
+    th.innerHTML='<tr><th>Date</th><th>Section &amp; crew</th><th>Shift</th><th>By</th>'+
       '<th class="num">Trench from</th><th class="num">to</th><th class="num">m</th>'+
       '<th class="num">Pipe from</th><th class="num">to</th><th class="num">m</th>'+
       '<th class="num">Items</th><th class="num">Earned</th><th>Weather</th>'+
@@ -5057,6 +5391,7 @@ function eodUndo(){
   Object.keys(e.snap.tDone).forEach(function(k){ ST.tDone[k]=e.snap.tDone[k]; });
   Object.keys(e.snap.pDone).forEach(function(k){ ST.pDone[k]=e.snap.pDone[k]; });
   Object.keys(e.snap.paDone).forEach(function(k){ ST.paDone[k]=e.snap.paDone[k]; });
+  if(e.snap.crew){ CREWSTATE=e.snap.crew; crewSave(); }
   DAYS.pop();
   captureBase(); render(); buildEOD(); renderEODLog();
   if(window.toast) toast('Undid '+auDate(e.date));
@@ -5066,22 +5401,44 @@ function eodUndo(){
 /* ---------- plant and labour ----------
    Carried forward: yesterday's rows reappear with their hours, so a day with the
    same crew needs no typing. Descriptions seen before are offered as you type. */
-var PLANT=[];             /* [{kind,desc,n,hrs,sb,notes}] */
+var PLANTS={};            /* comboKey -> [{kind,desc,n,hrs,sb,notes}] */
 var PLANT_SEED=[
   {kind:'Labour',desc:'Supervisor',n:1,hrs:10},
   {kind:'Labour',desc:'Pipe crew',n:6,hrs:10},
   {kind:'Plant',desc:'Excavator 30t',n:1,hrs:9},
   {kind:'Plant',desc:'Sideboom',n:1,hrs:9}
 ];
-function plantCarry(){
+function plantOf(key){
+  if(!PLANTS[key]) PLANTS[key]=[];
+  return PLANTS[key];
+}
+/* every crew's rows in one list, each tagged with the crew it belongs to —
+   what the costing, the tally and the saved day all work from */
+function allPlant(){
+  var out=[];
+  crewCombos().forEach(function(c){
+    plantOf(c.key).forEach(function(p){
+      out.push({kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:p.sb,notes:p.notes,
+                crew:c.key, crewLabel:c.sec+' \u00b7 '+CREW_LABEL[c.crew]});
+    });
+  });
+  return out;
+}
+/* carry each crew's own rows forward from the last day that recorded them */
+function plantCarryFor(key){
   for(var i=DAYS.length-1;i>=0;i--){
-    if(DAYS[i].plant&&DAYS[i].plant.length)
-      return DAYS[i].plant.map(function(p){
-        return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:0,notes:''};
-      });
+    var rows=(DAYS[i].plant||[]).filter(function(p){ return p.crew===key; });
+    if(rows.length) return rows.map(function(p){
+      return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:0,notes:''}; });
   }
-  return PLANT_SEED.map(function(p){
-    return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:0,notes:''};
+  return [];
+}
+function seedPlants(){
+  var any=DAYS.some(function(d){ return (d.plant||[]).length; });
+  crewCombos().forEach(function(c){
+    if(any) PLANTS[c.key]=plantCarryFor(c.key);
+    else PLANTS[c.key]=PLANT_SEED.map(function(p){
+      return {kind:p.kind,desc:p.desc,n:p.n,hrs:p.hrs,sb:0,notes:''}; });
   });
 }
 function plantList(){
@@ -5094,62 +5451,73 @@ function plantList(){
     if(!seen[p.desc]){ seen[p.desc]=1; out.push(p.desc); } });
   return out;
 }
-function renderPlant(){
-  var th=q('#eodPlant thead'), tb=q('#eodPlant tbody');
+function renderAllPlant(){
+  var dl=q('#eodPlantList');
+  if(dl) dl.innerHTML=plantList().map(function(d){
+    return '<option value="'+d.replace(/"/g,'&quot;')+'">'; }).join('');
+  crewCombos().forEach(function(c){ renderPlant(c.key); });
+}
+function renderPlant(key){
+  var tbl=q('#eodPlant-'+key); if(!tbl) return;
+  var th=tbl.querySelector('thead'), tb=tbl.querySelector('tbody');
   if(!th.dataset.built){
     th.innerHTML='<tr><th>Type</th><th>Description</th><th class="num">No.</th>'+
       '<th class="num">Hours</th><th class="num">Standby</th><th>Notes</th><th></th></tr>';
     th.dataset.built='1';
   }
-  q('#eodPlantList').innerHTML=plantList().map(function(d){
-    return '<option value="'+d.replace(/"/g,'&quot;')+'">'; }).join('');
+  var L=plantOf(key);
   tb.innerHTML='';
-  PLANT.forEach(function(p,i){
+  L.forEach(function(p,i){
     var tr=document.createElement('tr');
     function cell(cls){ var td=document.createElement('td'); td.className=cls; tr.appendChild(td); return td; }
     var s1=document.createElement('select');
     ['Labour','Plant','Subcontractor'].forEach(function(k){
       var o=document.createElement('option'); o.textContent=k; o.selected=(p.kind===k); s1.appendChild(o); });
-    s1.addEventListener('change',function(){ p.kind=s1.value; plantTally(); });
+    s1.addEventListener('change',function(){ p.kind=s1.value; plantTally(key); eodTally(); });
     cell('tin').appendChild(s1);
     var d1=document.createElement('input'); d1.type='text'; d1.value=p.desc||'';
     d1.setAttribute('list','eodPlantList'); d1.placeholder='what or who';
-    d1.addEventListener('input',function(){ p.desc=d1.value; plantTally(); });
+    d1.addEventListener('input',function(){ p.desc=d1.value; plantTally(key); eodTally(); });
     cell('tin').appendChild(d1);
     [['n','1',1],['hrs','0.5',2],['sb','0.5',3]].forEach(function(f){
       var inp=document.createElement('input'); inp.type='number'; inp.min='0'; inp.step=f[1];
       inp.value=(p[f[0]]===0||p[f[0]]) ? p[f[0]] : '';
-      inp.addEventListener('input',function(){ p[f[0]]=numOf(inp); plantTally(); });
+      inp.addEventListener('input',function(){ p[f[0]]=numOf(inp); plantTally(key); eodTally(); });
       cell('tin num').appendChild(inp);
     });
     var n1=document.createElement('input'); n1.type='text'; n1.value=p.notes||'';
     n1.addEventListener('input',function(){ p.notes=n1.value; });
     cell('tin').appendChild(n1);
     var del=document.createElement('button'); del.innerHTML='&times;'; del.title='Remove this row';
-    del.addEventListener('click',function(){ PLANT.splice(i,1); renderPlant(); });
+    del.addEventListener('click',function(){ L.splice(i,1); renderPlant(key); eodTally(); });
     cell('del').appendChild(del);
     tb.appendChild(tr);
   });
-  plantTally();
+  plantTally(key);
 }
-function plantTally(){
+function plantTally(key){
+  var L=plantOf(key);
   var lab=0,pl=0,hrs=0,sb=0,head=0;
-  PLANT.forEach(function(p){
+  L.forEach(function(p){
     var n=p.n||0, h=p.hrs||0;
     if(p.kind==='Plant') pl+=n*h; else lab+=n*h;
     hrs+=n*h; sb+=n*(p.sb||0);
     if(p.kind!=='Plant') head+=n;
   });
-  foot('#eodPlant',['Total','',String(head),m1(hrs),m1(sb),
+  foot('#eodPlant-'+key,['Total','',String(head),m1(hrs),m1(sb),
     'labour '+m1(lab)+' h \u00b7 plant '+m1(pl)+' h',''],[0,1,5,6]);
-  q('#eodPlantNote').innerHTML=PLANT.length
-    ? 'Carried forward from the last day recorded \u2014 change the hours, add or remove rows. '+
+  var note=q('#eodPlantNote-'+key);
+  if(note) note.innerHTML=L.length
+    ? 'This crew only, carried forward from the last day it worked. '+
       '<b>'+head+'</b> on the crew, <b>'+m1(hrs)+'</b> hours worked'+(sb?', <b>'+m1(sb)+'</b> standby':'')+'.'
-    : 'No rows. Add one, or save the day without plant and labour.';
+    : 'No rows for this crew. Add one, or leave it empty if the crew did not work today.';
   var pers=q('#eodPers');
-  if(pers && !pers.dataset.touched) pers.value=head||'';
+  if(pers && !pers.dataset.touched){
+    var total=allPlant().reduce(function(a,p){
+      return a+((p.kind!=='Plant')?(p.n||0):0); },0);
+    pers.value=total||'';
+  }
 }
-
 /* ---------- hold points ----------
    Anything left Outstanding carries forward and keeps appearing until a day
    records it Released, so it cannot quietly drop off the list. */
@@ -5303,7 +5671,7 @@ function renderPlantRates(){
   var used={};
   DAYS.forEach(function(d){ (d.plant||[]).forEach(function(p){
     used[plantKey(p.kind,p.desc)]=(used[plantKey(p.kind,p.desc)]||0)+(p.n||0)*((p.hrs||0)+(p.sb||0)); }); });
-  PLANT.forEach(function(p){
+  allPlant().forEach(function(p){
     var k=plantKey(p.kind,p.desc);
     if(p.desc) used[k]=(used[k]||0)+(p.n||0)*((p.hrs||0)+(p.sb||0)); });
   var frag=document.createDocumentFragment(), rated=0;
@@ -5414,8 +5782,9 @@ function eodReportText(e){
   if((e.plant||[]).length){
     L.push(''); L.push('PLANT AND LABOUR');
     e.plant.forEach(function(p){
-      L.push('  '+p.kind+'  '+p.desc+'  x'+(p.n||0)+'  '+m1(p.hrs||0)+' h'+
-             ((p.sb)?'  ('+m1(p.sb)+' h standby)':'')+(p.notes?'  \u2014 '+p.notes:''));
+      L.push('  '+(p.crewLabel?p.crewLabel+'  ':'')+p.kind+'  '+p.desc+'  x'+(p.n||0)+'  '+
+             m1(p.hrs||0)+' h'+((p.sb)?'  ('+m1(p.sb)+' h standby)':'')+
+             (p.notes?'  \u2014 '+p.notes:''));
     });
   }
   var sf=e.safety||{};
@@ -5523,26 +5892,14 @@ function wireEOD(){
     q('#eodIncDetail').value=''; q('#eodInc').value='Nil'; q('#eodLost').value='';
     q('#eodTbxTopic').value='';
     var pp=q('#eodPers'); pp.value=''; delete pp.dataset.touched;
-    PLANT=plantCarry(); HP=hpCarry();
+    seedPlants(); HP=hpCarry();
     buildEOD();
     if(window.toast) toast('Form cleared');
   });
   q('#eodUndo').addEventListener('click',eodUndo);
 
-  q('#eodPlantAdd').addEventListener('click',function(){
-    PLANT.push({kind:'Labour',desc:'',n:1,hrs:PLANT.length?PLANT[0].hrs:DEFHOURS,sb:0,notes:''});
-    renderPlant();
-    var rows=document.querySelectorAll('#eodPlant tbody tr');
-    var last=rows[rows.length-1];
-    if(last){ var inp=last.querySelectorAll('input')[0]; if(inp) inp.focus(); }
-  });
-  q('#eodPlantClear').addEventListener('click',function(){ PLANT=[]; renderPlant(); });
-  q('#eodPlantRemember').addEventListener('click',function(){
-    if(!PLANT.filter(function(p){ return p.desc; }).length){
-      if(window.toast) toast('Nothing to remember \u2014 add a row first'); return; }
-    CREWDIRTY=true; refreshSaveBar();
-    if(window.toast) toast('Crew will be written to Settings on the next save');
-  });
+  /* plant and labour is per crew now — its buttons are built inside each crew
+     tab by buildEOD, so there is nothing global to wire up here. */
   q('#eodHPAdd').addEventListener('click',function(){
     HP.push({ref:'',desc:'',status:'Raised',key:'',notes:''});
     renderHP();
@@ -6264,7 +6621,7 @@ function applySettings(){
       return {kind:c.kind,desc:c.desc,n:c.n||1,hrs:c.hrs||DEFHOURS}; });
     n++;
     /* nothing recorded yet, so the standing list is what a day starts from */
-    if(!DAYS.length){ PLANT=plantCarry(); renderPlant(); }
+    if(!DAYS.length){ seedPlants(); renderAllPlant(); }
   }
   var fn=str('Workbook File Name'); if(fn) SETFILE=fn;
   var bf=str('Backups Folder'); if(bf) BACKUPDIR=bf;
@@ -6293,7 +6650,7 @@ function settingsWrites(){
 /* the standing crew, rewritten only when asked for */
 function crewWrites(){
   if(!CREWDIRTY||!SETIDX||!SETIDX.crewHdr||!SETIDX.crewFirst) return [];
-  var c=SETIDX.crewHdr, out=[], rows=PLANT.filter(function(p){ return p.desc; });
+  var c=SETIDX.crewHdr, out=[], rows=allPlant().filter(function(p){ return p.desc; });
   var span=Math.max(rows.length, (SETIDX.crewLast||SETIDX.crewFirst-1)-SETIDX.crewFirst+1);
   for(var i=0;i<span;i++){
     var rr=SETIDX.crewFirst+i, p=rows[i]||null;
@@ -6731,6 +7088,12 @@ function rebuildForNewData(){
   setWriteState();
   render();
   captureBase(); buildEOD(); renderEODLog();
+  /* Reports reads through window.COSTS.data()/crews() same as Costs and EOD
+     do, but nothing else tells it to redraw when a re-sync swaps window.D out
+     from under it — so without this call, Reports is left showing "Waiting
+     for register data" from the one render() that landed mid-rebuild, even
+     though the day log and register are both intact. */
+  if(window.RPT) window.RPT.render();
   if(window.toast) toast('Cost view refreshed for the workbook just opened');
   return true;
 }
@@ -7060,6 +7423,26 @@ window.COSTS={
             labelOf:labelOf,unitOf:unitOf,drvOf:drvOf};
   },
 
+  /* per-crew chainage, for the Reports \u2192 Crew progress map. Each of the
+     six crews (2 sections x 3 crew types) keeps its own trench and pipe
+     front, independent of the others \u2014 this hands that out rather than
+     the single combined section front that data() carries. */
+  crews:function(){
+    if(built && window.D!==DFOR){ rebuildForNewData(); return null; }
+    if(!built && !build()) return null;
+    computeFront();
+    crewLoad();
+    return crewCombos().map(function(c){
+      var cs=CREWSTATE[c.sec][c.crew];
+      return {sec:c.sec, crew:c.crew, key:c.key, label:CREW_LABEL[c.crew],
+        ext:EXT[c.sec]||0,
+        trench:{active_from:cs.trench.active_from, pos:cs.trench.current_position,
+                segments:(cs.trench.segments||[]).slice()},
+        pipe:{active_from:cs.pipe.active_from, pos:cs.pipe.current_position,
+              segments:(cs.pipe.segments||[]).slice()}};
+    });
+  },
+
   render:function(){
     if(built && window.D!==DFOR){ rebuildForNewData(); return; }
     if(build()){ render(); setWriteState(); }
@@ -7110,7 +7493,7 @@ document.addEventListener('DOMContentLoaded',function(){
 var RP='dash';
 var OPT={day:'',pf:'',pt:'',lkSec:'',lk:1000,shSec:''};
 var X=null;
-var TITLES={dash:'Position',daily:'A day',prod:'Production',look:'Look-ahead',
+var TITLES={dash:'Position',crews:'Crew progress',daily:'A day',prod:'Production',look:'Look-ahead',
             sheets:'Sheet progress',qty:'Quantities',out:'Outstanding',safe:'Safety and plant',
             done:'Completed in period'};
 
@@ -7343,6 +7726,116 @@ function corridor(sec){
   return s;
 }
 
+/* ---------- crew progress map (magnified) ----------
+   The combined corridor() view above is the whole section at once, so a crew
+   that has only moved a few hundred metres is a hairline on a multi-kilometre
+   scale. This draws each crew's own trench and pipe front against a window
+   sized to where that crew has actually been — not the full section — with
+   a small strip alongside showing where that zoomed window sits on the whole
+   alignment. */
+var CREW_COLOUR={special_crossing:'#1a8f9c', trenchless:'#8a5cb8', standard:'#0b6ea8'};
+function crewIvs(track){
+  var closed=(track.segments||[]).map(function(s){ return [Math.min(s.from,s.to),Math.max(s.from,s.to)]; });
+  var cur=(track.pos!=null && track.active_from!=null &&
+           Math.abs(track.pos-track.active_from)>1e-9)
+    ? [[Math.min(track.active_from,track.pos),Math.max(track.active_from,track.pos)]] : [];
+  return {closed:merge(closed), current:merge(cur)};
+}
+function crewWindow(rows,ext){
+  var pts=[0];
+  rows.forEach(function(r){
+    ['trench','pipe'].forEach(function(k){
+      var t=r[k];
+      if(t.pos!=null) pts.push(t.pos);
+      if(t.active_from!=null) pts.push(t.active_from);
+      (t.segments||[]).forEach(function(s){ pts.push(s.from,s.to); });
+    });
+  });
+  var maxP=Math.max.apply(null,pts);
+  var winEnd=maxP>0 ? Math.min(ext||maxP, maxP*1.12+20) : (ext||1);
+  if(!isFinite(winEnd)||winEnd<=0) winEnd=ext||1;
+  return [0,winEnd];
+}
+function crewMinimap(winStart,winEnd,ext){
+  var W=940,H=30,PL=132,PR=16, iw=W-PL-PR;
+  ext=ext||winEnd||1;
+  var Xp=function(v){ return PL+Math.max(0,Math.min(v/ext,1))*iw; };
+  var s='<svg class="rsvg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="height:30px">';
+  s+='<text x="0" y="18" font-size="10" fill="#8a97a5">whole section</text>';
+  s+='<rect x="'+PL+'" y="10" width="'+iw.toFixed(1)+'" height="10" fill="#e6ebf1" rx="2"/>';
+  var x0=Xp(winStart), x1=Math.max(Xp(winEnd),x0+2);
+  s+='<rect x="'+x0.toFixed(1)+'" y="8" width="'+(x1-x0).toFixed(1)+
+     '" height="14" fill="#0b6ea8" fill-opacity=".22" stroke="#0b6ea8" stroke-width="1" rx="2">'+
+     '<title>Magnified below: '+mm(winStart)+' to '+mm(winEnd)+' of '+mm(ext)+' total</title></rect>';
+  s+='<text x="'+(W-PR)+'" y="27" font-size="9.5" fill="#8a97a5" text-anchor="end">'+mm(ext)+' total</text>';
+  s+='</svg>';
+  return s;
+}
+function crewRowSVG(y,h,label,ivs,pos,colour,Xp,showLabel){
+  var s='';
+  s+='<rect x="'+Xp.PL+'" y="'+y+'" width="'+Xp.iw+'" height="'+h+'" fill="#eef1f5" rx="2"/>';
+  ivs.closed.forEach(function(iv){
+    s+='<rect x="'+Xp(iv[0]).toFixed(1)+'" y="'+y+'" width="'+
+       Math.max(Xp(iv[1])-Xp(iv[0]),1).toFixed(1)+'" height="'+h+'" fill="'+colour+
+       '" fill-opacity=".32" rx="1.5"><title>'+esc(label+' — earlier stretch '+
+       mm(iv[0])+' to '+mm(iv[1]))+'</title></rect>';
+  });
+  ivs.current.forEach(function(iv){
+    s+='<rect x="'+Xp(iv[0]).toFixed(1)+'" y="'+y+'" width="'+
+       Math.max(Xp(iv[1])-Xp(iv[0]),1).toFixed(1)+'" height="'+h+'" fill="'+colour+
+       '" rx="1.5"><title>'+esc(label+' — current stretch '+mm(iv[0])+' to '+mm(iv[1]))+
+       '</title></rect>';
+  });
+  if(pos!=null){
+    var px=Xp(pos);
+    s+='<circle cx="'+px.toFixed(1)+'" cy="'+(y+h/2).toFixed(1)+'" r="'+(h/2+2.5).toFixed(1)+
+       '" fill="#fff" stroke="'+colour+'" stroke-width="2"><title>'+esc(label+' — now at '+
+       mm(pos))+'</title></circle>';
+    if(showLabel) s+='<text x="'+px.toFixed(1)+'" y="'+(y-5)+'" font-size="10" fill="'+colour+
+      '" text-anchor="middle" font-weight="600">'+m0(pos)+' m</text>';
+  }
+  return s;
+}
+function crewMagnified(sec,rows,winStart,winEnd){
+  var W=940, PL=132, PR=16, rowH=20, rowGap=7, pairGap=20, TOP=30, BOT=30;
+  var iw=W-PL-PR;
+  var Xp=function(v){ return PL+Math.max(0,Math.min((v-winStart)/((winEnd-winStart)||1),1))*iw; };
+  Xp.PL=PL; Xp.iw=iw;
+  var n=rows.length;
+  var H=TOP+n*(rowH*2+rowGap+pairGap)-pairGap+BOT;
+  var s='<svg class="rsvg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="height:'+H+'px">';
+  for(var t=0;t<=6;t++){
+    var v=winStart+(winEnd-winStart)*t/6, x=Xp(v);
+    s+='<line x1="'+x.toFixed(1)+'" y1="'+(TOP-8)+'" x2="'+x.toFixed(1)+'" y2="'+(H-BOT+6)+
+       '" stroke="#eef1f5"/>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+(TOP-14)+'" font-size="10" fill="#8a97a5" text-anchor="middle">'+
+       m0(v)+' m</text>';
+  }
+  var front=X.FRONT[sec]||0;
+  if(front>winStart && front<=winEnd){
+    var fx=Xp(front);
+    s+='<line x1="'+fx.toFixed(1)+'" y1="'+(TOP-8)+'" x2="'+fx.toFixed(1)+'" y2="'+(H-BOT+6)+
+       '" stroke="#12263f" stroke-width="1.2" stroke-dasharray="3,3"><title>Overall section front '+
+       mm(front)+'</title></line>';
+    s+='<text x="'+fx.toFixed(1)+'" y="'+(H-BOT+18)+'" font-size="9" fill="#12263f" text-anchor="middle">'+
+       'section front</text>';
+  }
+  var y=TOP;
+  rows.forEach(function(r){
+    var colour=CREW_COLOUR[r.crew]||'#5b6875';
+    s+='<text x="0" y="'+(y+rowH-6)+'" font-size="12" fill="#1a2027" font-weight="600">'+
+       esc(r.label)+'</text>';
+    s+='<text x="0" y="'+(y+rowH+11)+'" font-size="9.5" fill="#8a97a5">trench</text>';
+    s+=crewRowSVG(y,rowH,r.label+' trench',crewIvs(r.trench),r.trench.pos,colour,Xp,true);
+    y+=rowH+rowGap;
+    s+='<text x="0" y="'+(y+rowH-4)+'" font-size="9.5" fill="#8a97a5">pipe</text>';
+    s+=crewRowSVG(y,rowH,r.label+' pipe',crewIvs(r.pipe),r.pipe.pos,colour,Xp,false);
+    y+=rowH+pairGap;
+  });
+  s+='</svg>';
+  return s;
+}
+
 /* ==========================================================================
    VIEWS
    ========================================================================== */
@@ -7421,6 +7914,45 @@ function vDash(){
       '<span class="rdot" style="background:#2f8f5b;margin-left:10px"></span>pipe '+
       '<span class="rdot" style="background:#a3282d;margin-left:10px"></span>cumulative trench</p>', true);
   }
+  return h;
+}
+
+/* ---------- crew progress (magnified map) ---------- */
+function vCrews(){
+  var CR=(window.COSTS && window.COSTS.crews) ? window.COSTS.crews() : null;
+  if(!CR || !CR.length){
+    return panel('Crew progress',
+      '<div class="empty"><b>No crew data yet</b>Record a day on the End of day tab and each '+
+      'crew\u2019s chainage will show up here.</div>');
+  }
+  var bySec={}, order=[];
+  CR.forEach(function(c){
+    if(!bySec[c.sec]){ bySec[c.sec]=[]; order.push(c.sec); }
+    bySec[c.sec].push(c);
+  });
+  var h='';
+  h+=panel('Six crews on the alignment',
+    '<p class="rnote" style="margin:0">Each of the six crews (2 sections \u00d7 special crossings / '+
+    'trenchless / standard) keeps its own trench and pipe front, independent of the others. This '+
+    'view is <b>magnified</b> to the stretch each crew has actually worked, not the whole corridor '+
+    '&mdash; the thin strip above each map shows where that zoomed window sits on the full section. '+
+    'The solid bar is a crew\u2019s current stretch, the faint bar behind it is ground it covered '+
+    'before being moved on to open a new one, the white-ringed dot is where it is now, and the '+
+    'dashed line is the overall section front used for costing.</p>', true);
+
+  order.forEach(function(sec){
+    var rows=bySec[sec];
+    var ext=rows[0].ext||X.EXT[sec]||1;
+    var win=crewWindow(rows,ext);
+    var legend=rows.map(function(r){
+      return '<span class="rdot" style="background:'+(CREW_COLOUR[r.crew]||'#5b6875')+
+        '"></span>'+esc(r.label);
+    }).join(' &nbsp; ');
+    h+=panel(sec+' \u2014 crew fronts',
+      '<p class="rnote" style="margin:0 0 10px">'+legend+'</p>'+
+      crewMinimap(win[0],win[1],ext)+
+      '<div style="margin-top:6px">'+crewMagnified(sec,rows,win[0],win[1])+'</div>', true);
+  });
   return h;
 }
 
@@ -8076,7 +8608,7 @@ function render(){
   warn.style.display='none'; body.style.display='';
 
   qa('#rpNav button').forEach(function(b){ b.classList.toggle('on',b.dataset.rp===RP); });
-  var f={dash:vDash,daily:vDaily,prod:vProd,look:vLook,sheets:vSheets,
+  var f={dash:vDash,crews:vCrews,daily:vDaily,prod:vProd,look:vLook,sheets:vSheets,
          qty:vQty,out:vOut,safe:vSafe,done:vDone}[RP]||vDash;
   var html='';
   try{ html=f(); }
