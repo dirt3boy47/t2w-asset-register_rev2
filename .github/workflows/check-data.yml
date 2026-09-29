@@ -20,6 +20,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Test adjusted pipe and trench pay
+        run: npm test
+
       - name: Build data.json from the workbook
         run: npm run build
 
