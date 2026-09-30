@@ -1,0 +1,39 @@
+name: Wire schedule dropdown
+on:
+  push:
+    branches: [main]
+    paths:
+      - public/schedule.js
+      - scripts/inject-schedule.mjs
+      - scripts/test-schedule.mjs
+      - .github/workflows/inject-schedule.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  test-and-wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check public/schedule.js
+      - name: Schedule unit tests
+        run: node scripts/test-schedule.mjs
+      - name: Wire script into site
+        run: node scripts/inject-schedule.mjs
+      - name: Verify site entry point
+        run: grep -F '<script src="schedule.js"></script>' public/index.html
+      - name: Commit wiring if needed
+        run: |
+          if git diff --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/index.html
+          git commit -m "wire schedule dropdown into site"
+          git push
