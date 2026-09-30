@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - public/schedule.js
+      - public/schedule-menu.js
       - scripts/inject-schedule.mjs
       - scripts/test-schedule.mjs
       - .github/workflows/inject-schedule.yml
@@ -19,13 +20,17 @@ jobs:
         with:
           node-version: 20
       - name: Syntax check
-        run: node --check public/schedule.js
+        run: |
+          node --check public/schedule.js
+          node --check public/schedule-menu.js
       - name: Schedule unit tests
         run: node scripts/test-schedule.mjs
-      - name: Wire script into site
+      - name: Wire scripts into site
         run: node scripts/inject-schedule.mjs
       - name: Verify site entry point
-        run: grep -F '<script src="schedule.js"></script>' public/index.html
+        run: |
+          grep -F '<script src="schedule.js"></script>' public/index.html
+          grep -F '<script src="schedule-menu.js"></script>' public/index.html
       - name: Commit wiring if needed
         run: |
           if git diff --quiet; then
@@ -35,5 +40,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/index.html
-          git commit -m "wire schedule dropdown into site"
+          git commit -m "wire chainage schedule menu into site"
           git push
