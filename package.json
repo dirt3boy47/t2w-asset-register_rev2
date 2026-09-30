@@ -5,7 +5,8 @@
   "description": "Searchable asset register for the Toowoomba to Warwick pipeline. data.json is generated from the master workbook at build time.",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-data.mjs"
+    "build": "node scripts/build-data.mjs && node scripts/inject-adjusted-pay.mjs",
+    "test": "node scripts/test-adjusted-pay.mjs"
   },
   "dependencies": {
     "xlsx": "^0.18.5"
