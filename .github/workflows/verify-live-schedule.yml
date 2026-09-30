@@ -1,0 +1,32 @@
+name: Verify live schedule
+on:
+  push:
+    branches: [main]
+    paths:
+      - public/index.html
+      - public/schedule.js
+      - .github/workflows/verify-live-schedule.yml
+  workflow_dispatch:
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Cloudflare and verify live files
+        shell: bash
+        run: |
+          set -u
+          URL="https://db-t2w.dirt3boy47.workers.dev"
+          for i in $(seq 1 18); do
+            echo "Live check $i/18"
+            html="$(curl -fsSL --max-time 20 "$URL/" 2>/dev/null || true)"
+            js="$(curl -fsSL --max-time 20 "$URL/schedule.js" 2>/dev/null || true)"
+            if grep -Fq '<script src="schedule.js"></script>' <<<"$html" \
+              && grep -Fq 'T2W_SCHEDULE' <<<"$js" \
+              && grep -Fq 'Schedule / March chart' <<<"$js"; then
+              echo "Live schedule dropdown is deployed and its script is loading."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Live deployment did not expose the schedule files inside the retry window."
+          exit 1
