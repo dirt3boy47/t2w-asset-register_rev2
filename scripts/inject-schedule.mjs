@@ -2,11 +2,11 @@ import fs from 'node:fs';
 const path='public/index.html';
 let html=fs.readFileSync(path,'utf8');
 const tag='<script src="schedule.js"></script>';
-if(!html.includes(tag)){
-  if(!html.includes('</body>')) throw new Error('public/index.html has no </body> tag');
-  html=html.replace('</body>',tag+'\n</body>');
-  fs.writeFileSync(path,html);
-  console.log('Injected schedule.js into public/index.html');
-}else{
-  console.log('schedule.js already injected');
-}
+html=html.split(tag).join('');
+const pos=html.lastIndexOf('</body>');
+if(pos<0) throw new Error('public/index.html has no </body> tag');
+html=html.slice(0,pos)+tag+'\n'+html.slice(pos);
+fs.writeFileSync(path,html);
+const tail=html.slice(-300);
+if(!tail.includes(tag)) throw new Error('schedule.js was not wired at the real end of body');
+console.log('Wired schedule.js before the final </body> tag');
