@@ -1,11 +1,5 @@
 name: Verify live schedule
 on:
-  push:
-    branches: [main]
-    paths:
-      - public/index.html
-      - public/schedule.js
-      - .github/workflows/verify-live-schedule.yml
   workflow_dispatch:
 jobs:
   verify-live:
